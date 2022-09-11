@@ -6,21 +6,6 @@
 // sudo python3 setup.py install
 // python3
 
-// static PyObject *parseOneTownPy(PyObject *self, PyObject *args) {
-//    char *in;
-//    char *out;
-//    int countTown;
-
-
-//    if (!PyArg_ParseTuple(args, "ssi", &in, &out, &countTown)) 
-//    {
-//       return NULL;
-//    }
-
-//    parseOneTownNoIndex(in, out, countTown);
-//    return Py_BuildValue("s", "Hello, Python extensions!!");
-// };
-
 static PyObject *parseOneTwTownPy(PyObject *self, PyObject *args) {
    char *in;
    char *out;

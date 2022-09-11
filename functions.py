@@ -1,6 +1,5 @@
 import vrp_c
 import gurobi_functions as gur_f
-from preprocessing_data import *
 from gurobipy import Model, GRB, quicksum
 from datetime import datetime
 import os

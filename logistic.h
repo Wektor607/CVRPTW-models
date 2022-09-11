@@ -3,7 +3,6 @@
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
-#include "CharCanvas.h"
 #include "distanceMatrix.h"
 #include "parameters.h"
 #include <limits.h>
@@ -133,23 +132,6 @@ double getDistance(const town town1, const town town2)
 double getDistanceE(const town town1, const town town2)
 {
 	return sqrt(pow(town2.x - town1.x, 2) + pow(town2.y - town1.y, 2));
-}
-
-
-void printAllMap(int counttown, const town *towns)
-{
-	CharCanvas c;
-	initCharCanvasWithSymbol(&c, 50, 50, '`');
-	for(int i = 0; i < counttown; i++)
-	{
-		if(towns[i].weight != 0) {
-			pointAtCharCanvas(&c, makeVector2d((int)((towns[i].x - 43) * 50), (int)((towns[i].y - 76) * 50)), '0' + towns[i].name);
-		} else {
-			pointAtCharCanvas(&c, makeVector2d((int)((towns[i].x - 43) * 50), (int)((towns[i].y - 76) * 50)), '@');
-		}
-	}
-	printCharCanvas(&c);
-	finalizeCharCanvas(&c);
 }
 
 void swap(town *town1, town *town2)
