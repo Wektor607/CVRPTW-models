@@ -71,86 +71,6 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    return sub[idx];
 }
 
-// #define CVRP(algfunc) \
-//    srand(time(NULL)); \
-//    FILE *out = fopen(fileout, "w");\
-//    FILE *res_distance = fopen("res_distance.txt", "w");\
-// 	if(out == NULL) {exit(-1);}\
-//    town towns[countTowns]; \
-//    halfmatrix m; \
-//    readOneTownByBinaryNoIndex(towns, &m, in);\
-//    for(int c = 0; c < countTowns; c++) {\
-//       if(towns[c].weight > maxCapacity) \
-//       {\
-//          towns[c] = zerotown; \
-//          printf("c: %d\n", c);\
-//       }\
-//    }\
-//    town *sub = (town*)malloc((countTowns - 1) * sizeof(town));\
-//    int w = 0;\
-//    town t;\
-//    for(int i = 1; i < countTowns; i++) {\
-//       t = getTownByName(i, countTowns, towns);\
-//       if(t.name == -1){\
-//          printf("Error town: %d\n", t.name);\
-//          continue;\
-//       }\
-//       sub[w] = t;\
-//       w++;\
-//    }\
-//    int newCountTowns = w;\
-//    sub = realloc(sub, newCountTowns * sizeof(town));\
-//    town temp[countTowns];\
-//    temp[0] = towns[0];\
-//    double distanceInTourBest = -1.0, distanceInTourNew = 0.0, noneOptimalDistance = 0.0;\
-//    double runtime = clock();\
-//    for(int i = 0; i < countTasks;i++) {\
-//       doShuffle(newCountTowns, sub);\
-//       int cap = 0, l = 0;\
-//       for(int g = 0; g < newCountTowns; g++) {\
-//          if(cap + sub[g].weight <= maxCapacity) {\
-//             temp[l] = sub[g];\
-//             l++;\
-//             cap += sub[g].weight;\
-//          }\
-//          else {\
-//             noneOptimalDistance += subtourdistance(temp, l, &m);\
-//             if(l >= 3) {\
-//                distanceInTourNew += algfunc(temp, l, &m);\
-//                write_cvrp_subtour(res_distance, temp, l); \
-//             }\
-//             else {\
-//                distanceInTourNew += subtourdistance(temp, l, &m);\
-//                write_cvrp_subtour(res_distance, temp, l); \
-//             }\
-//             cap = 0; l = 0; g--; }\
-//          }\
-//       noneOptimalDistance += subtourdistance(temp, l, &m);\
-//       if(l >= 3) {\
-//          distanceInTourNew += algfunc(temp, l, &m);\
-//          write_cvrp_subtour(res_distance, temp, l); \
-//       }\
-//       else {\
-//          distanceInTourNew += subtourdistance(temp, l, &m);\
-//          write_cvrp_subtour(res_distance, temp, l); \
-//       }\
-//       if(distanceInTourBest == -1.0) {\
-//          fprintf(out, "%lf\t%lf\n", noneOptimalDistance, 0.0);\
-//          distanceInTourBest = noneOptimalDistance;}\
-//       if(distanceInTourNew < distanceInTourBest) {\
-//          distanceInTourBest = distanceInTourNew;\
-//          write_cvrp_end_tour(res_distance, distanceInTourBest);\
-//          fprintf(out, "%lf\t%lf\n", distanceInTourBest, (clock() - runtime) / CLOCKS_PER_SEC); }\
-//       else {\
-//          write_cvrp_end_tour(res_distance, -1);\
-//       } \
-//       distanceInTourNew = 0.0; }\
-//    fprintf(out, "%lf\t%lf\n", distanceInTourBest, (clock() - runtime) / CLOCKS_PER_SEC);\
-//    fputc('\n', out);\
-//    free(sub); \
-//    fclose(out); \
-//    fclose(res_distance); \
-//    finalizehalfmatrix(&m);
 
 #define CVRPTW(algfunc) \
    srand(time(NULL)); \
@@ -333,19 +253,6 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    }
    countTowns = tcountTown;
 
-   // if(strcmp(algname, "cvrp_lkh_2opt") == 0) {
-   //    char fileout[] = "LKH_2opt_CVRP_result.txt";
-   //    CVRP(lkh2opt);
-   // } 
-   // else if(strcmp(algname, "cvrp_lkh_3opt") == 0) {
-   //    char fileout[] = "LKH_3opt_CVRP_result.txt";
-   //    CVRP(lkh3opt);
-   // } 
-   // else if(strcmp(algname, "cvrp_sa") == 0) {
-   //    char fileout[] = "SA_CVRP_result.txt";
-   //    CVRP(sa);
-   // } 
-   // else 
    if(strcmp(algname, "cvrptw_lkh_2opt") == 0) {
       char fileout[] = "LKH_2opt_CVRPTW_result.txt";
       CVRPTW(lkh2optTw); 
