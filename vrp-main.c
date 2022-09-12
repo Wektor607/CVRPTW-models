@@ -71,9 +71,10 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    double timer = town0.mTimeStart;\
    double endTime = town0.mTimeEnd;\
    printTwTownList(towns, tcountTown);\
-   for(int c = 0; c < countTowns; c++)\
+   double timeDepoToTown[countTowns];\
+   for(int c = 1; c < countTowns; c++)\
    {\
-      
+      timeDepoToTown[c] = getByTown(&m, 0, towns[c].t.name);\
    }\
    for(int c = 0; c < countTowns; c++)\
    {\
