@@ -3,7 +3,8 @@
 //#define countTowns 21
 
 #define speed 60.0 //km/h
-#define kmhToMM (3600.0 / speed) // перевод км в секунды с учетом средней скорости
+#define TimeToDist (3600.0 * speed) //
+#define KmToSeconds (3600.0 / speed) // перевод км в секунды с учетом средней скорости
 
 // for cars
 //#define maxCapacity 30

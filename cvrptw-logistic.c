@@ -480,7 +480,7 @@ void parseOneTwTown(const char pathFile[], const char newFileName[], int index)
     {
         for(int j = 0; j < countTowns-i-1; j++)
         {
-            pointAthalfmatrix(&m, i, j, getDistanceE(getTwTownByName(i, countTowns, towns).t, getTwTownByName(m.width-j, countTowns, towns).t) * kmhToMM);
+            pointAthalfmatrix(&m, i, j, getDistanceE(getTwTownByName(i, countTowns, towns).t, getTwTownByName(m.width-j, countTowns, towns).t) * KmToSeconds);
         }
     }
     printtownmatrix(&m);
@@ -539,7 +539,7 @@ void parseOneTwTownNoIndex(const char pathFile[], const char newFileName[], int 
     {
         for(int j = 0; j < tcountTowns-i-1; j++)
         {
-            pointAthalfmatrix(&m, i, j, getDistanceE(getTwTownByName(i, tcountTowns, towns).t, getTwTownByName(m.width-j, tcountTowns, towns).t) * kmhToMM);
+            pointAthalfmatrix(&m, i, j, getDistanceE(getTwTownByName(i, tcountTowns, towns).t, getTwTownByName(m.width-j, tcountTowns, towns).t) * KmToSeconds);
         }
     }
     printtownmatrix(&m);

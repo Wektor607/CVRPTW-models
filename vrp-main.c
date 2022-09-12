@@ -73,6 +73,10 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    printTwTownList(towns, tcountTown);\
    for(int c = 0; c < countTowns; c++)\
    {\
+      
+   }\
+   for(int c = 0; c < countTowns; c++)\
+   {\
       if((town0.mTimeStart < town0.mTimeEnd && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeEnd > towns[c].mTimeStart) || \
            (town0.mTimeEnd < towns[c].mTimeStart && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > town0.mTimeStart))\
       {\
@@ -129,7 +133,6 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    putchar('\n');\
    printtwtown(sub[1]);\
    twtown temp[newCountTowns];\
-   /*temp[0] = towns[0];*/\
    double td;\
    double distanceInTourBest = -1.0, distanceInTourNew = 0.0;\
    double runtime = clock();\
@@ -206,20 +209,20 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
          }\
       }\
       if(distanceInTourBest == -1.0) {\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourNew - serviseTime) / 3600 * speed, 0.0);\
+         fprintf(out, "%lf\t%lf\n", (distanceInTourNew - serviseTime) / TimeToDist, 0.0);\
          distanceInTourBest = distanceInTourNew;   } \
       if(distanceInTourNew < distanceInTourBest) {\
          distanceInTourBest = distanceInTourNew;\
          printf("\nAll days: %d\n", days); \
-         write_cvrptw_end_tour(res_distance, (distanceInTourBest - serviseTime) / 3600 * speed);\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime) / 3600 * speed, (clock() - runtime) / CLOCKS_PER_SEC);\
+         write_cvrptw_end_tour(res_distance, (distanceInTourBest - serviseTime) / TimeToDist);\
+         fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime) / TimeToDist, (clock() - runtime) / CLOCKS_PER_SEC);\
       }\
       else {\
          write_cvrptw_end_tour(res_distance, -1);\
       }\
       distanceInTourNew = 0.0;\
    }\
-   fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime) / 3600 * speed, (clock() - runtime) / CLOCKS_PER_SEC);\
+   fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime) / TimeToDist, (clock() - runtime) / CLOCKS_PER_SEC);\
    fputc('\n', out);\
    free(sub);\
    free(towns);\

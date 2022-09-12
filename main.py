@@ -29,7 +29,7 @@ def main():
 
     print('which method do you want to use to optimize the routse for CVRPTW: SA or LKH or Gurobi?')
     method = input()
-    idx = 5
+    idx = 0
     if(method == 'SA'):
         for i in lst:
             with open(i) as f:
