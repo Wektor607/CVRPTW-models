@@ -140,17 +140,16 @@ class CVRPTW (VRP):
         # Создаём словарь весов
         q                    = {i: capacity[i] for i in clients}
         q[len(arr_data) - 1] = 0 # добавляем вес в депо в конец словаря
-        print(int(arr_data[0][3].split('-')[0].split(':')[1]))
         # Задаём словари временных ограничений на посещение
 
         # Минимальное время прибытия + перевод в минуты
-        start     = {i: (int(arr_data[i][3].split('-')[0].split(':')[0]) + int(arr_data[0][3].split('-')[0].split(':')[1]) )* 60 for i in clients}
-        start_lst = {len(arr_data) - 1: (int(arr_data[len(arr_data) - 1][3].split('-')[0].split(':')[0]) + int(arr_data[len(arr_data) - 1][3].split('-')[0].split(':')[1]))* 60}
+        start     = {i: int(arr_data[i][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[i][3].split('-')[0].split(':')[1]) for i in clients}
+        start_lst = {len(arr_data) - 1: int(arr_data[len(arr_data) - 1][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[len(arr_data) - 1][3].split('-')[0].split(':')[1])}
         start_lst.update(start)
         
         # Максимальное время прибытия + перевод в минуты
-        finish     = {i: (int(arr_data[i][3].split('-')[1].split(':')[0]) + int(arr_data[i][3].split('-')[1].split(':')[1])) * 60 for i in clients}
-        finish_lst = {len(arr_data) - 1: (int(arr_data[len(arr_data) - 1][3].split('-')[1].split(':')[0]) + int(arr_data[len(arr_data) - 1][3].split('-')[1].split(':')[1]))* 60}
+        finish     = {i: int(arr_data[i][3].split('-')[1].split(':')[0])  * 60 + int(arr_data[i][3].split('-')[1].split(':')[1]) for i in clients}
+        finish_lst = {len(arr_data) - 1: int(arr_data[len(arr_data) - 1][3].split('-')[1].split(':')[0])  * 60 + int(arr_data[len(arr_data) - 1][3].split('-')[1].split(':')[1])}
         finish_lst.update(finish)
 
         # Задаём словарь времени обслуживания каждого клиента (в минутах)
