@@ -3,7 +3,7 @@
 //#define countTowns 21
 
 #define speed 60.0 //km/h
-#define TimeToDist (3600.0 * speed) //
+#define TimeToDist 3600.0 * speed //
 #define KmToSeconds (3600.0 / speed) // перевод км в секунды с учетом средней скорости
 
 // for cars
@@ -40,7 +40,7 @@ char fileout[] = "LKH_2opt_cvrp_result_100.txt";
 // int maxCapacity = 50;
 //for sa
 long double tmax = 1000;
-long double tmin = 500;
+long double tmin = 1;
 
 //parameters-bin
 long long countTowns = 101;

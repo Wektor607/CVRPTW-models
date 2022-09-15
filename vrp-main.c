@@ -44,7 +44,12 @@ void write_cvrptw_subtour(FILE* res_f, twtown* sub, int len_sub)
 
 void write_cvrptw_end_tour(FILE* res_f, double distanceInTour)
 {
-   fprintf(res_f, "@%lf@", distanceInTour);
+   if(distanceInTour == -1)
+   {
+      fprintf(res_f, "@%lf@\n", distanceInTour);
+   } else {
+      fprintf(res_f, "@%lf@\n", distanceInTour);
+   }
 }
 
 twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
@@ -81,8 +86,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    for(int c = 0; c < countTowns; c++)\
    {\
       if((town0.mTimeStart < town0.mTimeEnd && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeEnd > towns[c].mTimeStart) || \
-           (town0.mTimeEnd < towns[c].mTimeStart && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > town0.mTimeStart)\
-           || (2 * timeDepoToTown[c] + towns[c].mTimeService > abs(towns[c].mTimeEnd - towns[c].mTimeStart)))\
+           (town0.mTimeEnd < towns[c].mTimeStart && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > town0.mTimeStart))\
       {\
          towns[c].t = zerotown;\
       }\
@@ -107,6 +111,9 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
          continue;\
       }\
       if(towns[c].t.weight > maxCapacity || (towns[c].mTimeStart - towns[c].mTimeEnd) == 0) {\
+         towns[c].t = zerotown;\
+      }\
+      if(timeDepoToTown[c] + towns[c].mTimeService > abs(towns[c].mTimeEnd - towns[c].mTimeStart)){\
          towns[c].t = zerotown;\
       }\
       if(town0.mTimeStart - town0.mTimeEnd == 0)\
@@ -210,20 +217,20 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
          }\
       }\
       if(distanceInTourBest == -1.0) {\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourNew - serviseTime) / TimeToDist, 0.0);\
+         fprintf(out, "%lf\t%lf\n", (distanceInTourNew - serviseTime), 0.0);\
          distanceInTourBest = distanceInTourNew;   } \
       if(distanceInTourNew < distanceInTourBest) {\
          distanceInTourBest = distanceInTourNew;\
          printf("\nAll days: %d\n", days); \
-         write_cvrptw_end_tour(res_distance, (distanceInTourBest - serviseTime) / TimeToDist);\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime) / TimeToDist, (clock() - runtime) / CLOCKS_PER_SEC);\
+         write_cvrptw_end_tour(res_distance, (distanceInTourBest - serviseTime));\
+         fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime), (clock() - runtime) / CLOCKS_PER_SEC);\
       }\
       else {\
          write_cvrptw_end_tour(res_distance, -1);\
       }\
       distanceInTourNew = 0.0;\
    }\
-   fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime) / TimeToDist, (clock() - runtime) / CLOCKS_PER_SEC);\
+   fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime), (clock() - runtime) / CLOCKS_PER_SEC);\
    fputc('\n', out);\
    free(sub);\
    free(towns);\
