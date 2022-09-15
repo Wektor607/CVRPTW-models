@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import numpy as np
 import pandas as pd
+import math
 
 class VRP:
     """
@@ -99,17 +100,17 @@ class CVRPTW (VRP):
             1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """ 
-        data_file    = pd.read_csv(self.name_file, sep="\t", error_bad_lines=True)
+        data_file = pd.read_csv(self.name_file, sep="\t", error_bad_lines=True)
 
         # Запишем все данные в виде массива списков, где каждый список это строка с значениями конкретных столбцов
-        arr_data     = data_file.values
+        arr_data  = data_file.values
 
         # Задаём объем грузовика
-        Q_max = self.capacity # Для 20:500, 50:750, 100:1000
+        Q_max     = self.capacity # Для 20:500, 50:750, 100:1000
 
         # Создаём списки координат и грузов для каждого клиента
-        xc = np.zeros(len(arr_data))
-        yc = np.zeros(len(arr_data))
+        xc       = np.zeros(len(arr_data))
+        yc       = np.zeros(len(arr_data))
         capacity = np.zeros(len(arr_data))
         w = 0
         for i in range(len(arr_data)):
@@ -119,27 +120,25 @@ class CVRPTW (VRP):
                 capacity[w] = arr_data[i][2]
                 w += 1
 
-        # Убираем координаты и вес депо
-        depo_xc = xc[w-1]
-        depo_yc = yc[w-1]
-        xc = xc[:w-1]
-        yc = yc[:w-1]
+        # Убираем вес депо и исключаем депо из списка клиентов
         capacity = capacity[:w-1]
-
-        # Исключаем депо из списка клиентов
         w = w - 1
+
         # Создаём список клиентов
         clients  = []
         for i in range(0, w):
             clients.append(i)
+        
         # Cоздаем список клиентов вместе с депо. Депо обозначено, как последний элемент в arr_data
         nodes   = [len(arr_data) - 1] + clients
+        
         # Создаём список всевохможных пар между клиентами, включая депо
         paires  = [(i, j) for i in nodes for j in nodes if i != j]
 
         # Создаём словарь весов
         q                    = {i: capacity[i] for i in clients}
         q[len(arr_data) - 1] = 0 # добавляем вес в депо в конец словаря
+        
         # Задаём словари временных ограничений на посещение
 
         # Минимальное время прибытия + перевод в минуты
@@ -153,7 +152,8 @@ class CVRPTW (VRP):
         finish_lst.update(finish)
 
         # Задаём словарь времени обслуживания каждого клиента (в минутах)
-        service                    = {n: int(arr_data[n][4]) for n in clients}
+        service    = {n: int(arr_data[n][4]) for n in clients}
+        
         # Добавляем в словарь время обслуживания в депо
         service[len(arr_data) - 1] = 0
 
@@ -162,31 +162,18 @@ class CVRPTW (VRP):
 
         # Задаем словарь всевозможных расстояний между всеми городами, включая депо
         distance  = {}
-        arr_dist  = pd.read_csv(self.name_file[ :self.name_file.rfind('.csv')] + '_dist.csv', sep=",", error_bad_lines=False)
         for i,j in paires:    
-            if(i == len(arr_data) - 1 and j <= max(paires)[1]):
-                for k in range(len(arr_dist)):
-                    if(depo_xc == arr_dist.values[k][0] and depo_yc == arr_dist.values[k][1] and xc[j] == arr_dist.values[k][2] and yc[j] == arr_dist.values[k][3]):
-                        distance[(i,j)] = arr_dist.values[k][4]
-                        break
-
-            elif(i <= max(paires)[1] and j == len(arr_data) - 1):
-                for k in range(len(arr_dist)):
-                    if(xc[i] == arr_dist.values[k][0] and yc[i] == arr_dist.values[k][1] and depo_xc == arr_dist.values[k][2] and depo_yc == arr_dist.values[k][3]):
-                        distance[(i,j)] = arr_dist.values[k][4]
-                        break
-
-            else:
-                for k in range(len(arr_dist)):
-                    if(xc[i] == arr_dist.values[k][0] and yc[i] == arr_dist.values[k][1] and xc[j] == arr_dist.values[k][2] and yc[j] == arr_dist.values[k][3]):
-                        distance[(i,j)] = arr_dist.values[k][4]
-                        break
+            distance[(i,j)] = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2) * 100
         
         #Список транспортных средств
-        vehicles = [i for i in range(1, 3)]
+        
+        #TODO: Добавить, как передаваемый параметр
+
+        count_vehicles = 10 # 20, 50: 10, 100, 200: 20
+        vehicles = [i for i in range(1, count_vehicles)]
 
         #Словарь вместимости транспортных средств
-        Q        = {i: Q_max for i in range(1, 3)}
+        Q        = {i: Q_max for i in range(1, count_vehicles)}
 
         # Задаем словарь времени, требуемое для перемещение из одного города в другой
         # Время выражено в МИНУТАХ
@@ -210,6 +197,8 @@ class CVRPTW (VRP):
 
         #Ограничения
 
+        #TODO: Дописать комментарии к ограничениям
+
         # Прибытие и отъезд
         model.addConstrs(quicksum(x[len(arr_data) - 1, j, k] for j in clients) <= 1 for k in vehicles)
         model.addConstrs(quicksum(x[i, len(arr_data) - 1, k] for i in clients) <= 1 for k in vehicles)
@@ -229,7 +218,7 @@ class CVRPTW (VRP):
         model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
         # Optimizing the model
-        model.Params.TimeLimit = 100  # seconds
+        model.Params.TimeLimit = 600  # seconds
         model.Params.LogFile= f'result_Branch_and_Cut_CVRPTW_{w}.txt'
         model.optimize()
         if model.status == GRB.OPTIMAL:
@@ -242,4 +231,17 @@ class CVRPTW (VRP):
         else:
             print('5.Optimization ended with status %d' % model.status)
             print('Optimal cost: %g' % model.objVal)
+        
+        if(w == 20):
+            with open(f"20TownsResult/Result.csv", "a") as f:
+                f.write(self.name_file + ' ' + str(model.objVal) + ' ' + str(model.Runtime) + '\n')
+            f.close()
+        elif(w == 50):
+            with open(f"50TownsResult/Result.csv", "a") as f:
+                f.write(self.name_file + ' ' + str(model.objVal) + ' ' + str(model.Runtime) + '\n')
+            f.close()
+        elif(w == 100):
+            with open(f"100TownsResult/Result.csv", "a") as f:
+                f.write(self.name_file + ' ' + str(model.objVal) + ' ' + str(model.Runtime) + '\n')
+            f.close()
 
