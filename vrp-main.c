@@ -72,17 +72,19 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    double endTime = town0.mTimeEnd;\
    printTwTownList(towns, tcountTown);\
    double timeDepoToTown[countTowns];\
-   for(int c = 1; c < countTowns; c++)\
+   printf("\n");\
+   for(int c = 0; c < countTowns; c++)\
    {\
       timeDepoToTown[c] = getByTown(&m, 0, towns[c].t.name);\
+      printf("%d: %lf and %lf and %lf\n", c, towns[c].mTimeStart, towns[c].mTimeEnd, timeDepoToTown[c]);\
    }\
    for(int c = 0; c < countTowns; c++)\
    {\
       if((town0.mTimeStart < town0.mTimeEnd && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeEnd > towns[c].mTimeStart) || \
-           (town0.mTimeEnd < towns[c].mTimeStart && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > town0.mTimeStart))\
+           (town0.mTimeEnd < towns[c].mTimeStart && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > town0.mTimeStart)\
+           || (2 * timeDepoToTown[c] + towns[c].mTimeService > abs(towns[c].mTimeEnd - towns[c].mTimeStart)))\
       {\
          towns[c].t = zerotown;\
-         printf("c: %d\n", c);\
       }\
       else if((town0.mTimeStart > towns[c].mTimeStart && town0.mTimeStart < towns[c].mTimeEnd && town0.mTimeEnd > towns[c].mTimeEnd) || \
          (towns[c].mTimeStart < town0.mTimeStart && towns[c].mTimeEnd < town0.mTimeEnd && town0.mTimeStart > town0.mTimeEnd))\
@@ -105,9 +107,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
          continue;\
       }\
       if(towns[c].t.weight > maxCapacity || (towns[c].mTimeStart - towns[c].mTimeEnd) == 0) {\
-         printf("%d", towns[c].t.weight);\
          towns[c].t = zerotown;\
-         printf("c: %d\n", c);\
       }\
       if(town0.mTimeStart - town0.mTimeEnd == 0)\
       {\
@@ -121,7 +121,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    twtown t;\
    for(int i = 1; i < countTowns; i++){\
       t = getTwTownByName(i, countTowns, towns);\
-      if(t.t.name == -1) {printf("Error town: %d", t.t.name); continue;}\
+      if(t.t.name == -1) {printf("Error town: %d\n", i); continue;}\
       sub[w] = t;\
       w++;\
    }\

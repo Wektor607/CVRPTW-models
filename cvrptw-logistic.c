@@ -75,8 +75,12 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
     double localtimer = timer;
 
     localtimer += getByTown(m, 0, sub[0].t.name) + sub[0].mTimeService;
+    // printf("sub[0].mTimeService: %d\n", sub[0].mTimeService);
     if(!(localtimer >= sub[0].mTimeStart && localtimer <= sub[0].mTimeEnd && localtimer <= endTime)) 
     {
+        // printf("localtimer >= sub[0].mTimeStart: %d\n", localtimer >= sub[0].mTimeStart);
+        // printf("localtimer <= sub[0].mTimeEnd: %d\n", localtimer <= sub[0].mTimeEnd);
+        // printf("localtimer <= endTime: %d\n", localtimer <= endTime);
         return -1;
     }
 
@@ -439,7 +443,7 @@ int read_file_tw(const char* name_file, twtown *towns, int counttowns)
     for(int i = counttowns-1; i >= 0 ; i--)
     {
         fscanf(in, "%lf\t%lf\t%lf\t%d:%d-%d:%d\t%lf\n", &x, &y, &cap, &hst, &mst, &het, &met, &st);
-        towns[i] = maketwtown(maketown(i, x, y, cap), hst * 60 + mst, het * 60 + met, st);
+        towns[i] = maketwtown(maketown(i, x, y, cap), (hst * 60 + mst) * 60, (het * 60 + met) * 60, st * 60);
     }
     fclose(in);
     return 0;
