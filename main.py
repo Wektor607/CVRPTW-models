@@ -4,7 +4,7 @@ from datetime import datetime
 
 def main():
     lst = []
-    for i in range(1, 101):
+    for i in range(1, 2):
         lst.append(f"20/Example{i}.csv")
     
     print('If you want open documentation write YES else press Enter')
@@ -36,7 +36,7 @@ def main():
             a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.sa())
-            with open(f'SA_CVRPTW_result{count_towns-1}.txt', 'r') as res_file:
+            with open(f'SA_CVRPTW_result.txt', 'r') as res_file:
                 data = res_file.read()
                 with open(f'SA_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                     write_file.write(data)
@@ -69,7 +69,7 @@ def main():
             a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.lkh(name_opt))
-            with open(f'LKH_{name_opt[3:]}_CVRPTW_result{count_towns-1}.txt', 'r') as res_file:
+            with open(f'LKH_{name_opt[3:]}_CVRPTW_result.txt', 'r') as res_file:
                 data = res_file.read()
                 with open(f'LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                     write_file.write(data)

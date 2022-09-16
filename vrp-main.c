@@ -98,9 +98,6 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
       if(towns[c].t.weight > maxCapacity || (towns[c].mTimeStart - towns[c].mTimeEnd) == 0) {\
          towns[c].t = zerotown;\
       }\
-      if(timeDepoToTown[c] + towns[c].mTimeService > abs(towns[c].mTimeEnd - towns[c].mTimeStart)){\
-         towns[c].t = zerotown;\
-      }\
       if(town0.mTimeStart - town0.mTimeEnd == 0)\
       {\
          printf("Impossible to optimize tour");\
