@@ -3,25 +3,10 @@ from collections import deque
 from datetime import datetime
 
 def main():
-    lst = [
-        # "20/20201025_141430.csv",
-        "20/Example1.csv"
-        # "20/20201025_142105.csv", 
-        # "20/20201101_150113.csv", 
-        # "20/20201115_132354.csv", 
-        # "20/20201116_232344.csv", 
-        # "20/20201224_222701.csv", 
-        # "20/20201225_204810.csv", 
-
-        # "20/20201228_230627.csv", 
-        # "20/20200925_093755.csv", 
-        # "20/20200927_100114.csv", 
-        # "20/20200928_114457.csv", 
-        # "20/20200930_163005.csv", 
-        # "20/20201005_160200.csv", 
-        # "20/20201008_165020.csv", 
-        # "20/20201014_154416.csv" 
-    ]
+    lst = []
+    for i in range(1, 101):
+        lst.append(f"20/Example{i}.csv")
+    
     print('If you want open documentation write YES else press Enter')
     doc = input()
     if(doc == 'YES'):
@@ -51,9 +36,9 @@ def main():
             a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.sa())
-            with open(f'SA_CVRPTW_result.txt', 'r') as res_file:
+            with open(f'SA_CVRPTW_result{count_towns-1}.txt', 'r') as res_file:
                 data = res_file.read()
-                with open('SA_RES_CVRPTW.txt', 'a') as write_file:
+                with open(f'SA_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                     write_file.write(data)
     elif(method == 'LKH'):
         while(1):
@@ -69,7 +54,7 @@ def main():
                 count_towns = sum(1 for _ in f) - 1
             with open(i) as f:
                 [last_line] = deque(f, maxlen=1)
-                last_line = last_line.split('\t')[3].split('-')                
+                last_line = last_line.split('\t')[3].split('-')
             if(count_towns == 21):
                 max_capacity = 500
                 iteretions = 700
@@ -84,9 +69,9 @@ def main():
             a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.lkh(name_opt))
-            with open(f'LKH_{name_opt[3:]}_CVRPTW_result.txt', 'r') as res_file:
+            with open(f'LKH_{name_opt[3:]}_CVRPTW_result{count_towns-1}.txt', 'r') as res_file:
                 data = res_file.read()
-                with open('LKH_RES_CVRPTW.txt', 'a') as write_file:
+                with open(f'LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                     write_file.write(data)
     else:
         for i in lst:
@@ -107,9 +92,8 @@ def main():
             a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, count_vehicles) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.gurobi())
-        p = count_towns - 1
-        infile = open(f'result_Branch_and_Cut_CVRPTW_{p}.txt',  'r')
-        outfile = open(f'result_Gurobi_{p}_CVRPTW.txt',  'w')
+        infile = open(f'result_Branch_and_Cut_CVRPTW_{count_towns-1}.txt',  'r')
+        outfile = open(f'result_Gurobi_{count_towns-1}_CVRPTW.txt',  'w')
 
         copy = False
         prev_content = '10000000000000000000000000000000000000000000'

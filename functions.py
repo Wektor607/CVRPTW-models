@@ -164,7 +164,7 @@ class CVRPTW (VRP):
         # Задаем словарь всевозможных расстояний между всеми городами, включая депо
         distance  = {}
         for i,j in paires:    
-            distance[(i,j)] = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2) * 100
+            distance[(i,j)] = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2) / 60 * 3600
         
         #Список транспортных средств
         
@@ -231,15 +231,15 @@ class CVRPTW (VRP):
             print('Optimal cost: %g' % model.objVal)
         
         if(w == 20):
-            with open(f"20TownsResult/Result.csv", "a") as f:
+            with open(f"Result_GUROBI_20.csv", "a") as f:
                 f.write(self.name_file + ' ' + str(model.objVal) + ' ' + str(model.Runtime) + '\n')
             f.close()
         elif(w == 50):
-            with open(f"50TownsResult/Result.csv", "a") as f:
+            with open(f"Result_GUROBI_50.csv", "a") as f:
                 f.write(self.name_file + ' ' + str(model.objVal) + ' ' + str(model.Runtime) + '\n')
             f.close()
         elif(w == 100):
-            with open(f"100TownsResult/Result.csv", "a") as f:
+            with open(f"Result_GUROBI_100.csv", "a") as f:
                 f.write(self.name_file + ' ' + str(model.objVal) + ' ' + str(model.Runtime) + '\n')
             f.close()
 
