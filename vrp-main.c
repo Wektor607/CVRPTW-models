@@ -19,20 +19,6 @@ static PyObject *parseOneTwTownPy(PyObject *self, PyObject *args) {
    return Py_BuildValue("s", "Hello, Python extensions!!");
 };
 
-void write_cvrp_subtour(FILE* res_f,town* sub, int len_sub)
-{
-   for(int i = 0; i < len_sub-1; i++)
-   {
-      fprintf(res_f, "%d ", sub[i].name);
-   }
-   fprintf(res_f, "%d#", sub[len_sub-1].name);
-}
-
-void write_cvrp_end_tour(FILE* res_f, double distanceInTour)
-{
-   fprintf(res_f, "@%lf@", distanceInTour);
-}
-
 void write_cvrptw_subtour(FILE* res_f, twtown* sub, int len_sub)
 {
    for(int i = 0; i < len_sub-1; i++)
@@ -60,7 +46,6 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    }
    return sub[idx];
 }
-
 
 #define CVRPTW(algfunc) \
    srand(time(NULL)); \
