@@ -95,13 +95,16 @@ def main():
             if(count_towns == 21):
                 max_capacity = 500
                 iteretions = 700
+                count_vehicles = 10
             elif(count_towns == 51):
                 max_capacity = 750
                 iteretions = 500
+                count_vehicles = 10
             elif(count_towns == 101):
                 max_capacity = 1000
                 iteretions = 300
-            a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity) #TODO: некоторые параметры брать автоматически из файла
+                count_vehicles = 20
+            a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, count_vehicles) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.gurobi())
         p = count_towns - 1

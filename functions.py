@@ -44,12 +44,13 @@ class CVRPTW (VRP):
     """
     Это основной класс для решения задачи CVRPTW
     """
-    def __init__ (self,  name_file, path_folder, count_towns, countTasks: int = 10000, capacity: int = 30, time_start: int = 0, time_end: int = 0):
+    def __init__ (self,  name_file, path_folder, count_towns, countTasks: int = 10000, capacity: int = 30, time_start: int = 0, time_end: int = 0, count_vehicles: int = 10):
         super().__init__(name_file, path_folder, count_towns, countTasks)
         self.capacity = capacity
         self.countTasks = countTasks
         self.time_start = time_start
         self.time_end   = time_end
+        self.count_vehicles = count_vehicles # 20, 50: 10, 100, 200: 20
     
     #TODO: ограничительная функция на все параметры
     
@@ -167,13 +168,10 @@ class CVRPTW (VRP):
         
         #Список транспортных средств
         
-        #TODO: Добавить, как передаваемый параметр
-
-        count_vehicles = 10 # 20, 50: 10, 100, 200: 20
-        vehicles = [i for i in range(1, count_vehicles)]
+        vehicles = [i for i in range(1, self.count_vehicles)]
 
         #Словарь вместимости транспортных средств
-        Q        = {i: Q_max for i in range(1, count_vehicles)}
+        Q        = {i: Q_max for i in range(1, self.count_vehicles)}
 
         # Задаем словарь времени, требуемое для перемещение из одного города в другой
         # Время выражено в МИНУТАХ
