@@ -33,7 +33,7 @@ def main():
                 iteretions = 300
             start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
             end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-            a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+            a = CVRPTW('SA', i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.sa())
             with open(f'SA_CVRPTW_result.txt', 'r') as res_file:
@@ -66,7 +66,7 @@ def main():
                 iteretions = 300
             start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
             end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-            a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+            a = CVRPTW('LKH', i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.lkh(name_opt))
             with open(f'LKH_{name_opt[3:]}_CVRPTW_result.txt', 'r') as res_file:
@@ -89,41 +89,8 @@ def main():
                 max_capacity = 1000
                 iteretions = 300
                 count_vehicles = 20
-            a = CVRPTW(i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, count_vehicles) #TODO: некоторые параметры брать автоматически из файла
+            a = CVRPTW('Gurobi', i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
             idx += 1
-            print(a.gurobi())
-        infile = open(f'result_Branch_and_Cut_CVRPTW_{count_towns-1}.txt',  'r')
-        outfile = open(f'result_Gurobi_{count_towns-1}_CVRPTW.txt',  'w')
-
-        copy = False
-        prev_content = '10000000000000000000000000000000000000000000'
-        for line in infile:
-            if 'Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time' in line:
-                copy = True
-            elif 'Cutting planes:' in line:
-                copy = False
-            elif copy:
-                content = line.split()
-                new_line = ''
-                if len(content) == 10:
-                    if(float(content[5]) > float(prev_content)):
-                        outfile.write('\n')
-                    new_line += content[5]
-                    prev_content = content[5]
-                elif len(content) == 8:
-                    if(float(content[3]) > float(prev_content)):
-                        outfile.write('\n')
-                    new_line += content[3]
-                    prev_content = content[3]
-
-                if len(content) != 0:
-                    new_line += '\t' + content[-1] 
-                    new_line = new_line[:-1] + '\n'
-                    if(new_line[0] != '\t'):
-                        outfile.write(new_line)
-        infile.close()
-        os.remove(f'result_Branch_and_Cut_CVRPTW_{p}.txt')
-        outfile.close()
             
 if __name__ == "__main__":
     main()

@@ -15,7 +15,8 @@ class VRP:
         :type int count_towns: Количество городов;
         :type int countTasks:  Количество итераций для решения одной оптимизационной задачи.
     """ 
-    def __init__ (self, name_file, path_folder, count_towns, countTasks: int = 10000):
+    def __init__ (self, alg_name, name_file, path_folder, count_towns, countTasks: int = 10000):
+        self.alg_name    = alg_name
         self.name_file   = name_file 
         self.path_folder = path_folder 
         self.count_towns = count_towns
@@ -54,8 +55,8 @@ class CVRPTW (VRP):
     """
     Это основной класс для решения задачи CVRPTW
     """
-    def __init__ (self,  name_file, path_folder, count_towns, countTasks: int = 10000, capacity: int = 30, time_start: int = 0, time_end: int = 0, count_vehicles: int = 10):
-        super().__init__(name_file, path_folder, count_towns, countTasks)
+    def __init__ (self, alg_name, name_file, path_folder, count_towns, countTasks: int = 10000, capacity: int = 30, time_start: int = 0, time_end: int = 0, count_vehicles: int = 10):
+        super().__init__(alg_name, name_file, path_folder, count_towns, countTasks)
         self.capacity = capacity
         self.countTasks = countTasks
         self.time_start = time_start
@@ -73,9 +74,8 @@ class CVRPTW (VRP):
         """
         # для SA и LKH моей реализации
         print("Parse from CVRPTW")
-        # gur_f.distance_file(self.count_towns, [self.name_file], [self.name_file[ :self.name_file.rfind('.csv')] + '_dist.csv']) #TODO: сделать только для Gurobi
-        
-        vrp_c.parseOneTwTownPy(self.name_file, self.path_folder, self.count_towns)
+        if(self.alg_name != 'Gurobi'):
+            vrp_c.parseOneTwTownPy(self.name_file, self.path_folder, self.count_towns)
 
     def sa(self, T: float = 1000, t_min: float = 10) -> [float, list]:
         """
@@ -220,7 +220,7 @@ class CVRPTW (VRP):
         model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
         # Optimizing the model
-        model.Params.TimeLimit = 600  # seconds
+        model.Params.TimeLimit = 10  # seconds
         model.Params.LogFile= f'result_Branch_and_Cut_CVRPTW_{w}.txt'
         model.optimize()
         if model.status == GRB.OPTIMAL:
@@ -232,7 +232,7 @@ class CVRPTW (VRP):
             print('4.Model is unbounded')
         else:
             print('5.Optimization ended with status %d' % model.status)
-            print('Optimal cost: %g' % model.objVal)
+#             print('Optimal cost: %g' % model.objVal)
         
         # Список времен в секундах, которое понадобилось для прохождения каждого подмаршрута
         active_arcs = [a for a in arco_var if x[a].x > 0.99]
@@ -263,19 +263,19 @@ class CVRPTW (VRP):
                 s += i
             else:
                 count_bad += 1
+        print('')
         print('time Gurobi: ',s)
-        print('Count bad routes Gurobi: ', count_bad)
+        print('Count bad subtours Gurobi: ', count_bad)
         
         if(w == 20):
             with open(f"20TownsResult/Result.csv", "a") as f:
-                f.write(self.name_file + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
+                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
         elif(w == 50):
             with open(f"50TownsResult/Result.csv", "a") as f:
-                f.write(self.name_file + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
+                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
         elif(w == 100):
             with open(f"100TownsResult/Result.csv", "a") as f:
-                f.write(self.name_file + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
+                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
-
