@@ -163,7 +163,6 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
                      td = algfunc(temp, l, &m, &timer, endTime);\
                   } else {\
                      td = subtourdistanceTw(temp, l, &m, timer, endTime);\
-                     timer += td;\
                   }\
                   /*if(td == -1) {write_cvrptw_end_tour(res_distance, -1); continue;}*/\
                   if(td == -1) {l--; g--;}\
@@ -186,7 +185,6 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
                      td = algfunc(temp, l, &m, &timer, endTime);\
                   } else {\
                      td = subtourdistanceTw(temp, l, &m, timer, endTime);\
-                     timer += td;\
                   }\
                   /*if(td == -1) {write_cvrptw_end_tour(res_distance, -1); continue;}*/\
                   if(td == -1) {l--; g--;}\
