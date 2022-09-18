@@ -491,7 +491,9 @@ void parseOneTwTown(const char pathFile[], const char newFileName[], int index)
     {
         for(int j = 0; j < countTowns-i-1; j++)
         {
-            pointAthalfmatrix(&m, i, j, getDistanceE(getTwTownByName(i, countTowns, towns).t, getTwTownByName(m.width-j, countTowns, towns).t) * KmToSeconds);
+            double dist = getDistanceE(getTwTownByName(i, countTowns, towns).t, getTwTownByName(m.width-j, countTowns, towns).t) * KmToSeconds;
+            pointAthalfmatrix(&m, i, j, dist);
+            printf("%d %d: %lf\n", i, j, dist);
         }
     }
     printtownmatrix(&m);
@@ -545,12 +547,15 @@ void parseOneTwTownNoIndex(const char pathFile[], const char newFileName[], int 
 
     printTwTownList(towns, tcountTowns);
     printf("After town printing!\n");
-
+    double dist;
     for(int i = 0; i < tcountTowns; i++)
     {
         for(int j = 0; j < tcountTowns-i-1; j++)
         {
-            pointAthalfmatrix(&m, i, j, getDistanceE(getTwTownByName(i, tcountTowns, towns).t, getTwTownByName(m.width-j, tcountTowns, towns).t) * KmToSeconds);
+            
+            dist = getDistanceE(getTwTownByName(i, tcountTowns, towns).t, getTwTownByName(m.width-j, tcountTowns, towns).t) * KmToSeconds;
+            pointAthalfmatrix(&m, i, j, dist);
+
         }
     }
     printtownmatrix(&m);

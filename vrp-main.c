@@ -1,6 +1,6 @@
 #include <Python.h>
 #include "cvrptw-logistic.c"
-#include "logistic.h"
+// #include "logistic.h"
 
 // Компиляция программы: gcc -I/usr/include/python3.8 -c vrp-main.c -lm -o mac 
 // sudo python3 setup.py install
@@ -61,13 +61,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    double timer = town0.mTimeStart;\
    double endTime = town0.mTimeEnd;\
    printTwTownList(towns, tcountTown);\
-   double timeDepoToTown[countTowns];\
    printf("\n");\
-   for(int c = 0; c < countTowns; c++)\
-   {\
-      timeDepoToTown[c] = getByTown(&m, 0, towns[c].t.name);\
-      printf("%d: %lf and %lf and %lf\n", c, towns[c].mTimeStart, towns[c].mTimeEnd, timeDepoToTown[c]);\
-   }\
    for(int c = 0; c < countTowns; c++)\
    {\
       if((town0.mTimeStart < town0.mTimeEnd && town0.mTimeStart > towns[c].mTimeEnd && towns[c].mTimeEnd > towns[c].mTimeStart) || \

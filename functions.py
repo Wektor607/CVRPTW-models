@@ -47,7 +47,7 @@ def check(all_pairs, timer, distance, start_lst, finish_lst, service):
         local_timer += distance[i, j] + service[j]
         if(not(local_timer >= start_lst[j])):
             local_timer = start_lst[j] + service[j]
-        if(not(local_timer >= start_lst[j] and local_timer <= finish_lst[j] and local_timer <= finish_lst[20])):
+        if(not(local_timer >= start_lst[j] and local_timer <= finish_lst[j] and local_timer <= finish_lst[0])):
             return "BAD"
     return local_timer - timer
         
@@ -120,73 +120,59 @@ class CVRPTW (VRP):
         Q_max     = self.capacity # Для 20:500, 50:750, 100:1000
 
         # Создаём списки координат и грузов для каждого клиента
+            # Создаём списки координат и грузов для каждого клиента
         xc       = np.zeros(len(arr_data))
         yc       = np.zeros(len(arr_data))
-        capacity = np.zeros(len(arr_data))
+        
+        q = {}
         w = 0
-        for i in range(len(arr_data)):
+        for i in range(w, len(arr_data)):
             if(arr_data[i][2] <= Q_max):
-                xc[w]       = arr_data[i][0]
-                yc[w]       = arr_data[i][1]
-                capacity[w] = arr_data[i][2]
+                xc[w]       = arr_data[len(arr_data) - 1 - i][0]
+                yc[w]       = arr_data[len(arr_data) - 1 - i][1]
+                q[w] = arr_data[len(arr_data) - 1 - i][2]
                 w += 1
-
-        # Убираем вес депо и исключаем депо из списка клиентов
-        capacity = capacity[:w-1]
-        w = w - 1
 
         # Создаём список клиентов
         clients  = []
-        for i in range(0, w):
+        for i in range(1, len(arr_data)):
             clients.append(i)
         
         # Cоздаем список клиентов вместе с депо. Депо обозначено, как последний элемент в arr_data
-        nodes   = [len(arr_data) - 1] + clients
-        
+        nodes   = [0] + clients
+
         # Создаём список всевохможных пар между клиентами, включая депо
         paires  = [(i, j) for i in nodes for j in nodes if i != j]
 
-        # Создаём словарь весов
-        q                    = {i: capacity[i] for i in clients}
-        q[len(arr_data) - 1] = 0 # добавляем вес в депо в конец словаря
-        
         # Задаём словари временных ограничений на посещение
 
         # Минимальное время прибытия + перевод в секунды
-        start     = {i: (int(arr_data[i][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[i][3].split('-')[0].split(':')[1])) * 60 for i in clients}
-        start_lst = {len(arr_data) - 1: (int(arr_data[len(arr_data) - 1][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[len(arr_data) - 1][3].split('-')[0].split(':')[1])) * 60}
-        start_lst.update(start)
+        start_lst     = {i: (int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[1])) * 60 for i in nodes}
 
         # Максимальное время прибытия + перевод в секунды
-        finish     = {i: (int(arr_data[i][3].split('-')[1].split(':')[0])  * 60 + int(arr_data[i][3].split('-')[1].split(':')[1])) * 60 for i in clients}
-        finish_lst = {len(arr_data) - 1: (int(arr_data[len(arr_data) - 1][3].split('-')[1].split(':')[0])  * 60 + int(arr_data[len(arr_data) - 1][3].split('-')[1].split(':')[1])) * 60}
-        finish_lst.update(finish)
+        finish_lst     = {i: (int(arr_data[len(arr_data) - 1 - i][3].split('-')[1].split(':')[0])  * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[1].split(':')[1])) * 60 for i in nodes}
 
         # Задаём словарь времени обслуживания каждого клиента (в секундах)
-        service    = {n: int(arr_data[n][4]) * 60 for n in clients}
-        
-        # Добавляем в словарь время обслуживания в депо
-        service[len(arr_data) - 1] = 0
-
-        # Задаем скорость грузовика 60 км/ч = 1000 м/мин
-        v = 1000
+        service    = {i: int(arr_data[len(arr_data) - 1 - i][4]) * 60 for i in nodes}
 
         # Задаем словарь всевозможных времен необходоимых для перемещения между всеми городами, включая депо
         distance  = {}
-        for i,j in paires:    
-            distance[(i,j)] = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2) / 60 * 3600
-        
+        time = {}
+        for i, j in paires:
+            dist = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2)
+            distance[i, j] = dist * 100 
+            time[i, j] = dist / 60 * 3600
+
         #Список транспортных средств
-        
         vehicles = [i for i in range(1, self.count_vehicles)]
 
         #Словарь вместимости транспортных средств
-        Q        = {i: Q_max for i in range(1, self.count_vehicles)}
+        Q         = {i: Q_max for i in range(1, self.count_vehicles)}
 
         arco_var  = [(i, j, k) for i in nodes for j in nodes for k in vehicles if i != j]
 
         arco_time = [(i, k) for i in nodes for k in vehicles]
-        
+
         # Модель
         model = Model('VRPTW')
 
@@ -195,15 +181,15 @@ class CVRPTW (VRP):
         t = model.addVars(arco_time, vtype=GRB.CONTINUOUS, name = 't')
 
         #Целевая функция
-        model.setObjective(quicksum(distance[i, j]*x[i,j,k] for i, j, k in arco_var), GRB.MINIMIZE)
+        model.setObjective(quicksum(distance[i, j] * x[i,j,k] for i, j, k in arco_var), GRB.MINIMIZE)
 
         #Ограничения
 
         #TODO: Дописать комментарии к ограничениям
 
         # Прибытие и отъезд
-        model.addConstrs(quicksum(x[len(arr_data) - 1, j, k] for j in clients) <= 1 for k in vehicles)
-        model.addConstrs(quicksum(x[i, len(arr_data) - 1, k] for i in clients) <= 1 for k in vehicles)
+        model.addConstrs(quicksum(x[0, j, k] for j in clients) <= 1 for k in vehicles)
+        model.addConstrs(quicksum(x[i, 0, k] for i in clients) <= 1 for k in vehicles)
 
         # Ограничение по посещению маршрута ровно один раз и ровно одним грузовиком
         model.addConstrs(quicksum(x[i, j, k] for j in nodes for k in vehicles if i != j) == 1 for i in clients)
@@ -215,12 +201,12 @@ class CVRPTW (VRP):
         model.addConstrs(quicksum(q[i] * quicksum(x[i, j, k] for j in nodes if i != j) for i in clients) <= Q[k] for k in vehicles)
 
         #Ограничение по времени
-        model.addConstrs((x[i,j,k] == 1) >> (t[i, k] + service[i] + distance[i, j] == t[j, k]) for i in clients for j in clients for k in vehicles if i != j)
+        model.addConstrs((x[i,j,k] == 1) >> (t[i, k] + service[i] + time[i, j] == t[j, k]) for i in clients for j in clients for k in vehicles if i != j)
         model.addConstrs(t[i, k] >= start_lst[i] for i, k in arco_time)
         model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
         # Optimizing the model
-        model.Params.TimeLimit = 10  # seconds
+        model.Params.TimeLimit = 20  # seconds
         model.Params.LogFile= f'result_Branch_and_Cut_CVRPTW_{w}.txt'
         model.optimize()
         if model.status == GRB.OPTIMAL:
@@ -232,12 +218,11 @@ class CVRPTW (VRP):
             print('4.Model is unbounded')
         else:
             print('5.Optimization ended with status %d' % model.status)
-#             print('Optimal cost: %g' % model.objVal)
         
         # Список времен в секундах, которое понадобилось для прохождения каждого подмаршрута
         active_arcs = [a for a in arco_var if x[a].x > 0.99]
         res_gur = []
-        for c in range(1, self.count_vehicles+1):
+        for c in range(1, self.count_vehicles):
             active_arcs_1 = []
             for i in range(len(active_arcs)):
                 if(active_arcs[i][2] == c):
@@ -246,15 +231,15 @@ class CVRPTW (VRP):
             res_sort = []
             if(active_arcs_1 != []):
                 res_sort.append(active_arcs_1[0])
-                while(res_sort[len(res_sort)-1][1] != 20):
+                while(res_sort[len(res_sort)-1][1] != 0):
                     for i in range(len(active_arcs_1)):
                         if(active_arcs_1[i][0] == res_sort[len(res_sort)-1][1]):
                             tu = active_arcs_1[i]
                             break
                     res_sort.append(tu)
 
-                res_gur.append(check(res_sort, start_lst[20], distance, start_lst, finish_lst, service))
-        
+                res_gur.append(check(res_sort, start_lst[0], time, start_lst, finish_lst, service))
+
         # Общее время прохождения всего маршрута
         s = 0
         count_bad = 0
@@ -266,7 +251,7 @@ class CVRPTW (VRP):
         print('')
         print('time Gurobi: ',s)
         print('Count bad subtours Gurobi: ', count_bad)
-        
+         
         if(w == 20):
             with open(f"20TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
