@@ -50,11 +50,14 @@ def translate_minute(minute):
 if __name__ == "__main__":
 
     # Размерность задачи
-    n_customer = 50
+    print("Введиите количество городов: ")
+    n_customer = int(input())
 
     # Время открытия и закрытия депо в часах
-    depot_start_time = 1
-    depot_end_time = 24
+    print("Введите начало временного окна депо от 0 до 24 часов в формате XX:XX : ")
+    depot_start_time = input()
+    print("Введите конец временного окна депо от 0 до 24 часов в формате XX:XX : ")
+    depot_end_time = input()
 
     for i in range(1, 101):
         depot, points, capacity, tw, deliver_time = generate_data(n_customer=n_customer)
@@ -66,4 +69,4 @@ if __name__ == "__main__":
                         + '\t' + str(translate_minute(tw[0][j][0])) + '-' + str(translate_minute(tw[0][j][1])) + '\t' + str(deliver_time) + '\n')
             
             f.write(str(depot[0][0][0] * 100) + '\t' + str(depot[0][0][1] * 100) + '\t' + str(0) 
-                        + '\t' + str(translate_minute(depot_start_time * 60)) + '-' + str(translate_minute(depot_end_time * 60)) + '\t' + str(0))
+                        + '\t' + depot_start_time + '-' + depot_end_time + '\t' + str(0))

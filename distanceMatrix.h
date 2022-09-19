@@ -102,10 +102,9 @@ void printhalfmatrix(const halfmatrix *canvas) {
 }
 
 void printtownmatrix(const halfmatrix * canvas) {
-    printf("  :");
     for(int i = 0; i < canvas->width;i++)
     {
-        printf(" %-8c  ", '0' + canvas->width - i);
+        printf(" %-8c ", '0' + canvas->width - i);
     }
     putchar('\n');
     for(int i = 0; i < canvas->width; i++)

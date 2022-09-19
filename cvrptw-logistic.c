@@ -75,22 +75,15 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
     double localtimer = timer;
 
     localtimer += getByTown(m, 0, sub[0].t.name) + sub[0].mTimeService;
-    // printf("sub[0].mTimeService: %d\n", sub[0].mTimeService);
+    // printf("sub[0].mTimeService: %lf\n", sub[0].mTimeService);
     if(!(localtimer >= sub[0].mTimeStart))
     {
+        // printf("FUCK: %lf %lf\n", localtimer, sub[0].mTimeStart);
         localtimer = sub[0].mTimeStart + sub[0].mTimeService;
     }
     if(!(localtimer >= sub[0].mTimeStart && localtimer <= sub[0].mTimeEnd && localtimer <= endTime)) 
     {
-        // printf("localtimer >= sub[0].mTimeStart: %d\n", localtimer >= sub[0].mTimeStart);
-        // printf("localtimer <= sub[0].mTimeEnd: %d\n", localtimer <= sub[0].mTimeEnd);
-        // printf("localtimer <= endTime: %d\n", localtimer <= endTime);
-        return -1;
-    }
-
-    localtimer += getByTown(m, 0, sub[lenSub-1].t.name);
-    if(!(localtimer <= endTime)) 
-    {
+        // printf("localtimer <= sub[0].mTimeEnd: %lf %lf %lf %d\n", localtimer, sub[0].mTimeStart, sub[0].mTimeEnd, localtimer <= sub[0].mTimeEnd);
         return -1;
     }
 
@@ -105,6 +98,13 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
             return -1;
         }
     }
+
+    localtimer += getByTown(m, 0, sub[lenSub-1].t.name);
+    if(!(localtimer <= endTime)) 
+    {
+        return -1;
+    }
+    
     return localtimer - timer;
 }
 

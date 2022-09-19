@@ -24,7 +24,7 @@ class VRP:
         self.parse_file()
 
 
-def parse_dist_and_tour():
+def parse_dist_and_tour(file_name, max_capacity, count_vehicles):
     """
     Функция, возвращающая список из 2 элементов:
         :type float max_count: Длина (в метрах) оптимизированного маршрута;
@@ -38,7 +38,8 @@ def parse_dist_and_tour():
             if(float(data[i]) != -1):
                 max_count = float(data[i])
                 mas_dist = list(map(lambda t: list(map(int, t.split(' '))), data[i-1][:-1].split('#')))
-                break 
+                break
+ 
     return [max_count, mas_dist]    
 
 def check(all_pairs, timer, distance, start_lst, finish_lst, service):
@@ -77,7 +78,7 @@ class CVRPTW (VRP):
         if(self.alg_name != 'Gurobi'):
             vrp_c.parseOneTwTownPy(self.name_file, self.path_folder, self.count_towns)
 
-    def sa(self, T: float = 1000, t_min: float = 10) -> [float, list]:
+    def sa(self, T: float = 1000, t_min: float = 10) -> [float, list]: #TODO: В SA передавать температуру с клавиатуры
         """
         Функция, вызывающая алгоритм "Имитации отжига" для решения задачи CVRPTW. На вход подается два параметра:
             :type float T:     начальная температура, которая с течением времени убывает;
@@ -87,7 +88,7 @@ class CVRPTW (VRP):
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """ 
         vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity, self.countTasks)
-        return parse_dist_and_tour()
+        return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
     
     def lkh(self, name_opt: str = 'lkh3opt') -> [float, list]:
         """
@@ -101,7 +102,7 @@ class CVRPTW (VRP):
             vrp_c.modelMetaHeuristic("cvrptw_lkh_2opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
         else:
             vrp_c.modelMetaHeuristic("cvrptw_lkh_3opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
-        return parse_dist_and_tour()
+        return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
 
     def gurobi(self) -> [float, list]:
         """

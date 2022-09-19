@@ -4,8 +4,8 @@ from datetime import datetime
 
 def main():
     lst = []
-    for i in range(1, 2):
-        lst.append(f"20/Example{i}.csv")
+    for i in range(1, 101):
+        lst.append(f"50/Example{i}.csv")
     
     print('If you want open documentation write YES else press Enter')
     doc = input()

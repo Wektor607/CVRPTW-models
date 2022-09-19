@@ -89,6 +89,9 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
       {\
          continue;\
       }\
+      if(towns[c].mTimeService > towns[c].mTimeEnd - towns[c].mTimeStart){\
+         towns[c].t = zerotown;\
+      }\
       if(towns[c].t.weight > maxCapacity || (towns[c].mTimeStart - towns[c].mTimeEnd) == 0) {\
          towns[c].t = zerotown;\
       }\
@@ -120,10 +123,6 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    double td;\
    double distanceInTourBest = -1.0, distanceInTourNew = 0.0;\
    double runtime = clock();\
-   double serviseTime = 0;\
-   for(int i = 0; i < newCountTowns; i++) {\
-      serviseTime += sub[i].mTimeService;\
-   }\
    int days, cap, l, g;\
    for(int i = 0; i < countTasks;i++){\
       days = 1;\
@@ -191,20 +190,21 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
          }\
       }\
       if(distanceInTourBest == -1.0) {\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourNew - serviseTime), 0.0);\
-         distanceInTourBest = distanceInTourNew;   } \
+         fprintf(out, "%lf\t%lf\n", (distanceInTourNew), 0.0);\
+         distanceInTourBest = distanceInTourNew;\
+      } \
       if(distanceInTourNew < distanceInTourBest) {\
          distanceInTourBest = distanceInTourNew;\
-         printf("\nAll days: %d\n", days); \
-         write_cvrptw_end_tour(res_distance, (distanceInTourBest - serviseTime));\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime), (clock() - runtime) / CLOCKS_PER_SEC);\
+         printf("\nAll days: %d %lf\n", days, distanceInTourBest); \
+         write_cvrptw_end_tour(res_distance, (distanceInTourBest));\
+         fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
       }\
       else {\
          write_cvrptw_end_tour(res_distance, -1);\
       }\
       distanceInTourNew = 0.0;\
    }\
-   fprintf(out, "%lf\t%lf\n", (distanceInTourBest - serviseTime), (clock() - runtime) / CLOCKS_PER_SEC);\
+   fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
    fputc('\n', out);\
    free(sub);\
    free(towns);\
