@@ -4,7 +4,7 @@ from datetime import datetime
 
 def main():
     print("Введите количество городов(20, 50, 100): ")
-    n = int(input())
+    n = input()
     lst = []
     for i in range(1, 101):
         lst.append(f"{n}/Example{i}.csv")
