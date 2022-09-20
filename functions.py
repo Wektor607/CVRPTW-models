@@ -142,19 +142,31 @@ class CVRPTW (VRP):
         # Cоздаем список клиентов вместе с депо. Депо обозначено, как последний элемент в arr_data
         nodes   = [0] + clients
 
+        # Задаём словари временных ограничений на посещение
+        
+        # Минимальное, максимальное время прибытия + перевод в секунды и время обслуживания
+        # Также из списка клиентов удаляются те у кого временное окно меньше времени обслуживания
+        start_lst  = {}
+        finish_lst = {}
+        service    = {}
+        del_elem = []
+        for i in nodes:
+            st = (int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[1])) * 60
+            fs = (int(arr_data[len(arr_data) - 1 - i][3].split('-')[1].split(':')[0])  * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[1].split(':')[1])) * 60
+            sv = int(arr_data[len(arr_data) - 1 - i][4]) * 60
+            if(sv <= fs - st):
+                start_lst[i] = st
+                finish_lst[i] = fs
+                service[i] = sv
+            else:
+                del_elem.append(i)
+
+        for i in del_elem:
+            clients.remove(i)
+            nodes.remove(i)
+
         # Создаём список всевохможных пар между клиентами, включая депо
         paires  = [(i, j) for i in nodes for j in nodes if i != j]
-
-        # Задаём словари временных ограничений на посещение
-
-        # Минимальное время прибытия + перевод в секунды
-        start_lst     = {i: (int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[1])) * 60 for i in nodes}
-
-        # Максимальное время прибытия + перевод в секунды
-        finish_lst     = {i: (int(arr_data[len(arr_data) - 1 - i][3].split('-')[1].split(':')[0])  * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[1].split(':')[1])) * 60 for i in nodes}
-
-        # Задаём словарь времени обслуживания каждого клиента (в секундах)
-        service    = {i: int(arr_data[len(arr_data) - 1 - i][4]) * 60 for i in nodes}
 
         # Задаем словарь всевозможных времен необходоимых для перемещения между всеми городами, включая депо
         distance  = {}
@@ -253,15 +265,15 @@ class CVRPTW (VRP):
         print('time Gurobi: ',s)
         print('Count bad subtours Gurobi: ', count_bad)
          
-        if(w == 20):
+        if(w == 21):
             with open(f"20TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
-        elif(w == 50):
+        elif(w == 51):
             with open(f"50TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
-        elif(w == 100):
+        elif(w == 101):
             with open(f"100TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()

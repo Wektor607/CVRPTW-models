@@ -5,7 +5,7 @@ from datetime import datetime
 def main():
     lst = []
     for i in range(1, 101):
-        lst.append(f"50/Example{i}.csv")
+        lst.append(f"100/Example{i}.csv")
     
     print('If you want open documentation write YES else press Enter')
     doc = input()
