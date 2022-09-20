@@ -115,24 +115,19 @@ class CVRPTW (VRP):
         data_file = pd.read_csv(self.name_file, sep="\t", error_bad_lines=True)
 
         # Запишем все данные в виде массива списков, где каждый список это строка с значениями конкретных столбцов
-        arr_data  = data_file.values
+        arr_data = data_file.values
 
         # Задаём объем грузовика
-        Q_max     = self.capacity # Для 20:500, 50:750, 100:1000
+        Q_max    = self.capacity # Для 20:500, 50:750, 100:1000
 
         # Создаём списки координат и грузов для каждого клиента
-            # Создаём списки координат и грузов для каждого клиента
         xc       = np.zeros(len(arr_data))
         yc       = np.zeros(len(arr_data))
         
-        q = {}
-        w = 0
-        for i in range(w, len(arr_data)):
+        for i in range(len(arr_data)):
             if(arr_data[i][2] <= Q_max):
-                xc[w]       = arr_data[len(arr_data) - 1 - i][0]
-                yc[w]       = arr_data[len(arr_data) - 1 - i][1]
-                q[w] = arr_data[len(arr_data) - 1 - i][2]
-                w += 1
+                xc[i] = arr_data[len(arr_data) - 1 - i][0]
+                yc[i] = arr_data[len(arr_data) - 1 - i][1]
 
         # Создаём список клиентов
         clients  = []
@@ -149,6 +144,7 @@ class CVRPTW (VRP):
         start_lst  = {}
         finish_lst = {}
         service    = {}
+        q = {}
         del_elem = []
         for i in nodes:
             st = (int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[1])) * 60
@@ -158,6 +154,7 @@ class CVRPTW (VRP):
                 start_lst[i] = st
                 finish_lst[i] = fs
                 service[i] = sv
+                q[i] = arr_data[len(arr_data) - 1 - i][2]
             else:
                 del_elem.append(i)
 
@@ -220,8 +217,7 @@ class CVRPTW (VRP):
         model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
         # Optimizing the model
-        model.Params.TimeLimit = 20  # seconds
-        model.Params.LogFile= f'result_Branch_and_Cut_CVRPTW_{w}.txt'
+        model.Params.TimeLimit = 300  # seconds
         model.optimize()
         if model.status == GRB.OPTIMAL:
             print('1.Optimal objective: %g' % model.objVal)
@@ -261,20 +257,22 @@ class CVRPTW (VRP):
             if(i != 'BAD'):
                 s += i
             else:
-                count_bad += 1
+#                 count_bad += 1
+                s = "NoSolution"
+                break
         print('')
         print('time Gurobi: ',s)
         print('Count bad subtours Gurobi: ', count_bad)
          
-        if(w == 21):
+        if(len(arr_data) == 21):
             with open(f"20TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
-        elif(w == 51):
+        elif(len(arr_data) == 51):
             with open(f"50TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
-        elif(w == 101):
+        elif(len(arr_data)== 101):
             with open(f"100TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()

@@ -1,11 +1,13 @@
-from functions import *
+from twMethods import *
 from collections import deque
 from datetime import datetime
 
 def main():
+    print("Введите количество городов(20, 50, 100): ")
+    n = int(input())
     lst = []
-    for i in range(4, 5):
-        lst.append(f"20/Example{i}.csv")
+    for i in range(1, 101):
+        lst.append(f"{n}/Example{i}.csv")
     
     print('If you want open documentation write YES else press Enter')
     doc = input()
@@ -24,16 +26,16 @@ def main():
                 last_line = last_line.split('\t')[3].split('-')
             if(count_towns == 21):
                 max_capacity = 500
-                iteretions = 700
+                iteretions   = 700
             elif(count_towns == 51):
                 max_capacity = 750
-                iteretions = 500
+                iteretions   = 500
             elif(count_towns == 101):
                 max_capacity = 1000
-                iteretions = 300
+                iteretions   = 300
             start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
             end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-            a = CVRPTW('SA', i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+            a = CVRPTW('SA', i, f"{count_towns-1}_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.sa())
             with open(f'SA_CVRPTW_result.txt', 'r') as res_file:
@@ -57,21 +59,21 @@ def main():
                 last_line = last_line.split('\t')[3].split('-')
             if(count_towns == 21):
                 max_capacity = 500
-                iteretions = 700
+                iteretions   = 700
             elif(count_towns == 51):
                 max_capacity = 750
-                iteretions = 500
+                iteretions   = 500
             elif(count_towns == 101):
                 max_capacity = 1000
-                iteretions = 300
+                iteretions   = 300
             start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
             end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-            a = CVRPTW('LKH', i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+            a = CVRPTW('LKH', i, f"{count_towns-1}_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.lkh(name_opt))
             with open(f'LKH_{name_opt[3:]}_CVRPTW_result.txt', 'r') as res_file:
                 data = res_file.read()
-                with open(f'LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                with open(f'LKH_{name_opt[3:]}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                     write_file.write(data)
     else:
         for i in lst:
@@ -79,17 +81,17 @@ def main():
                 count_towns = sum(1 for _ in f) - 1
             if(count_towns == 21):
                 max_capacity = 500
-                iteretions = 700
+                iteretions   = 700
                 count_vehicles = 11
             elif(count_towns == 51):
                 max_capacity = 750
-                iteretions = 500
+                iteretions   = 500
                 count_vehicles = 11
             elif(count_towns == 101):
                 max_capacity = 1000
-                iteretions = 300
+                iteretions   = 300
                 count_vehicles = 21
-            a = CVRPTW('Gurobi', i, f"20_tw/test{idx}", count_towns, iteretions, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
+            a = CVRPTW('Gurobi', i, f"{count_towns-1}_tw/test{idx}", count_towns, iteretions, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             
 if __name__ == "__main__":
