@@ -170,11 +170,12 @@ class CVRPTW (VRP):
 
         # Задаем словарь всевозможных времен необходоимых для перемещения между всеми городами, включая депо
         distance  = {}
+        v = 60 # скорость грузовика в км/ч
         time = {}
         for i, j in paires:
             dist = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2)
             distance[i, j] = dist * 100 
-            time[i, j] = dist / 60 * 3600
+            time[i, j] = dist / v * 3600
 
         #Список транспортных средств
         vehicles = [i for i in range(1, self.count_vehicles)]
