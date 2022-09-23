@@ -217,7 +217,8 @@ class CVRPTW (VRP):
         model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
         # Optimizing the model
-        model.Params.TimeLimit = 300  # seconds
+        model.Params.TimeLimit = 600 # seconds
+        model.Params.LogFile= "Gurobi_50.txt"
         model.optimize()
         if model.status == GRB.OPTIMAL:
             print('1.Optimal objective: %g' % model.objVal)
@@ -230,49 +231,64 @@ class CVRPTW (VRP):
             print('5.Optimization ended with status %d' % model.status)
         
         # Список времен в секундах, которое понадобилось для прохождения каждого подмаршрута
-        active_arcs = [a for a in arco_var if x[a].x > 0.99]
-        res_gur = []
-        for c in range(1, self.count_vehicles):
-            active_arcs_1 = []
-            for i in range(len(active_arcs)):
-                if(active_arcs[i][2] == c):
-                    active_arcs_1.append(active_arcs[i])
+        print("model.objVal: ", model.objVal)
+        if (model.objVal != math.inf):
+            active_arcs = [a for a in arco_var if x[a].x > 0.99]
+            res_gur = []
+            for c in range(1, self.count_vehicles):
+                active_arcs_1 = []
+                for i in range(len(active_arcs)):
+                    if(active_arcs[i][2] == c):
+                        active_arcs_1.append(active_arcs[i])
 
-            res_sort = []
-            if(active_arcs_1 != []):
-                res_sort.append(active_arcs_1[0])
-                while(res_sort[len(res_sort)-1][1] != 0):
-                    for i in range(len(active_arcs_1)):
-                        if(active_arcs_1[i][0] == res_sort[len(res_sort)-1][1]):
-                            tu = active_arcs_1[i]
-                            break
-                    res_sort.append(tu)
+                res_sort = []
+                if(active_arcs_1 != []):
+                    res_sort.append(active_arcs_1[0])
+                    while(res_sort[len(res_sort)-1][1] != 0):
+                        for i in range(len(active_arcs_1)):
+                            if(active_arcs_1[i][0] == res_sort[len(res_sort)-1][1]):
+                                tu = active_arcs_1[i]
+                                break
+                        res_sort.append(tu)
 
-                res_gur.append(check(res_sort, start_lst[0], time, start_lst, finish_lst, service))
-
-        # Общее время прохождения всего маршрута
-        s = 0
-        count_bad = 0
-        for i in res_gur:
-            if(i != 'BAD'):
-                s += i
-            else:
-#                 count_bad += 1
-                s = "NoSolution"
-                break
-        print('')
-        print('time Gurobi: ',s)
-        print('Count bad subtours Gurobi: ', count_bad)
+                    res_gur.append(check(res_sort, start_lst[0], time, start_lst, finish_lst, service))
+            # Общее время прохождения всего маршрута
+            s = 0
+            count_bad = 0
+            r = model.objVal
+            for i in res_gur:
+                if(i != 'BAD'):
+                    s += i
+                else:
+    #                 count_bad += 1
+                    s = "NoSolution"
+                    r = "NoSolution"
+                    break
+            print('')
+            print('time Gurobi: ',s)
+            print('Count bad subtours Gurobi: ', count_bad)
+        else:
+            s = "NoSolution"
+            r = "NoSolution" 
          
         if(len(arr_data) == 21):
             with open(f"20TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
+            with open(f"20TownsResult/Result_dist.csv", "a") as f:
+                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(r) + ' ' + str(model.Runtime) + '\n')
+            f.close()
         elif(len(arr_data) == 51):
             with open(f"50TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
             f.close()
+            with open(f"50TownsResult/Result_dist.csv", "a") as f:
+                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(r) + ' ' + str(model.Runtime) + '\n')
+            f.close()
         elif(len(arr_data)== 101):
             with open(f"100TownsResult/Result.csv", "a") as f:
                 f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
+            f.close()
+            with open(f"100TownsResult/Result_dist.csv", "a") as f:
+                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(r) + ' ' + str(model.Runtime) + '\n')
             f.close()
