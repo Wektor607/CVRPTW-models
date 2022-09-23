@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "cvrptw-logistic.c"
+#include <time.h> 
 // #include "logistic.h"
 
 // Компиляция программы: gcc -I/usr/include/python3.8 -c vrp-main.c -lm -o mac 
@@ -124,7 +125,10 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    double distanceInTourBest = -1.0, distanceInTourNew = 0.0;\
    double runtime = clock();\
    int days, cap, l, g;\
+   double full_time = 0;\
    for(int i = 0; i < countTasks;i++){\
+      clock_t start = clock();\
+      printf("countTaks: %d\n", i);\
       days = 1;\
       doShuffleTw(newCountTowns, sub);\
       l = 0;\
@@ -197,13 +201,19 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
          distanceInTourBest = distanceInTourNew;\
          printf("\nAll days: %d %lf\n", days, distanceInTourBest); \
          write_cvrptw_end_tour(res_distance, (distanceInTourBest));\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
+         fprintf(out, "%lf\t%lf\n", (distanceInTourBest * 60 * 1000 / 3600), (clock() - runtime) / CLOCKS_PER_SEC);\
       }\
       else {\
          write_cvrptw_end_tour(res_distance, -1);\
       }\
       distanceInTourNew = 0.0;\
+      clock_t end = clock();\
+      double seconds = (double)(end - start) / CLOCKS_PER_SEC;\
+      full_time += seconds;\
+      printf("One iteration time: %lf\n", seconds);\
    }\
+   printf("Full time: %lf\n", full_time);\
+   printf("Average time on one task: %lf\n", full_time / countTasks);\
    fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
    fputc('\n', out);\
    free(sub);\
