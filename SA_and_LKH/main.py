@@ -46,7 +46,7 @@ def main():
         while(1):
             print("Input lkh2opt or lkh3opt:")
             name_opt = input()
-            if(name_opt == 'lkh2opt' or name_opt == 'lkh3opt'):
+            if(name_opt == 'lkh2opt' or name_opt == 'lkh3opt' or name_opt == 'lkh'):
                 break
             else:
                 print('Try again!')
@@ -71,10 +71,16 @@ def main():
             a = CVRPTW('LKH', i, f"{count_towns-1}_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.lkh(name_opt))
-            with open(f'LKH_{name_opt[3:]}_CVRPTW_result.txt', 'r') as res_file:
-                data = res_file.read()
-                with open(f'LKH_{name_opt[3:]}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
-                    write_file.write(data)
+            if(name_opt == 'lkh2opt' or name_opt == 'lkh3opt'):
+                with open(f'LKH_{name_opt[3:]}_CVRPTW_result.txt', 'r') as res_file:
+                    data = res_file.read()
+                    with open(f'LKH_{name_opt[3:]}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                        write_file.write(data)
+            else:
+                with open(f'LKH_CVRPTW_result.txt', 'r') as res_file:
+                    data = res_file.read()
+                    with open(f'LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                        write_file.write(data)
     else:
         for i in lst:
             with open(i) as f:

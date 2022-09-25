@@ -214,7 +214,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    }\
    printf("Full time: %lf\n", full_time);\
    printf("Average time on one task: %lf\n", full_time / countTasks);\
-   fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
+   fprintf(out, "%lf\t%lf\n", (distanceInTourBest * 60 * 1000 / 3600), (clock() - runtime) / CLOCKS_PER_SEC);\
    fputc('\n', out);\
    free(sub);\
    free(towns);\
@@ -232,8 +232,11 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
       return NULL;
    }
    countTowns = tcountTown;
-
-   if(strcmp(algname, "cvrptw_lkh_2opt") == 0) {
+   if(strcmp(algname, "cvrptw_lkh") == 0) {
+      char fileout[] = "LKH_CVRPTW_result.txt";
+      CVRPTW(lkhTw); 
+   } 
+   else if(strcmp(algname, "cvrptw_lkh_2opt") == 0) {
       char fileout[] = "LKH_2opt_CVRPTW_result.txt";
       CVRPTW(lkh2optTw); 
    } 

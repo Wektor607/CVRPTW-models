@@ -100,8 +100,10 @@ class CVRPTW (VRP):
         """
         if(name_opt == 'lkh2opt'):
             vrp_c.modelMetaHeuristic("cvrptw_lkh_2opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
-        else:
+        elif(name_opt == 'lkh3opt'):
             vrp_c.modelMetaHeuristic("cvrptw_lkh_3opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
+        elif(name_opt == 'lkh'):
+            vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity, self.countTasks)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
 
     def gurobi(self) -> [float, list]:
