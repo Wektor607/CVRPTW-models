@@ -35,19 +35,12 @@ def main():
         for nf in lst1:
             count_towns = len(data['is_depot'])
             max_capacity = data['capacity']
-            iteretions   = 1000
+            iteretions   = 5000
             start = data['time_windows'][0][0]
             end = data['time_windows'][0][1]
             kr = nf.split('.')[0]
             d = pd.DataFrame(data['duration_matrix'])
             d.to_csv(f'time_matrix_{kr}.csv',index = False,sep = '\t', columns = None)
-            # with open(f'time_matrix_{kr}.csv', 'w') as f:
-            #     for i in range(len(data['duration_matrix'])):
-            #         for j in range(len(data['duration_matrix'][i])):
-            #             if(j != len(data['duration_matrix'][i])-1):
-            #                 f.write(np.array2string(data['duration_matrix'][len(data['duration_matrix']) - i - 1][j]) + '\t')
-            #             else:
-            #                 f.write(np.array2string(data['duration_matrix'][len(data['duration_matrix']) - i - 1][j]) + '\n')
             mnf = f'time_matrix_{kr}.csv'
             a = CVRPTW('SA', nf, mnf,  f"comp_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
@@ -74,13 +67,6 @@ def main():
             kr = nf.split('.')[0]
             d = pd.DataFrame(data['duration_matrix'])
             d.to_csv(f'time_matrix_{kr}.csv',index = False,sep = '\t', columns = None)
-            with open(f'time_matrix_{kr}.csv', 'w') as f:
-                for i in range(len(data['duration_matrix'])):
-                    for j in range(len(data['duration_matrix'][i])):
-                        if(j != len(data['duration_matrix'][i])-1):
-                            f.write(np.array2string(data['duration_matrix'][len(data['duration_matrix']) - i - 1][j]) + '\t')
-                        else:
-                            f.write(np.array2string(data['duration_matrix'][len(data['duration_matrix']) - i - 1][j]) + '\n')
             mnf = f'time_matrix_{kr}.csv'
             a = CVRPTW('LKH', nf, mnf,  f"comp_tw/test{idx}", count_towns, iteretions, max_capacity, start, end)#TODO: некоторые параметры брать автоматически из файла
             idx += 1
