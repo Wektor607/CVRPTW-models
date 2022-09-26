@@ -380,7 +380,8 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     int *A = (int*)malloc((lenSub  - 1)/ 2 * sizeof(int));
     int *B = (int*)malloc(((lenSub + 1)/ 2) * sizeof(int));
     int *D = (int*)malloc(lenSub * sizeof(int));
-    int A_size = (lenSub  - 1) / 2, B_size = ((lenSub + 1)/ 2);
+    int A_size0 = (lenSub  - 1) / 2, B_size0 = ((lenSub + 1)/ 2);
+    int A_size = A_size0, B_size = B_size0;
     //цикл копирования sub -> subcopy
     
     for(int i = 0; i < lenSub; i++)
@@ -389,55 +390,95 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
         if (i < A_size) {A[i] = i}
         else {B[i - A_size] = i}
     }
-    
-    for(int a = 0; a < A_size; i++){
-        int I = 0, E = 0;
-        for(int y = 0; y < B_size; y++)
-        {
-            E += getByTown(m, subcopy[A[a]].t.name, subcopy[B[y]].t.name);
+    while(1){
+        for(int a = 0; a < A_size; a++){
+            int I = 0, E = 0;
+            for(int y = 0; y < B_size; y++)
+            {
+                E += getByTown(m, subcopy[A[a]].t.name, subcopy[B[y]].t.name);
+            }
+            for(int x = 0; x < A_size; x++)
+            {
+                I += getByTown(m, subcopy[A[a]].t.name, subcopy[A[x]].t.name);
+            }
+            D[A[a]] = E - I;
         }
-        for(int x = 0; x < A_size; x++)
-        {
-            I += getByTown(m, subcopy[A[a]].t.name, subcopy[A[x]].t.name);
-        }
-        D[A[a]] = E - I;
-    }
 
-    for(int b = 0; b < B_size; b++){
-        int I = 0, E = 0;
-        for(int y = 0; y < A_size; y++)
-        {
-            E += getByTown(m, subcopy[B[b]].t.name, subcopy[A[y]].t.name);
+        for(int b = 0; b < B_size; b++){
+            int I = 0, E = 0;
+            for(int y = 0; y < A_size; y++)
+            {
+                E += getByTown(m, subcopy[B[b]].t.name, subcopy[A[y]].t.name);
+            }
+            for(int x = 0; x < B_size; x++)
+            {
+                I += getByTown(m, subcopy[B[b]].t.name, subcopy[B[x]].t.name);
+            }
+            D[B[b]] = E - I;
         }
-        for(int x = 0; x < B_size; x++)
-        {
-            I += getByTown(m, subcopy[B[b]].t.name, subcopy[B[x]].t.name);
-        }
-        D[B[b]] = E - I;
-    }
 
-    int G = 0;
-    int n = min(A_size, B_size);
-    int *g = (int*)malloc(n * sizeof(int));
-    for(int p = 0; p < n; p++){
-        int g_max = 0, a_max = 0, b_max = 0;
-        for(int a = 0; a < A_size; i++){
-            for(int b = 0; b < B_size; b++){
-                int g_tmp = D[A[a]] + D[B[b]] - 2 * getByTown(m, subcopy[B[b]].t.name, subcopy[A[a]].t.name);
-                if (g_max < g_tmp)
-                {
-                    g_max = g_tmp;
-                    a_max = a;
-                    b_max = b;
+        int G = 0;
+        int n = min(A_size0, B_size0);
+        int *g = (int*)malloc(n * sizeof(int));
+        for(int p = 0; p < n; p++){
+            int g_max = 0, a_max = 0, b_max = 0;
+            for(int a = 0; a < A_size; i++){
+                for(int b = 0; b < B_size; b++){
+                    int g_tmp = D[A[a]] + D[B[b]] - 2 * getByTown(m, subcopy[B[b]].t.name, subcopy[A[a]].t.name);
+                    if (g_max < g_tmp)
+                    {
+                        g_max = g_tmp;
+                        a_max = a;
+                        b_max = b;
+                    }
                 }
             }
+            g[p] = g_max;
+
+            int tmp = A[a_max];
+            A[a_max] = A[A_size - 1];
+            A[A_size - 1] = tmp; 
+
+            tmp = B[b_max];
+            B[b_max] = B[B_size - 1];
+            B[B_size - 1] = tmp; 
+
+            A_size--;
+            B_size--;
+
+            for(int x = 0; x < A_size; x++){
+                D[A[x]] = D[A[x]] + 2 * getByTown(m, subcopy[A[x]].t.name, subcopy[A[A_size]].t.name) - 2 * getByTown(m, subcopy[A[x]].t.name, subcopy[B[B_size]].t.name);
+            }
+
+            for(int y = 0; y < B_size; y++){
+                D[B[y]] = D[B[y]] + 2 * getByTown(m, subcopy[B[y]].t.name, subcopy[B[B_size]].t.name) - 2 * getByTown(m, subcopy[B[y]].t.name, subcopy[A[A_size]].t.name);
+            }
         }
-        g[p] = g_max;
-        A_size--;
-        B_size--;
 
+        int k = -1, G_max = 0;
+        for(int p = 0; p < n; p++){
+            G += g[p];
+            if (G_max < G)
+            {
+                G_max = G;
+                k = p;
+            }
+        }
+
+        if (G_max > 0) 
+        {
+            for (int i = 0; i < k; i++)
+            {
+                int tmp = A[A_size0 - i - 1];
+                A[A_size0 - i - 1] = B[B_size0 - i - 1];
+                B[B_size0 - i - 1] = tmp;
+            }
+        }
+        else
+        {
+            break;
+        }
     }
-
 
 
     
