@@ -375,98 +375,104 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-// twtown* modes(twtown *subcopy, int a, int b, int lenSub, int k, double lenBest, double lenCurrent, halfmatrix *m, const double timer, const double endTime) {
-//     if(k == 2)
-//     {
-//         if(lenCurrent > lenBest)
-//         {
-//             reverseTownTw(subcopy, my_min(a, b), my_max(a, b));
-//         }
-//     }
-//     else if(k == 3)
-//     {
-//         if(lenCurrent > lenBest)    
-//         {
-//             reverseTownTw(subcopy, 0, a);
-//             lenCurrent = subtourdistanceTw(subcopy, lenSub, m, timer, endTime);
-//         }
-//         if(lenCurrent > lenBest)
-//         {
-//             reverseTownTw(subcopy, a+1, b);
-//             lenCurrent = subtourdistanceTw(subcopy, lenSub, m, timer, endTime);
-//         }
-//         if(lenCurrent > lenBest) 
-//         {
-//             reverseTownTw(subcopy, b+1, lenSub-1);
-//             lenCurrent = subtourdistanceTw(subcopy, lenSub, m, timer, endTime);
-//         }
-//         if(lenCurrent > lenBest)
-//         {
-//             moveElemsTw(subcopy, a+1, b, b+1, lenSub-1);
-//             lenCurrent = subtourdistanceTw(subcopy, lenSub, m, timer, endTime);
-//         }
-//         if(lenCurrent > lenBest) {
-            
-//             reverseTownTw(subcopy, 0, a);
-//             moveElemsTw(subcopy, a+1, b, b+1,lenSub-1);
-//             lenCurrent = subtourdistanceTw(subcopy, lenSub, m, timer, endTime);
-//         }
-//         if(lenCurrent > lenBest) {
-            
-//             reverseTownTw(subcopy, a+1, b);
-//             moveElemsTw(subcopy, a+1, b, b+1,lenSub-1);
-//             lenCurrent = subtourdistanceTw(subcopy, lenSub, m, timer, endTime);
-//         }
-//         if(lenCurrent > lenBest) {
-//             reverseTownTw(subcopy, b+1, lenSub-1);
-//             moveElemsTw(subcopy, a+1, b, b+1,lenSub-1);
-//             lenCurrent = subtourdistanceTw(subcopy, lenSub, m, timer, endTime);
-//         }
-//     }
-
-//     // return *subcopy;
-// }
-
 double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime){
     twtown *subcopy = (twtown*)malloc(lenSub * sizeof(twtown));
+    int *A = (int*)malloc((lenSub  - 1)/ 2 * sizeof(int));
+    int *B = (int*)malloc(((lenSub + 1)/ 2) * sizeof(int));
+    int *D = (int*)malloc(lenSub * sizeof(int));
+    int A_size = (lenSub  - 1) / 2, B_size = ((lenSub + 1)/ 2);
     //цикл копирования sub -> subcopy
+    
     for(int i = 0; i < lenSub; i++)
     {
         subcopy[i] = sub[i];
+        if (i < A_size) {A[i] = i}
+        else {B[i - A_size] = i}
     }
-
-    double best_subtour = 0;
-    double current_subtour = 0;
-    // if(best_subtour == 0) {
-    //     return -1;
-    // }
-
-   int k_set[2] = {2, 3};
-   int size_k_set = sizeof k_set / sizeof *k_set;
-
-    for(int k = 0; k < size_k_set; k++)
-    {
-        if(k_set[k] == 2)
-        {
-            // best_subtour = lkh2optTw(subcopy, lenSub, m, timer, endTime);  
-        }
-        else if(k_set[k] == 3)
-        {
-            // current_subtour = lkh3optTw(subcopy, lenSub, m, timer, endTime);
-            // if(current_subtour < best_subtour){best_subtour = current_subtour;}
-        }
-    }
-    free(subcopy);
     
-    // printf("New total time: %lf\n", best);
-    // printf("New list: "); printTwTownList(sub, lenSub);
-    if(best_subtour != -1) {
-        *timer += best_subtour;  
+    for(int a = 0; a < A_size; i++){
+        int I = 0, E = 0;
+        for(int y = 0; y < B_size; y++)
+        {
+            E += getByTown(m, subcopy[A[a]].t.name, subcopy[B[y]].t.name);
+        }
+        for(int x = 0; x < A_size; x++)
+        {
+            I += getByTown(m, subcopy[A[a]].t.name, subcopy[A[x]].t.name);
+        }
+        D[A[a]] = E - I;
     }
-    return best_subtour;
+
+    for(int b = 0; b < B_size; b++){
+        int I = 0, E = 0;
+        for(int y = 0; y < A_size; y++)
+        {
+            E += getByTown(m, subcopy[B[b]].t.name, subcopy[A[y]].t.name);
+        }
+        for(int x = 0; x < B_size; x++)
+        {
+            I += getByTown(m, subcopy[B[b]].t.name, subcopy[B[x]].t.name);
+        }
+        D[B[b]] = E - I;
+    }
+
+    int G = 0;
+    int n = min(A_size, B_size);
+    int *g = (int*)malloc(n * sizeof(int));
+    for(int p = 0; p < n; p++){
+        int g_max = 0, a_max = 0, b_max = 0;
+        for(int a = 0; a < A_size; i++){
+            for(int b = 0; b < B_size; b++){
+                int g_tmp = D[A[a]] + D[B[b]] - 2 * getByTown(m, subcopy[B[b]].t.name, subcopy[A[a]].t.name);
+                if (g_max < g_tmp)
+                {
+                    g_max = g_tmp;
+                    a_max = a;
+                    b_max = b;
+                }
+            }
+        }
+        g[p] = g_max;
+        A_size--;
+        B_size--;
+
+    }
+
+
+
+    
+    
+
+
+//     double best_subtour = 0;
+//     double current_subtour = 0;
+//     // if(best_subtour == 0) {
+//     //     return -1;
+//     // }
+
+//    int k_set[2] = {2, 3};
+//    int size_k_set = sizeof k_set / sizeof *k_set;
+
+//     for(int k = 0; k < size_k_set; k++)
+//     {
+//         if(k_set[k] == 2)
+//         {
+//             // best_subtour = lkh2optTw(subcopy, lenSub, m, timer, endTime);  
+//         }
+//         else if(k_set[k] == 3)
+//         {
+//             // current_subtour = lkh3optTw(subcopy, lenSub, m, timer, endTime);
+//             // if(current_subtour < best_subtour){best_subtour = current_subtour;}
+//         }
+//     }
+//     free(subcopy);
+    
+//     // printf("New total time: %lf\n", best);
+//     // printf("New list: "); printTwTownList(sub, lenSub);
+//     if(best_subtour != -1) {
+//         *timer += best_subtour;  
+//     }
+//     return best_subtour;
 }
 
 
