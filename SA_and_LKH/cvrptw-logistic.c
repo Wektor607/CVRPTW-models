@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "logistic.h"
 #include <stdlib.h>
+#include <limits.h>
 
 
 typedef struct timeWindowTown {
@@ -378,10 +379,9 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
 
 double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime){
     twtown *subcopy = (twtown*)malloc(lenSub * sizeof(twtown));
-    int A_size0 = (lenSub - 1) / 2, B_size0 = (lenSub + 1)/ 2;
+    int A_size0 = lenSub / 2, B_size0 = lenSub - (lenSub / 2);
     int *A0 = (int*)malloc(A_size0 * sizeof(int));
     int *B0 = (int*)malloc(B_size0 * sizeof(int));
-    int A_size = A_size0, B_size = B_size0;
     //цикл копирования sub -> subcopy
     
     for(int i = 0; i < lenSub; i++)
@@ -390,10 +390,12 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
         if (i < A_size0) {A0[i] = i;}
         else {B0[i - A_size0] = i;}
     }
+    // printf("town %d\n", lenSub);
 
     while(1)
     {
         /* инициализация D */
+        int A_size = A_size0, B_size = B_size0;
         int *D = (int*)malloc(lenSub * sizeof(int));
         for(int a = 0; a < A_size0; a++){
             int I = 0, E = 0;
@@ -405,7 +407,10 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
             /* internal cost for a in A0 */
             for(int x = 0; x < A_size0; x++)
             {
-                I += getByTown(m, subcopy[A0[a]].t.name, subcopy[A0[x]].t.name);
+                if(a != x)
+                {
+                    I += getByTown(m, subcopy[A0[a]].t.name, subcopy[A0[x]].t.name);
+                }
             }
             D[A0[a]] = E - I;
         }
@@ -420,18 +425,23 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
             /* internal cost for b in B0 */
             for(int x = 0; x < B_size0; x++)
             {
-                I += getByTown(m, subcopy[B0[b]].t.name, subcopy[B0[x]].t.name);
+                if(b != x)
+                {
+                    I += getByTown(m, subcopy[B0[b]].t.name, subcopy[B0[x]].t.name);
+                }
             }
             D[B0[b]] = E - I;
+            // printf("b_%d: %d\n", b, D[B0[b]]);
         }
 
-        int G = 0;
-        int n = MIN(A_size0, B_size0);
+        int n;
+        if(A_size0 < B_size0) {n = A_size0;}else{n = B_size0;}
         int *g = (int*) malloc(n * sizeof(int));
         /* массивы с номерами элементов, которые переставляются */
         int *swap_a = (int*) malloc(n * sizeof(int));
         int *swap_b = (int*) malloc(n * sizeof(int));
-        for(int p = 0; p < n; p++){
+        for(int p = 0; p < n; p++)
+        {
             int *Ap = (int*) malloc(A_size * sizeof(int));
             int *Bp = (int*) malloc(B_size * sizeof(int));
             for (int i = 0, j = 0; i < A_size0; i++)
@@ -440,7 +450,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                 /* заполняем Ap элементами, которые не попали в перестановку */
                 for (int k = 0; k < p; k++)
                 {
-                    if (i == swap_a[k])
+                    if (A0[i] == swap_a[k])
                     {
                         flag = 0;
                         break;
@@ -458,7 +468,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                 /* заполняем Bp элементами, которые не попали в перестановку */
                 for (int k = 0; k < p; k++)
                 {
-                    if (i == swap_b[k])
+                    if (B0[i] == swap_b[k])
                     {
                         flag = 0;
                         break;
@@ -470,8 +480,8 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                     j++;
                 }
             }
-
-            int g_max = 0, a_max = 0, b_max = 0;
+            int g_max = INT_MIN, a_max = 0, b_max = 0;
+            // printf("SIZES: %d %d\n", A_size, B_size);
             for(int a = 0; a < A_size; a++){
                 for(int b = 0; b < B_size; b++){
                     int g_tmp = D[Ap[a]] + D[Bp[b]] - 2 * getByTown(m, subcopy[Bp[b]].t.name, subcopy[Ap[a]].t.name);
@@ -481,46 +491,73 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                         a_max = a;
                         b_max = b;
                     }
+                    // printf("%d %d: \n", D[Ap[a]], D[Bp[b]]);
                 }
             }
             g[p] = g_max;
-            swap_a[p] = a_max;
-            swap_b[p] = b_max;
+            printf("JOPA %d %d\n", p, g[p]);
+            swap_a[p] = Ap[a_max];
+            swap_b[p] = Bp[b_max];
+            // printf("Droped Towns: %d %d\n", subcopy[Ap[a_max]].t.name, subcopy[Bp[b_max]].t.name);
 
             for(int x = 0; x < A_size; x++){
                 if (x != a_max)
+                {
                     D[Ap[x]] = D[Ap[x]] + 2 * getByTown(m, subcopy[Ap[x]].t.name, subcopy[Ap[a_max]].t.name) - 2 * getByTown(m, subcopy[Ap[x]].t.name, subcopy[Bp[b_max]].t.name);
+                    // printf("%d \n", D[Ap[x]]);
+                }
+
             }
 
             for(int y = 0; y < B_size; y++){
                 if (y != b_max)
+                {
                     D[Bp[y]] = D[Bp[y]] + 2 * getByTown(m, subcopy[Bp[y]].t.name, subcopy[Bp[b_max]].t.name) - 2 * getByTown(m, subcopy[Bp[y]].t.name, subcopy[Ap[a_max]].t.name);
+                    // printf("%d \n", D[Bp[y]]);
+                }
             }
+            A_size--;
+            B_size--;
         }
-
-        int k = -1, G_max = 0;
+        int k = -1, G_max = 0, G = 0;
         for(int p = 0; p < n; p++){
             G += g[p];
             if (G_max < G)
             {
                 G_max = G;
-                k = p;
+                k = p + 1;
             }
         }
-
+        // free(g);
         if (G_max > 0) 
         {
+            // printf("G_MAX: %d\n", G_max);
             for (int i = 0; i < k; i++)
             {
-                int tmp = A0[swap_a[i]];
-                A0[swap_a[i]] = B0[swap_b[i]];
-                B0[swap_b[i]] = tmp;
+                int j, t;
+                for(j = 0; j < A_size0; j++){
+                    if(A0[j] == swap_a[i]){
+                        // printf("NICEEEEE\n");
+                        break;
+                    }
+                }
+                for(t = 0; t < B_size0; t++){
+                    if(B0[t] == swap_b[i]){
+                        // printf("BAAAADDDDD\n");
+                        break;
+                    }
+                }
+                int tmp = A0[j];
+                A0[j] = B0[t];
+                B0[t] = tmp;
             }
         }
         else
         {
+            // printf("TOUR FINISHED\n");
             break;
         }
+        // printf("GACHIII!\n");
     }
 
     for (int i = 0; i < lenSub; i++)
