@@ -186,6 +186,8 @@ def read_vrplib(filename, rounded=True):
                 continue
             elif line.startswith('CAPACITY'):
                 capacity = int(line.split(" : ")[1])
+            elif line.startswith('VEHICLES'):
+                num_vehicles = int(line.split(" : ")[1])
             elif line.startswith('EDGE_WEIGHT_TYPE'):
                 edge_weight_type = line.split(" : ")[1]
             elif line.startswith('EDGE_WEIGHT_FORMAT'):
@@ -243,6 +245,7 @@ def read_vrplib(filename, rounded=True):
         'coords': np.array([depot] + loc),
         'demands': np.array(demand),
         'capacity': capacity,
+        'num_vehicles': num_vehicles,
         'time_windows': np.array(timewi),
         'service_times': np.array(service_t),
         'duration_matrix': np.array(duration_matrix) if len(duration_matrix) > 0 else None

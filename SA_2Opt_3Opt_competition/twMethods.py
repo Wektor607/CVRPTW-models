@@ -67,7 +67,7 @@ class CVRPTW (VRP):
             :type string path_folder: Название папки, в которой буду сохранены бинарные файлы с матрицами расстояний;
             :type int count_towns: Количество городов.
         """
-        # для SA и LKH моей реализации
+        # для SA и opt моей реализации
         print("Parse from CVRPTW")
         if(self.alg_name != 'Gurobi'):
             vrp_c.parseOneTwTownPy(self.name_file, self.name_matrix_file, self.path_folder, self.count_towns)
@@ -85,7 +85,7 @@ class CVRPTW (VRP):
         vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity, self.countTasks)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
     
-    def opt(self, name_opt: str = 'lkh3opt') -> [float, list]:
+    def opt(self, name_opt: str = '3opt') -> [float, list]:
         """
         Функция, вызывающая алгоритм "Эвристика Лина-Кёрнигана" для решения задачи CVRPTW. На вход подается один параметр.
             :type string name_opt: название метода оптимизации: 2-opt, 3-opt.

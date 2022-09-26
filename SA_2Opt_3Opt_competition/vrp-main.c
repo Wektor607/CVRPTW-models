@@ -231,11 +231,12 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
       return NULL;
    }
    countTowns = tcountTown;
-   if(strcmp(algname, "cvrptw_lkh") == 0) {
-      char fileout[] = "LKH_CVRPTW_result.txt";
-      CVRPTW(lkhTw); 
-   } 
-   else if(strcmp(algname, "cvrptw_lkh_2opt") == 0) {
+   // if(strcmp(algname, "cvrptw_lkh") == 0) {
+   //    char fileout[] = "LKH_CVRPTW_result.txt";
+   //    CVRPTW(lkhTw); 
+   // } 
+   // else 
+   if(strcmp(algname, "cvrptw_lkh_2opt") == 0) {
       char fileout[] = "LKH_2opt_CVRPTW_result.txt";
       CVRPTW(lkh2optTw); 
    } 
