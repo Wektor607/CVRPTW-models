@@ -1,11 +1,4 @@
 import vrp_c
-import gurobi_functions as gur_f
-from gurobipy import Model, GRB, quicksum
-from datetime import datetime
-import os
-import numpy as np
-import pandas as pd
-import math
 
 class VRP:
     """
@@ -92,7 +85,7 @@ class CVRPTW (VRP):
         vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity, self.countTasks)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
     
-    def lkh(self, name_opt: str = 'lkh3opt') -> [float, list]:
+    def opt(self, name_opt: str = 'lkh3opt') -> [float, list]:
         """
         Функция, вызывающая алгоритм "Эвристика Лина-Кёрнигана" для решения задачи CVRPTW. На вход подается один параметр.
             :type string name_opt: название метода оптимизации: 2-opt, 3-opt.
@@ -100,199 +93,10 @@ class CVRPTW (VRP):
             1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """
-        if(name_opt == 'lkh2opt'):
+        if(name_opt == '2opt'):
             vrp_c.modelMetaHeuristic("cvrptw_lkh_2opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
-        elif(name_opt == 'lkh3opt'):
+        elif(name_opt == '3opt'):
             vrp_c.modelMetaHeuristic("cvrptw_lkh_3opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
-        elif(name_opt == 'lkh'):
-            vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity, self.countTasks)
+        # elif(name_opt == 'lkh'):
+        #     vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity, self.countTasks)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
-
-    def gurobi(self) -> [float, list]:
-        """
-        Функция, использующая коммерческий проект "Gurobi" для решения задачи CVRPTW.
-        
-        По окончании работы создается файл с данными, состоящий из двух колонок:
-            1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
-            2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
-        """ 
-        data_file = pd.read_csv(self.name_file, sep="\t", error_bad_lines=True)
-
-        # Запишем все данные в виде массива списков, где каждый список это строка с значениями конкретных столбцов
-        arr_data = data_file.values
-
-        # Задаём объем грузовика
-        Q_max    = self.capacity # Для 20:500, 50:750, 100:1000
-
-        # Создаём списки координат и грузов для каждого клиента
-        xc       = np.zeros(len(arr_data))
-        yc       = np.zeros(len(arr_data))
-        
-        for i in range(len(arr_data)):
-            if(arr_data[i][2] <= Q_max):
-                xc[i] = arr_data[len(arr_data) - 1 - i][0]
-                yc[i] = arr_data[len(arr_data) - 1 - i][1]
-
-        # Создаём список клиентов
-        clients  = []
-        for i in range(1, len(arr_data)):
-            clients.append(i)
-        
-        # Cоздаем список клиентов вместе с депо. Депо обозначено, как последний элемент в arr_data
-        nodes   = [0] + clients
-
-        # Задаём словари временных ограничений на посещение
-        
-        # Минимальное, максимальное время прибытия + перевод в секунды и время обслуживания
-        # Также из списка клиентов удаляются те у кого временное окно меньше времени обслуживания
-        start_lst  = {}
-        finish_lst = {}
-        service    = {}
-        q = {}
-        del_elem = []
-        for i in nodes:
-            st = (int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[0]) * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[0].split(':')[1])) * 60
-            fs = (int(arr_data[len(arr_data) - 1 - i][3].split('-')[1].split(':')[0])  * 60 + int(arr_data[len(arr_data) - 1 - i][3].split('-')[1].split(':')[1])) * 60
-            sv = int(arr_data[len(arr_data) - 1 - i][4]) * 60
-            if(sv <= fs - st):
-                start_lst[i] = st
-                finish_lst[i] = fs
-                service[i] = sv
-                q[i] = arr_data[len(arr_data) - 1 - i][2]
-            else:
-                del_elem.append(i)
-
-        for i in del_elem:
-            clients.remove(i)
-            nodes.remove(i)
-
-        # Создаём список всевохможных пар между клиентами, включая депо
-        paires  = [(i, j) for i in nodes for j in nodes if i != j]
-
-        # Задаем словарь всевозможных времен необходоимых для перемещения между всеми городами, включая депо
-        distance  = {}
-        v = 60 # скорость грузовика в км/ч
-        time = {}
-        for i, j in paires:
-            dist = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2)
-            distance[i, j] = dist * 100 
-            time[i, j] = dist / v * 3600
-
-        #Список транспортных средств
-        vehicles = [i for i in range(1, self.count_vehicles)]
-
-        #Словарь вместимости транспортных средств
-        Q         = {i: Q_max for i in range(1, self.count_vehicles)}
-
-        arco_var  = [(i, j, k) for i in nodes for j in nodes for k in vehicles if i != j]
-
-        arco_time = [(i, k) for i in nodes for k in vehicles]
-
-        # Модель
-        model = Model('VRPTW')
-
-        # Переменные для решения
-        x = model.addVars(arco_var, vtype=GRB.BINARY, name = 'x')
-        t = model.addVars(arco_time, vtype=GRB.CONTINUOUS, name = 't')
-
-        #Целевая функция
-        model.setObjective(quicksum(distance[i, j] * x[i,j,k] for i, j, k in arco_var), GRB.MINIMIZE)
-
-        #Ограничения
-
-        #TODO: Дописать комментарии к ограничениям
-
-        # Прибытие и отъезд
-        model.addConstrs(quicksum(x[0, j, k] for j in clients) <= 1 for k in vehicles)
-        model.addConstrs(quicksum(x[i, 0, k] for i in clients) <= 1 for k in vehicles)
-
-        # Ограничение по посещению маршрута ровно один раз и ровно одним грузовиком
-        model.addConstrs(quicksum(x[i, j, k] for j in nodes for k in vehicles if i != j) == 1 for i in clients)
-
-        #
-        model.addConstrs(quicksum(x[i, j, k] for j in nodes if i != j) - quicksum(x[j, i, k] for j in nodes if i != j) == 0 for i in nodes for k in vehicles)
-
-        #Ограничение на вместимость грузовика
-        model.addConstrs(quicksum(q[i] * quicksum(x[i, j, k] for j in nodes if i != j) for i in clients) <= Q[k] for k in vehicles)
-
-        #Ограничение по времени
-        model.addConstrs((x[i,j,k] == 1) >> (t[i, k] + service[i] + time[i, j] == t[j, k]) for i in clients for j in clients for k in vehicles if i != j)
-        model.addConstrs(t[i, k] >= start_lst[i] for i, k in arco_time)
-        model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
-
-        # Optimizing the model
-        model.Params.TimeLimit = 600 # seconds
-        model.Params.LogFile= "Gurobi_50.txt"
-        model.optimize()
-        if model.status == GRB.OPTIMAL:
-            print('1.Optimal objective: %g' % model.objVal)
-            print('Optimal cost: %g' % model.objVal)
-        elif model.status == GRB.INFEASIBLE:
-            print('3.Model is infeasible')
-        elif model.status == GRB.UNBOUNDED:
-            print('4.Model is unbounded')
-        else:
-            print('5.Optimization ended with status %d' % model.status)
-        
-        # Список времен в секундах, которое понадобилось для прохождения каждого подмаршрута
-        print("model.objVal: ", model.objVal)
-        if (model.objVal != math.inf):
-            active_arcs = [a for a in arco_var if x[a].x > 0.99]
-            res_gur = []
-            for c in range(1, self.count_vehicles):
-                active_arcs_1 = []
-                for i in range(len(active_arcs)):
-                    if(active_arcs[i][2] == c):
-                        active_arcs_1.append(active_arcs[i])
-
-                res_sort = []
-                if(active_arcs_1 != []):
-                    res_sort.append(active_arcs_1[0])
-                    while(res_sort[len(res_sort)-1][1] != 0):
-                        for i in range(len(active_arcs_1)):
-                            if(active_arcs_1[i][0] == res_sort[len(res_sort)-1][1]):
-                                tu = active_arcs_1[i]
-                                break
-                        res_sort.append(tu)
-
-                    res_gur.append(check(res_sort, start_lst[0], time, start_lst, finish_lst, service))
-            # Общее время прохождения всего маршрута
-            s = 0
-            count_bad = 0
-            r = model.objVal
-            for i in res_gur:
-                if(i != 'BAD'):
-                    s += i
-                else:
-    #                 count_bad += 1
-                    s = "NoSolution"
-                    r = "NoSolution"
-                    break
-            print('')
-            print('time Gurobi: ',s)
-            print('Count bad subtours Gurobi: ', count_bad)
-        else:
-            s = "NoSolution"
-            r = "NoSolution" 
-         
-        if(len(arr_data) == 21):
-            with open(f"20TownsResult/Result.csv", "a") as f:
-                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
-            f.close()
-            with open(f"20TownsResult/Result_dist.csv", "a") as f:
-                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(r) + ' ' + str(model.Runtime) + '\n')
-            f.close()
-        elif(len(arr_data) == 51):
-            with open(f"50TownsResult/Result.csv", "a") as f:
-                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
-            f.close()
-            with open(f"50TownsResult/Result_dist.csv", "a") as f:
-                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(r) + ' ' + str(model.Runtime) + '\n')
-            f.close()
-        elif(len(arr_data)== 101):
-            with open(f"100TownsResult/Result.csv", "a") as f:
-                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
-            f.close()
-            with open(f"100TownsResult/Result_dist.csv", "a") as f:
-                f.write(self.name_file.split('/')[1].split('.csv')[0] + ' ' + str(r) + ' ' + str(model.Runtime) + '\n')
-            f.close()

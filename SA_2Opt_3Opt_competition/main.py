@@ -2,25 +2,27 @@ from twMethods import *
 from collections import deque
 from datetime import datetime
 import tools
-
+import numpy as np
+import pandas as pd
 def translate_minute(sec):
     minute = sec // 60
     hour = minute // 60 
     minute %= 60 
     return "%02d:%02d" % (hour, minute)
+
 def main():
-    # print("Введите количество городов(20, 50, 100): ")
-    # n = input()
-    lst = []
+
+    lst = ["instances/ORTEC-VRPTW-ASYM-00c5356f-d1-n258-k12.txt",
+    ]
     for i in range(1, 2):
-        lst.append(f"instances/ORTEC-VRPTW-ASYM-00c5356f-d1-n258-k12.txt")
+        lst.append(f1)
     
     data = tools.read_vrplib(lst[0])
-    # with open('example1.csv','w') as fout:
-    #     fout.write('x_coord' + '\t' + 'y_coord' + '\t' + 'Weight' + '\t' + 'DeliveryTimeRange' + '\t' + 'UnloadingTime' + '\n')
-    #     for i in range(1,len(data['coords'])):
-    #         fout.write(np.array2string(data['coords'][i][0]) + '\t' + np.array2string(data['coords'][i][1])  + '\t' + np.array2string(data['demands'][i])  + '\t' + translate_minute(data['time_windows'][i][0]) + '-' + translate_minute(data['time_windows'][i][1]) + '\t' + np.array2string(data['service_times'][i]) + '\n')
-    #     fout.write(np.array2string(data['coords'][0][0]) + '\t' + np.array2string(data['coords'][0][1])  + '\t' + np.array2string(data['demands'][0])  + '\t' + translate_minute(data['time_windows'][0][0]) + '-' + translate_minute(data['time_windows'][0][1]) + '\t' + np.array2string(data['service_times'][0]) + '\n')
+    with open('parse_instance/example1.csv','w') as fout:
+        fout.write('x_coord' + '\t' + 'y_coord' + '\t' + 'Weight' + '\t' + 'DeliveryTimeRange' + '\t' + 'UnloadingTime' + '\n')
+        for i in range(1,len(data['coords'])):
+            fout.write(np.array2string(data['coords'][i][0]) + '\t' + np.array2string(data['coords'][i][1])  + '\t' + np.array2string(data['demands'][i])  + '\t' + translate_minute(data['time_windows'][i][0]) + '-' + translate_minute(data['time_windows'][i][1]) + '\t' + np.array2string(data['service_times'][i]) + '\n')
+        fout.write(np.array2string(data['coords'][0][0]) + '\t' + np.array2string(data['coords'][0][1])  + '\t' + np.array2string(data['demands'][0])  + '\t' + translate_minute(data['time_windows'][0][0]) + '-' + translate_minute(data['time_windows'][0][1]) + '\t' + np.array2string(data['service_times'][0]) + '\n')
     lst1 = []    
     lst1.append("example1.csv")
     # print('If you want open documentation write YES else press Enter')
@@ -28,14 +30,14 @@ def main():
     # if(doc == 'YES'):
     #     help(vrp_c) #TODO: в отредактировать текст в документации
 
-    print('which method do you want to use to optimize the routse for CVRPTW: SA or LKH or Gurobi?')
+    print('which method do you want to use to optimize the routse for CVRPTW: SA or opt?')
     method = input()
     idx = 0
     if(method == 'SA'):
         for nf in lst1:
             count_towns = len(data['is_depot'])
             max_capacity = data['capacity']
-            iteretions   = 5000
+            iteretions   = 500
             start = data['time_windows'][0][0]
             end = data['time_windows'][0][1]
             kr = nf.split('.')[0]
@@ -51,9 +53,9 @@ def main():
                     write_file.write(data)
     elif(method == 'LKH'):
         while(1):
-            print("Input lkh2opt or lkh3opt:")
+            print("Input 2opt or 3opt:")
             name_opt = input()
-            if(name_opt == 'lkh2opt' or name_opt == 'lkh3opt' or name_opt == 'lkh'):
+            if(name_opt == '2opt' or name_opt == '3opt' or name_opt == 'lkh'):
                 break
             else:
                 print('Try again!')
@@ -61,7 +63,7 @@ def main():
         for nf in lst1:
             count_towns = len(data['is_depot'])
             max_capacity = data['capacity']
-            iteretions   = 7500
+            iteretions   = 500
             start = data['time_windows'][0][0]
             end = data['time_windows'][0][1]
             kr = nf.split('.')[0]

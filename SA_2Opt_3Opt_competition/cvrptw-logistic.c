@@ -713,7 +713,7 @@ void parseOneTwTownNoIndex(const char pathFile[], const char matrixFile[],const 
 
         }
     }
-    // printtownmatrix(&m);
+    printtownmatrix(&m);
     
 
     fwrite(&m.width, sizeof(int), 1, outtable);
