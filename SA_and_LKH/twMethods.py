@@ -47,7 +47,7 @@ def check(all_pairs, timer, distance, start_lst, finish_lst, service):
     for i, j, k in all_pairs:
         local_timer += distance[i, j] + service[j]
         if(not(local_timer >= start_lst[j])):
-            local_timer = start_lst[j] + service[j]
+            local_timer = start_lst[j]
         if(not(local_timer >= start_lst[j] and local_timer <= finish_lst[j] and local_timer <= finish_lst[0])):
             return "BAD"
     return local_timer - timer
