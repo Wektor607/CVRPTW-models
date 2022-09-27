@@ -76,15 +76,16 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
 
     double localtimer = timer;
     double dop_time = 0;
-
+    // printf("LENSUB: %d\n", lenSub);
     localtimer += getByTown(m, 0, sub[0].t.name) + sub[0].mTimeService;
-    // printf("sub[0].mTimeService: %lf\n", sub[0].mTimeService);
+    // printf("sub[0].mTimeService: %lf\n", sub[3].mTimeService);
     if(!(localtimer >= sub[0].mTimeStart))
     {
-        // printf("FUCK: %lf %lf\n", localtimer, sub[0].mTimeStart);
         dop_time += sub[0].mTimeStart - localtimer;
-        localtimer = sub[0].mTimeStart + sub[0].mTimeService; 
+        localtimer = sub[0].mTimeStart;
+        // printf("localtimer_if_start: %lf\n", localtimer);
     }
+    // printf("%d %d localtimer_start: %lf\n", 0, sub[0].t.name, localtimer - timer - dop_time - sub[0].mTimeService);
     if(!(localtimer >= sub[0].mTimeStart && localtimer <= sub[0].mTimeEnd && localtimer <= endTime)) 
     {
         // printf("localtimer <= sub[0].mTimeEnd: %lf %lf %lf %d\n", localtimer, sub[0].mTimeStart, sub[0].mTimeEnd, localtimer <= sub[0].mTimeEnd);
@@ -97,11 +98,12 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
         if(!(localtimer >= sub[i+1].mTimeStart))
         {
             dop_time += sub[i+1].mTimeStart - localtimer;
-            localtimer = sub[i+1].mTimeStart + sub[i+1].mTimeService;
+            localtimer = sub[i+1].mTimeStart;
         }
         if(!(localtimer >= sub[i+1].mTimeStart && localtimer <= sub[i+1].mTimeEnd && localtimer <= endTime)) {
             return -1;
         }
+        // printf("%d %d localtimer: %lf\n", i, i+1, localtimer - timer - dop_time - sub[i+1].mTimeService);
     }
 
     localtimer += getByTown(m, 0, sub[lenSub-1].t.name);
@@ -109,11 +111,11 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
     {
         return -1;
     }
-    
+    // printf("%d %d localtimer_finish: %lf\n", sub[lenSub-1].t.name , 0, localtimer - timer - dop_time);
     // Если нужно вычислить расстояние, то вычитаем суммарное время ожидания
     // Если же нужно получить общее время, затраченное на всю поездку, то не отнимаем это доп. время, но переводить в метры это время
     // не корректно
-    return localtimer - timer - dop_time;
+    return localtimer - timer;
 }
 
 
@@ -371,10 +373,6 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     return best;
 }
 
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime){
@@ -391,7 +389,16 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
         else {B0[i - A_size0] = i;}
     }
     // printf("town %d\n", lenSub);
-
+    // for(int i = 0; i < lenSub; i++)
+    // {
+    //     for(int j = 0; i < lenSub; i++)
+    //     {
+    //         if(i != j)
+    //         {
+    //             printf("%d %d: %lf\n", i, j, getByTown(m, subcopy[i].t.name, subcopy[j].t.name));
+    //         }
+    //     }
+    // }
     while(1)
     {
         /* инициализация D */
@@ -495,7 +502,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                 }
             }
             g[p] = g_max;
-            printf("JOPA %d %d\n", p, g[p]);
+            // printf("JOPA %d %d\n", p, g[p]);
             swap_a[p] = Ap[a_max];
             swap_b[p] = Bp[b_max];
             // printf("Droped Towns: %d %d\n", subcopy[Ap[a_max]].t.name, subcopy[Bp[b_max]].t.name);
@@ -586,11 +593,6 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 void GenerateStateCandidateTw(twtown *sub, twtown *best, int lenSub) 
 {

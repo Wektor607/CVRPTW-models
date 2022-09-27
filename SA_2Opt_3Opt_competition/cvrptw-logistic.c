@@ -74,15 +74,15 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
 
     double localtimer = timer;
     double dop_time = 0;
-
+    // printf("LENSUB: %d\n", lenSub);
     localtimer += getByTown(m, 0, sub[0].t.name) + sub[0].mTimeService;
-    // printf("sub[0].mTimeService: %lf %lf %lf\n", localtimer, getByTown(m, 0, sub[0].t.name), sub[0].mTimeService);
+    // printf("sub[0].mTimeService: %lf\n", sub[3].mTimeService);
     if(!(localtimer >= sub[0].mTimeStart))
     {
-        // printf("FUCK: %lf %lf\n", localtimer, sub[0].mTimeStart);
-        dop_time += sub[0].mTimeStart - localtimer;
-        localtimer = sub[0].mTimeStart + sub[0].mTimeService; 
+        localtimer = sub[0].mTimeStart;
+        // printf("localtimer_if_start: %lf\n", localtimer);
     }
+    // printf("%d %d localtimer_start: %lf\n", 0, sub[0].t.name, localtimer - timer - dop_time - sub[0].mTimeService);
     if(!(localtimer >= sub[0].mTimeStart && localtimer <= sub[0].mTimeEnd && localtimer <= endTime)) 
     {
         // printf("localtimer <= sub[0].mTimeEnd: %lf %lf %lf %d\n", localtimer, sub[0].mTimeStart, sub[0].mTimeEnd, localtimer <= sub[0].mTimeEnd);
@@ -94,12 +94,12 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
         localtimer += getByTown(m, sub[i].t.name, sub[i+1].t.name) + sub[i+1].mTimeService;
         if(!(localtimer >= sub[i+1].mTimeStart))
         {
-            dop_time += sub[i+1].mTimeStart - localtimer;
-            localtimer = sub[i+1].mTimeStart + sub[i+1].mTimeService;
+            localtimer = sub[i+1].mTimeStart;
         }
         if(!(localtimer >= sub[i+1].mTimeStart && localtimer <= sub[i+1].mTimeEnd && localtimer <= endTime)) {
             return -1;
         }
+        // printf("%d %d localtimer: %lf\n", i, i+1, localtimer - timer - dop_time - sub[i+1].mTimeService);
     }
 
     localtimer += getByTown(m, 0, sub[lenSub-1].t.name);
@@ -107,11 +107,8 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double ti
     {
         return -1;
     }
-    
-    // Если нужно вычислить расстояние, то вычитаем суммарное время ожидания
-    // Если же нужно получить общее время, затраченное на всю поездку, то не отнимаем это доп. время, но переводить в метры это время
-    // не корректно
-    return localtimer - timer - dop_time;
+
+    return localtimer - timer;
 }
 
 
