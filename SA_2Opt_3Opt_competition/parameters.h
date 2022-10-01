@@ -6,7 +6,7 @@
 
 //for sa
 long double tmax = 1000;
-long double tmin = 0.1;
+long double tmin = 1;
 
 //parameters-bin
 long long countTowns = 101;

@@ -6,7 +6,7 @@ def main():
     print("Введите количество городов(20, 50, 100): ")
     n = input()
     lst = []
-    for i in range(1, 2):
+    for i in range(1, 101):
         lst.append(f"{n}/Example{i}.csv")
     
     print('If you want open documentation write YES else press Enter')
@@ -26,13 +26,13 @@ def main():
                 last_line = last_line.split('\t')[3].split('-')
             if(count_towns == 21):
                 max_capacity = 500
-                iteretions   = 700
+                iteretions   = 5000
             elif(count_towns == 51):
                 max_capacity = 750
-                iteretions   = 500
+                iteretions   = 2500
             elif(count_towns == 101):
                 max_capacity = 1000
-                iteretions   = 300
+                iteretions   = 500
             start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
             end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
             a = CVRPTW('SA', i, f"{count_towns-1}_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
@@ -59,16 +59,16 @@ def main():
                 last_line = last_line.split('\t')[3].split('-')
             if(count_towns == 21):
                 max_capacity = 500
-                iteretions   = 700
+                iteretions   = 5000
             elif(count_towns == 51):
                 max_capacity = 750
-                iteretions   = 500
+                iteretions   = 1500
             elif(count_towns == 101):
                 max_capacity = 1000
-                iteretions   = 300
+                iteretions   = 500
             start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
             end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-            a = CVRPTW('LKH', i, f"{count_towns-1}_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+            a = CVRPTW('LKH', i, f"{20}_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.lkh(name_opt))
             if(name_opt == 'lkh2opt' or name_opt == 'lkh3opt'):
@@ -87,15 +87,15 @@ def main():
                 count_towns = sum(1 for _ in f) - 1
             if(count_towns == 21):
                 max_capacity = 500
-                iteretions   = 700
+                iteretions   = 1500
                 count_vehicles = 11
             elif(count_towns == 51):
                 max_capacity = 750
-                iteretions   = 500
+                iteretions   = 1000
                 count_vehicles = 11
             elif(count_towns == 101):
                 max_capacity = 1000
-                iteretions   = 300
+                iteretions   = 500
                 count_vehicles = 21
             a = CVRPTW('Gurobi', i, f"{count_towns-1}_tw/test{idx}", count_towns, iteretions, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
             idx += 1
