@@ -168,13 +168,11 @@ class CVRPTW (VRP):
         paires  = [(i, j) for i in nodes for j in nodes if i != j]
 
         # Задаем словарь всевозможных времен необходоимых для перемещения между всеми городами, включая депо
-        distance  = {}
         v = 60 # скорость грузовика в км/ч
         time = {}
         for i, j in paires:
             dist = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2)
-            distance[i, j] = dist * 100 
-            time[i, j] = dist / v * 3600
+            time[i, j] = dist * 3600 / v
 
         #Список транспортных средств
         vehicles = [i for i in range(1, self.count_vehicles)]
@@ -194,7 +192,7 @@ class CVRPTW (VRP):
         t = model.addVars(arco_time, vtype=GRB.CONTINUOUS, name = 't')
 
         #Целевая функция
-        model.setObjective(quicksum(distance[i, j] * x[i,j,k] for i, j, k in arco_var), GRB.MINIMIZE)
+        model.setObjective(quicksum(time[i, j] * x[i,j,k] * 60 * 1000 / 3600  for i, j, k in arco_var), GRB.MINIMIZE)
 
         #Ограничения
 
@@ -219,8 +217,8 @@ class CVRPTW (VRP):
         model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
         # Optimizing the model
-        model.Params.TimeLimit = 600 # seconds
-        model.Params.LogFile= "Gurobi_50.txt"
+        model.Params.TimeLimit = 300 # seconds
+        model.Params.LogFile= "Gurobi_20_dist.txt"
         model.optimize()
         if model.status == GRB.OPTIMAL:
             print('1.Optimal objective: %g' % model.objVal)
@@ -262,13 +260,11 @@ class CVRPTW (VRP):
                 if(i != 'BAD'):
                     s += i
                 else:
-    #                 count_bad += 1
                     s = "NoSolution"
                     r = "NoSolution"
                     break
             print('')
             print('time Gurobi: ',s)
-            print('Count bad subtours Gurobi: ', count_bad)
         else:
             s = "NoSolution"
             r = "NoSolution" 

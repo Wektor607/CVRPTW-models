@@ -128,7 +128,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    double full_time = 0;\
    for(int i = 0; i < countTasks;i++){\
       clock_t start = clock();\
-      printf("countTaks: %d\n", i);\
+      /*printf("countTaks: %d\n", i);\*/\
       days = 1;\
       doShuffleTw(newCountTowns, sub);\
       l = 0;\
@@ -194,14 +194,16 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
          }\
       }\
       if(distanceInTourBest == -1.0) {\
+      /*distanceInTourNew * 60 * 1000 / 3600*/\
          fprintf(out, "%lf\t%lf\n", (distanceInTourNew), 0.0);\
          distanceInTourBest = distanceInTourNew;\
       } \
       if(distanceInTourNew < distanceInTourBest) {\
          distanceInTourBest = distanceInTourNew;\
          printf("\nAll days: %d %lf\n", days, distanceInTourBest); \
-         write_cvrptw_end_tour(res_distance, (distanceInTourBest));\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourBest * 60 * 1000 / 3600), (clock() - runtime) / CLOCKS_PER_SEC);\
+         write_cvrptw_end_tour(res_distance, distanceInTourBest);\
+         /*distanceInTourBest * 60 * 1000 / 3600*/\
+         fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
       }\
       else {\
          write_cvrptw_end_tour(res_distance, -1);\
@@ -210,11 +212,12 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
       clock_t end = clock();\
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;\
       full_time += seconds;\
-      printf("One iteration time: %lf\n", seconds);\
+      /*printf("One iteration time: %lf\n", seconds);\*/\
    }\
-   printf("Full time: %lf\n", full_time);\
-   printf("Average time on one task: %lf\n", full_time / countTasks);\
-   fprintf(out, "%lf\t%lf\n", (distanceInTourBest * 60 * 1000 / 3600), (clock() - runtime) / CLOCKS_PER_SEC);\
+   /*printf("Full time: %lf\n", full_time);\ 
+   printf("Average time on one task: %lf\n", full_time / countTasks);\*/\
+   /*distanceInTourBest * 60 * 1000 / 3600*/\
+   fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
    fputc('\n', out);\
    free(sub);\
    free(towns);\
