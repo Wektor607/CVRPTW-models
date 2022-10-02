@@ -67,55 +67,54 @@ void doShuffleTw(int counttown, twtown *towns)
     }
 }
 
-double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix* m, const double timer, const double endTime)
+double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double timer, const double endTime)
 {
-    if(lenSub == 0) 
+    if (lenSub == 0)
     {
         return 0;
     }
 
     double localtimer = timer;
     double dop_time = 0;
-    // printf("LENSUB: %d\n", lenSub);
-    localtimer += getByTown(m, 0, sub[0].t.name) + sub[0].mTimeService;
-    // printf("sub[0].mTimeService: %lf\n", sub[3].mTimeService);
-    if(!(localtimer >= sub[0].mTimeStart))
+
+    //localtimer += getByTown(m, 0, sub[0].t.name) + sub[0].mTimeService;
+    // printf("sub[0].mTimeService: %lf\n", sub[0].mTimeService);
+    /* if (!(localtimer >= sub[0].mTimeStart))
     {
+        // printf("FUCK: %lf %lf\n", localtimer, sub[0].mTimeStart);
         dop_time += sub[0].mTimeStart - localtimer;
-        localtimer = sub[0].mTimeStart;
-        // printf("localtimer_if_start: %lf\n", localtimer);
-    }
-    // printf("%d %d localtimer_start: %lf\n", 0, sub[0].t.name, localtimer - timer - dop_time - sub[0].mTimeService);
-    if(!(localtimer >= sub[0].mTimeStart && localtimer <= sub[0].mTimeEnd && localtimer <= endTime)) 
+        localtimer = sub[0].mTimeStart + sub[0].mTimeService;
+    } */
+    /* if (!(localtimer >= sub[0].mTimeStart && localtimer <= sub[0].mTimeEnd && localtimer <= endTime))
     {
         // printf("localtimer <= sub[0].mTimeEnd: %lf %lf %lf %d\n", localtimer, sub[0].mTimeStart, sub[0].mTimeEnd, localtimer <= sub[0].mTimeEnd);
         return -1;
-    }
+    } */
 
-    for(int i = 0; i < lenSub-1; i++)
+    for (int i = 0; i < lenSub - 1; i++)
     {
-        localtimer += getByTown(m, sub[i].t.name, sub[i+1].t.name) + sub[i+1].mTimeService;
-        if(!(localtimer >= sub[i+1].mTimeStart))
+        localtimer += getByTown(m, sub[i].t.name, sub[i + 1].t.name) + sub[i + 1].mTimeService;
+        if (!(localtimer >= sub[i + 1].mTimeStart))
         {
-            dop_time += sub[i+1].mTimeStart - localtimer;
-            localtimer = sub[i+1].mTimeStart;
+            dop_time += sub[i + 1].mTimeStart - localtimer;
+            localtimer = sub[i + 1].mTimeStart + sub[i + 1].mTimeService;
         }
-        if(!(localtimer >= sub[i+1].mTimeStart && localtimer <= sub[i+1].mTimeEnd && localtimer <= endTime)) {
+        if (!(localtimer >= sub[i + 1].mTimeStart && localtimer <= sub[i + 1].mTimeEnd && localtimer <= endTime))
+        {
             return -1;
         }
-        // printf("%d %d localtimer: %lf\n", i, i+1, localtimer - timer - dop_time - sub[i+1].mTimeService);
     }
 
-    localtimer += getByTown(m, 0, sub[lenSub-1].t.name);
-    if(!(localtimer <= endTime)) 
+    localtimer += getByTown(m, sub[0].t.name, sub[lenSub - 1].t.name);
+    if (!(localtimer <= endTime))
     {
         return -1;
     }
-    // printf("%d %d localtimer_finish: %lf\n", sub[lenSub-1].t.name , 0, localtimer - timer - dop_time);
+
     // Если нужно вычислить расстояние, то вычитаем суммарное время ожидания
     // Если же нужно получить общее время, затраченное на всю поездку, то не отнимаем это доп. время, но переводить в метры это время
     // не корректно
-    return localtimer - timer;// - dop_time; //- lenSub * sub[0].mTimeService;
+    return localtimer - timer - dop_time;
 }
 
 
@@ -395,111 +394,270 @@ Edge edge_init(int nd1, int nd2)
     return edge;
 }
 
+double gain(halfmatrix *m, Edge x, Edge y)
+{
+    return getByTown(m, x.node1, x.node2) - getByTown(m, y.node1, y.node2);
+}
+
 double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime)
 {
     /* 1 Create starting tour T */
-    Edge *T = (Edge *) calloc(lenSub, sizeof(Edge));
+    Edge *T = (Edge *)calloc(lenSub, sizeof(Edge));
+    Edge *T1 = NULL;
+    double FT = 0, FT1 = 0;
     for (int i = 0; i < lenSub - 1; ++i)
     {
         T[i] = edge_init(sub[i].t.name, sub[i + 1].t.name);
+        FT += getByTown(m, sub[i].t.name, sub[i + 1].t.name);
     }
     T[lenSub - 1] = edge_init(sub[lenSub - 1].t.name, sub[0].t.name);
+    FT += getByTown(m, sub[lenSub - 1].t.name, sub[0].t.name);
 
     /* 2 */
-    int G_star = 0; /* the best improvement made so far */
-    //int i = 0;
-    Edge *X = (Edge *) calloc(lenSub, sizeof(Edge));
-    Edge *Y = (Edge *) calloc(lenSub, sizeof(Edge));
-    int *G = (int *) calloc(lenSub, sizeof(int));
-    int t0 = T[0].node1;
-    X[0] = edge_init(T[0].node1, T[0].node2);
-
-    /* 3 */
-    int t2 = X[0].node2;
-    int flag0 = 0;
-    for (int j = 0; j < lenSub; ++j)
+    for (int k = 0; k < lenSub; ++k)
     {
-        if (sub[j].t.name != X[0].node2 && sub[j].t.name != X[0].node1) /* Y[0] не петля и Y[0] != X[0]*/
+        bool flag_cool = 0;
+        int G_star = 0; /* the best improvement made so far */
+        Edge *X = (Edge *)calloc(lenSub, sizeof(Edge));
+        Edge *Y = (Edge *)calloc(lenSub, sizeof(Edge));
+        int *G = (int *)calloc(lenSub, sizeof(int));
+        int t1 = T[k].node1;
+
+        /* 3 */
+        int t2 = T[k].node2;
+        X[0] = edge_init(t1, t2);
+
+        /* 4 */
+        int flag0 = 0;
+        int t3 = -1;
+        for (int j = 0; j < lenSub; ++j)
         {
-            double g0 = getByTown(m, X[0].node1, X[0].node2) - getByTown(m, X[0].node2, sub[j].t.name); /* g0 = |X[0]| - |Y[0]| */
-            if (g0 > 0)
+            t3 = sub[j].t.name;
+            int tmp = (k + 1 == lenSub ? T[0].node2 : T[k + 1].node2);
+            if (t3 != t1 && t3 != tmp && t3 != t2) /* Y[0] не из T и не петля */
             {
-                flag0 = 1;
-                G_star += g0;
-                Y[0] = edge_init(X[0].node2, sub[j].t.name);
+                double g0 = getByTown(m, t1, t2) - getByTown(m, t2, t3); /* g0 = |X[0]| - |Y[0]| */
+                if (g0 > 0)
+                {
+                    flag0 = 1;
+                    Y[0] = edge_init(t2, t3);
+                    break;
+                }
+            }
+        }
+        if (!flag0)
+            continue; /* 12 */
+
+        /* 6 */
+        for (int i = 1; i < lenSub; ++i)
+        {
+            int t2i[2] = {-1, -1};
+            int t2i_final = -1;
+            int xi_node1 = Y[i - 1].node2; /* t_(2i-1) */
+            for (int j = 0; j < lenSub; ++j)
+            {
+                int tmp = (j + 1 == lenSub ? T[0].node2 : T[j + 1].node2);
+                if (T[j].node2 == xi_node1 && tmp != t1)
+                {
+                    t2i[0] = tmp;
+                    t2i[1] = T[j].node1;
+                    break;
+                }
+            }
+            int u;
+            for (u = 0; u < 2; ++u)
+            {
+                int v = 0, w = 0;
+                Y[i] = edge_init(t2i[u], t1);
+                /* 6a */
+                T1 = (Edge *)calloc(lenSub, sizeof(Edge));
+                for (; v < lenSub; ++v)
+                {
+                    bool flag = 1;
+                    int x;
+                    for (x = 0; x <= i; ++i)
+                    {
+                        if (edge_equal(T[w], X[x]))
+                        {
+                            flag = 0;
+                            break;
+                        }
+                    }
+                    if (flag) /* не меняем ребро */
+                    {
+                        T1[v] = T[w];
+                        w++;
+                    }
+                    else /* меняем ребро */
+                    {
+                        T1[v] = Y[x];
+                        int l;
+                        for (l = 0; l < lenSub; ++l)
+                        {
+                            if (T[l].node1 == Y[x].node2)
+                            {
+                                int flag1 = 1;
+                                for (int n = 0; n <= i; ++i)
+                                {
+                                    if (edge_equal(T[l], X[n]))
+                                    {
+                                        flag1 = 0;
+                                        break;
+                                    }
+                                }
+                                if (!flag1)
+                                    continue;
+                                else
+                                {
+                                    w = l;
+                                    break;
+                                }
+                            }
+                        }
+                        if (w != l)
+                            continue; /* не нашли следующее */
+                    }
+                }
+                if (v != lenSub)
+                    continue;
+
+                /* 6b */
+                bool flag5b = 1;
+                for (int s = 0; s < i; ++s)
+                {
+                    if (edge_equal(X[i], Y[s]))
+                    {
+                        flag5b = 0;
+                        break;
+                    }
+                }
+                if (!flag5b)
+                    continue;
+                else
+                    flag_cool = 1;
                 break;
+            }
+            t2i_final = t2i[u];
+            X[i] = edge_init(xi_node1, t2i_final);
+            if (flag_cool)
+            {
+                FT1 = 0;
+                for (int z = 0; z < lenSub; ++z)
+                {
+                    FT1 += getByTown(m, T1[z].node1, T1[z].node2);
+                }
+                if (FT1 < FT)
+                {
+                    for (int z = 0; z < lenSub; ++z)
+                    {
+                        T[z] = T1[z];
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                i--;
+                continue; /* 9 */
+            }
+
+            /* 7 */
+            for (int j = 0; j < lenSub; ++j)
+            {
+                int yinode2 = sub[j].t.name; /* t_(2i+1) */
+                Y[i] = edge_init(t2i_final, yinode2);
+                bool flag7 = 1;
+                for (int q = 0; q < lenSub; ++q)
+                {
+                    if (edge_equal(T[q], Y[i]))
+                    {
+                        flag7 = 0;
+                        break;
+                    }
+                }
+                if (!flag7)
+                    continue; /* 8 */
+
+                /* 7a */
+                double Gi = 0;
+                for (int r = 0; r <= i; ++r)
+                {
+                    Gi += gain(m, X[r], Y[r]);
+                }
+                if (Gi <= 0)
+                    continue; /* 8 */
+
+                /* 7b */
+                bool flag7b = 1;
+                for (int s = 0; s <= i; ++s)
+                {
+                    if (edge_equal(X[s], Y[i]))
+                    {
+                        flag7b = 0;
+                        break;
+                    }
+                }
+                if (!flag7b)
+                    continue; /* 8 */
+
+                /* 7c */
+                bool flag7c = 0;
+                for (int h = 0; h < lenSub; ++h)
+                {
+                    X[i + 1] = edge_init(yinode2, sub[h].t.name);
+                    for (int c = 0; c < lenSub; ++c)
+                    {
+                        if (edge_equal(T[h], X[i + 1]))
+                        {
+                            flag7c = 1;
+                            break;
+                        }
+                    }
+                    if (flag7c)
+                        break;
+                }
+                if (flag7c)
+                    break;
+                /* 8 */
             }
         }
     }
-    if (!flag0)
+    int start = 0;
+    for (int i = 0; i < lenSub; ++i)
     {
-        /* 6(d) */
-    }
-    
-    /* 4 */
-    for (int i = 1; i < lenSub; ++i)
-    {
-        X[i] = edge_init(T[2 * i].node1, T[2 * i].node2); /* [t_2i, t_(2i+1)] */
-        /* 4c1 */
-        for (int j = 0; j < i; ++j)
+        if (T[i].node1 == 0)
         {
-            if (edge_equal(Y[j], X[i]))
-            {
-                /* step 5 */
-                break;
-            }
-        }
-
-        /* 4a */
-        if (X[i].node2 == t0)
-        {
+            start = i;
             break;
         }
-
-        /* 4b */
-        if (/* yi not exists */0)
+    }
+    twtown *subcopy = (twtown *) calloc(lenSub, sizeof(twtown));
+    for (int i = 0; i < lenSub; ++i)
+    {
+        for (int j = 0; j < lenSub; ++j)
         {
-            /* go to step 5 */
-        }
-
-        int flagi = 0;
-        for (int m = 0; m < lenSub; ++m)
-        {
-            Y[i] = edge_init(X[i].node2, sub[m].t.name);
-            double gi = getByTown(m, X[i].node1, X[i].node2) - getByTown(m, Y[i].node1, Y[i].node2);
-            /* 4c2 */
-            bool flag_4c = 1;
-            for (int j = 0; j < i; ++j)
+            if (T[i].node1 == sub[j].t.name)
             {
-                if (edge_equal(Y[i], X[j]))
-                {
-                    flag_4c = 0;
-                    break;
-                }
+                if (i < start)
+                    subcopy[lenSub - start + i] = sub[j];
+                else
+                    subcopy[i - start] = sub[j];
+                break;
             }
-            flagi += flag_4c;
-
-            /* 4d */
-            
-
-            if (sub[m].t.name != X[i].node2 && sub[m].t.name != X[i].node1) /* Y[i] не петля Y[i] != X[i] */
-            {
-                
-                
-                /* 4f */
-                double gi = getByTown(m, X[i].node1, X[i].node2) - getByTown(m, X[i].node2, sub[m].t.name); /* gi = |X[i]| - |Y[i]| */
-                if (gi > 0)
-                {
-                    flagi = 1;
-                    break;
-                }
-            }
-        }
-        if (flagi == 4)
-        {
-            G[i] = gi;
         }
     }
+
+    for (int i = 0; i < lenSub; ++i)
+    {
+        sub[i] = subcopy[i];
+    }
+
+    double best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+    if (best != -1)
+    {
+        *timer += best;
+    }
+    return best;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -533,8 +691,9 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
     for(int i = 0; i < lenSub; i++)
     {
         subcopy[i] = sub[i];
+        printf("sub[%d]: %d\n", i, sub[i].t.name);
     }
-
+    return -1;
     double best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime), newd, p;
     double runtime = clock(); 
     int T = tmax;
