@@ -77,30 +77,18 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double ti
     double localtimer = timer;
     double dop_time = 0;
 
-    //localtimer += getByTown(m, 0, sub[0].t.name) + sub[0].mTimeService;
-    // printf("sub[0].mTimeService: %lf\n", sub[0].mTimeService);
-    /* if (!(localtimer >= sub[0].mTimeStart))
-    {
-        // printf("FUCK: %lf %lf\n", localtimer, sub[0].mTimeStart);
-        dop_time += sub[0].mTimeStart - localtimer;
-        localtimer = sub[0].mTimeStart + sub[0].mTimeService;
-    } */
-    /* if (!(localtimer >= sub[0].mTimeStart && localtimer <= sub[0].mTimeEnd && localtimer <= endTime))
-    {
-        // printf("localtimer <= sub[0].mTimeEnd: %lf %lf %lf %d\n", localtimer, sub[0].mTimeStart, sub[0].mTimeEnd, localtimer <= sub[0].mTimeEnd);
-        return -1;
-    } */
-
     for (int i = 0; i < lenSub - 1; i++)
     {
         localtimer += getByTown(m, sub[i].t.name, sub[i + 1].t.name) + sub[i + 1].mTimeService;
         if (!(localtimer >= sub[i + 1].mTimeStart))
         {
             dop_time += sub[i + 1].mTimeStart - localtimer;
-            localtimer = sub[i + 1].mTimeStart + sub[i + 1].mTimeService;
+            localtimer = sub[i + 1].mTimeStart;
         }
+        // printf("%d %d: %lf\n", sub[i].t.name, sub[i + 1].t.name, getByTown(m, sub[i].t.name, sub[i + 1].t.name));
         if (!(localtimer >= sub[i + 1].mTimeStart && localtimer <= sub[i + 1].mTimeEnd && localtimer <= endTime))
         {
+            // printf("localtimer <= sub[i].mTimeEnd: %lf %lf %lf %d\n", localtimer, sub[0].mTimeStart, sub[0].mTimeEnd, localtimer <= sub[0].mTimeEnd);
             return -1;
         }
     }
@@ -114,7 +102,7 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double ti
     // Если нужно вычислить расстояние, то вычитаем суммарное время ожидания
     // Если же нужно получить общее время, затраченное на всю поездку, то не отнимаем это доп. время, но переводить в метры это время
     // не корректно
-    return localtimer - timer - dop_time;
+    return localtimer - timer;
 }
 
 
@@ -212,8 +200,9 @@ int moveElemsTw(twtown *sub, int start1, int end1, int start2, int end2)
 
 double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime)
 {
-    twtown *subcopy = (twtown*)malloc(lenSub * sizeof(twtown));
+    twtown *subcopy = (twtown*)malloc((lenSub) * sizeof(twtown));
     //цикл копирования sub -> subcopy
+
     for(int i = 0; i < lenSub; i++)
     {
         subcopy[i] = sub[i];
@@ -691,9 +680,9 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
     for(int i = 0; i < lenSub; i++)
     {
         subcopy[i] = sub[i];
-        printf("sub[%d]: %d\n", i, sub[i].t.name);
+        // printf("subcopy[%d]: %d\n", i, sub[i].t.name);
     }
-    return -1;
+
     double best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime), newd, p;
     double runtime = clock(); 
     int T = tmax;
@@ -728,10 +717,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
             }
         }
     }
-    
-    if(best != -1) {
-        *timer += best;
-    }
+    *timer += best;
     return best;
 }
 

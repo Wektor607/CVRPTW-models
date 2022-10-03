@@ -103,7 +103,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
       }\
    }\
    printtwtown(towns[1]);\
-   twtown *sub = (twtown*)malloc((countTowns - 1) * sizeof(twtown));\
+   twtown *sub = (twtown*)malloc((countTowns-1) * sizeof(twtown));\
    int w = 0;\
    twtown t;\
    /*Поменял 1 на 0. Т.е. учитываем депо*/\
@@ -121,7 +121,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    }\
    putchar('\n');\
    printtwtown(sub[1]);\
-   twtown temp[newCountTowns];\
+   twtown temp[newCountTowns+1];\
    double td;\
    double distanceInTourBest = -1.0, distanceInTourNew = 0.0;\
    double runtime = clock();\
@@ -132,7 +132,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
       /*printf("countTaks: %d\n", i);\*/\
       days = 1;\
       doShuffleTw(newCountTowns, sub);\
-      l = 0;\
+      l = 1;\
       g = 0;\
       cap = 0;\
       for(g = 0; g < newCountTowns; g++) { \
@@ -144,6 +144,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
             if(g == newCountTowns - 1){\
                temp[l] = sub[g];\
                l++;\
+               temp[0] = town0;\
             }\
             if(l >= 3) {\
                td = algfunc(temp, l, &m, &timer, endTime);  \
@@ -165,7 +166,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
             }\
             write_cvrptw_subtour(res_distance, temp, l); \
             distanceInTourNew += td;\
-            l = 0;cap = 0;\
+            l = 1;cap = 0;\
          }\
       }\
       if(distanceInTourBest == -1.0) {\
