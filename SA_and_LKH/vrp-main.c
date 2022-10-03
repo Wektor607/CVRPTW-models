@@ -107,7 +107,7 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    int w = 0;\
    twtown t;\
    /*Поменял 1 на 0. Т.е. учитываем депо*/\
-   for(int i = 0; i < countTowns; i++){\
+   for(int i = 1; i < countTowns; i++){\
       t = getTwTownByName(i, countTowns, towns);\
       if(t.t.name == -1) {printf("Error town: %d\n", i); continue;}\
       sub[w] = t;\
@@ -147,51 +147,25 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
             }\
             if(l >= 3) {\
                td = algfunc(temp, l, &m, &timer, endTime);  \
-               if(td == -1){\
-                  days++;\
-               }\
-               while(td == -1) {\
-                  /*printf("g:%d l:%d\n", g, l);\
-                  printTwTownList(sub, l);\
-                  putchar('\n');*/\
-                  timer = town0.mTimeStart;\
-                  /*td = algfunc(temp, l, &m, &timer, endTime);*/\
-                  if(l >= 3)\
-                  {\
-                     td = algfunc(temp, l, &m, &timer, endTime);\
-                  } else {\
-                     td = subtourdistanceTw(temp, l, &m, timer, endTime);\
-                  }\
-                  /*if(td == -1) {write_cvrptw_end_tour(res_distance, -1); continue;}*/\
-                  if(td == -1) {l--; g--;}\
-               }\
-               write_cvrptw_subtour(res_distance, temp, l); \
-               distanceInTourNew += td;\
             } else {\
                td = subtourdistanceTw(temp, l, &m, timer, endTime);\
-               if(td == -1){\
-                  days++;\
-               }\
-               while(td == -1) {\
-                  /*printf("g:%d l:%d\n", g, l);\
-                  printTwTownList(sub, l);\
-                  putchar('\n');*/\
-                  timer = town0.mTimeStart;\
-                  /*td = algfunc(temp, l, &m, &timer, endTime);*/\
-                  if(l >= 3)\
-                  {\
-                     td = algfunc(temp, l, &m, &timer, endTime);\
-                  } else {\
-                     td = subtourdistanceTw(temp, l, &m, timer, endTime);\
-                  }\
-                  /*if(td == -1) {write_cvrptw_end_tour(res_distance, -1); continue;}*/\
-                  if(td == -1) {l--; g--;}\
-               }\
-               write_cvrptw_subtour(res_distance, temp, l); \
-               distanceInTourNew += td;\
             }\
+            if(td == -1){\
+               days++;\
+            }\
+            while(td == -1) {\
+               timer = town0.mTimeStart;\
+               if(l >= 3)\
+               {\
+                  td = algfunc(temp, l, &m, &timer, endTime);\
+               } else {\
+                  td = subtourdistanceTw(temp, l, &m, timer, endTime);\
+               }\
+               if(td == -1) {l--; g--;}\
+            }\
+            write_cvrptw_subtour(res_distance, temp, l); \
+            distanceInTourNew += td;\
             l = 0;cap = 0;\
-           /* g--;*/\
          }\
       }\
       if(distanceInTourBest == -1.0) {\
