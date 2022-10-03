@@ -390,9 +390,10 @@ double gain(halfmatrix *m, Edge x, Edge y)
 
 double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime)
 {
+    printf("start\n");
     /* 1 Create starting tour T */
-    Edge *T = (Edge *)calloc(lenSub, sizeof(Edge));
-    Edge *T1 = NULL;
+    Edge *T = (Edge *) calloc(lenSub, sizeof(Edge));
+    Edge *T1 = (Edge *) calloc(lenSub, sizeof(Edge));
     double FT = 0, FT1 = 0;
     for (int i = 0; i < lenSub - 1; ++i)
     {
@@ -406,209 +407,236 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     for (int k = 0; k < lenSub; ++k)
     {
         bool flag_cool = 0;
-        int G_star = 0; /* the best improvement made so far */
-        Edge *X = (Edge *)calloc(lenSub, sizeof(Edge));
-        Edge *Y = (Edge *)calloc(lenSub, sizeof(Edge));
-        int *G = (int *)calloc(lenSub, sizeof(int));
+        Edge *X = (Edge *) calloc(lenSub, sizeof(Edge));
+        Edge *Y = (Edge *) calloc(lenSub, sizeof(Edge));
+        int *G = (int *) calloc(lenSub, sizeof(int));
         int t1 = T[k].node1;
 
         /* 3 */
-        int t2 = T[k].node2;
-        X[0] = edge_init(t1, t2);
-
-        /* 4 */
-        int flag0 = 0;
-        int t3 = -1;
-        for (int j = 0; j < lenSub; ++j)
+        int tmp = (k == 0 ? T[lenSub - 1].node1 : T[k-1].node1);
+        int t2[2] = {tmp, T[k].node2};
+        for (int t2_var = 0; t2_var < 2; t2_var++)
         {
-            t3 = sub[j].t.name;
-            int tmp = (k + 1 == lenSub ? T[0].node2 : T[k + 1].node2);
-            if (t3 != t1 && t3 != tmp && t3 != t2) /* Y[0] не из T и не петля */
+            X[0] = edge_init(t1, t2_var);
+
+            /* 4 */
+            int flag4 = 0;
+            int t3 = -1;
+            for (int j4 = 0; j4 < lenSub; ++j4)
             {
-                double g0 = getByTown(m, t1, t2) - getByTown(m, t2, t3); /* g0 = |X[0]| - |Y[0]| */
+                t3 = sub[j4].t.name;
+                int flag4_1 = 0;
+                for (int l = 0; l < lenSub; ++l)
+                {
+                    if (edge_equal(T[l], edge_init(t3, t2_var)))
+                    {
+                        flag4_1 = 1;
+                        break;
+                    }
+                }
+                if (flag4_1)
+                    continue;
+                double g0 = getByTown(m, t1, t2_var) - getByTown(m, t2_var, t3); /* g0 = |X[0]| - |Y[0]| */
                 if (g0 > 0)
                 {
-                    flag0 = 1;
-                    Y[0] = edge_init(t2, t3);
+                    flag4 = 1;
+                    Y[0] = edge_init(t2_var, t3);
                     break;
                 }
             }
-        }
-        if (!flag0)
-            continue; /* 12 */
+            if (!flag4)
+                break; /* 12 */
 
-        /* 6 */
-        for (int i = 1; i < lenSub; ++i)
-        {
-            int t2i[2] = {-1, -1};
-            int t2i_final = -1;
-            int xi_node1 = Y[i - 1].node2; /* t_(2i-1) */
-            for (int j = 0; j < lenSub; ++j)
+            /* 6 */
+            printf("lenSub: %d\n", lenSub);
+            for (int i = 1; i < lenSub; ++i)
             {
-                int tmp = (j + 1 == lenSub ? T[0].node2 : T[j + 1].node2);
-                if (T[j].node2 == xi_node1 && tmp != t1)
+                int t2i[2] = {-1, -1};
+                int xi_node1 = Y[i - 1].node2; /* t_(2i-1) */
+                for (int j6 = 0; j6 < lenSub; ++j6)
                 {
-                    t2i[0] = tmp;
-                    t2i[1] = T[j].node1;
-                    break;
+                    int tmp = (j6 == 0 ? T[lenSub - 1].node1 : T[j6-1].node1);
+                    if (T[j6].node1 == xi_node1 && tmp != t1)
+                    {
+                        t2i[0] = tmp;
+                        t2i[1] = T[j6].node2;
+                        break;
+                    }
+                    
                 }
-            }
-            int u;
-            for (u = 0; u < 2; ++u)
-            {
-                int v = 0, w = 0;
-                Y[i] = edge_init(t2i[u], t1);
-                /* 6a */
-                T1 = (Edge *)calloc(lenSub, sizeof(Edge));
-                for (; v < lenSub; ++v)
+                int t2i_var;
+                for (t2i_var = 0; t2i_var < 2; ++t2i_var)
                 {
-                    bool flag = 1;
-                    int x;
-                    for (x = 0; x <= i; ++i)
+                    int v = 0, w = 0;
+                    X[i] = edge_init(xi_node1, t2i[t2i_var]);
+                    Y[i] = edge_init(t2i[t2i_var], t1); /* join t2i t1 */
+                    /* 6a create T' and check T' is tour*/
+                    T1 = (Edge *) calloc(lenSub, sizeof(Edge));
+                    for (; v < lenSub; ++v)
                     {
-                        if (edge_equal(T[w], X[x]))
+                        bool flag6a = 1;
+                        int x;
+                        for (x = 0; x <= i; ++x)
                         {
-                            flag = 0;
-                            break;
-                        }
-                    }
-                    if (flag) /* не меняем ребро */
-                    {
-                        T1[v] = T[w];
-                        w++;
-                    }
-                    else /* меняем ребро */
-                    {
-                        T1[v] = Y[x];
-                        int l;
-                        for (l = 0; l < lenSub; ++l)
-                        {
-                            if (T[l].node1 == Y[x].node2)
+                            if (edge_equal(T[w], X[x]))
                             {
-                                int flag1 = 1;
-                                for (int n = 0; n <= i; ++i)
+                                flag6a = 0;
+                                break;
+                            }
+                        }
+                        if (flag6a) /* не меняем ребро */
+                        {
+                            T1[v] = T[w];
+                            w++;
+                        }
+                        else /* меняем ребро */
+                        {
+                            T1[v] = Y[x];
+                            int l;
+                            for (l = 0; l < lenSub; ++l)
+                            {
+                                if (T[l].node1 == Y[x].node2)
                                 {
-                                    if (edge_equal(T[l], X[n]))
+                                    int flag1 = 1;
+                                    for (int n = 0; n <= i; ++n)
                                     {
-                                        flag1 = 0;
+                                        if (edge_equal(T[l], X[n]))
+                                        {
+                                            flag1 = 0;
+                                            break;
+                                        }
+                                    }
+                                    if (!flag1)
+                                        continue;
+                                    else
+                                    {
+                                        w = l;
                                         break;
                                     }
                                 }
-                                if (!flag1)
-                                    continue;
-                                else
-                                {
-                                    w = l;
-                                    break;
-                                }
                             }
+                            if (w != l)
+                                continue; /* не нашли следующее */
                         }
-                        if (w != l)
-                            continue; /* не нашли следующее */
                     }
-                }
-                if (v != lenSub)
-                    continue;
+                    if (v != lenSub)
+                        continue;
 
-                /* 6b */
-                bool flag5b = 1;
-                for (int s = 0; s < i; ++s)
-                {
-                    if (edge_equal(X[i], Y[s]))
+                    /* 6b */
+                    bool flag5b = 1;
+                    for (int s = 0; s < i; ++s)
                     {
-                        flag5b = 0;
-                        break;
-                    }
-                }
-                if (!flag5b)
-                    continue;
-                else
-                    flag_cool = 1;
-                break;
-            }
-            t2i_final = t2i[u];
-            X[i] = edge_init(xi_node1, t2i_final);
-            if (flag_cool)
-            {
-                FT1 = 0;
-                for (int z = 0; z < lenSub; ++z)
-                {
-                    FT1 += getByTown(m, T1[z].node1, T1[z].node2);
-                }
-                if (FT1 < FT)
-                {
-                    for (int z = 0; z < lenSub; ++z)
-                    {
-                        T[z] = T1[z];
-                    }
-                    break;
-                }
-            }
-            else
-            {
-                i--;
-                continue; /* 9 */
-            }
-
-            /* 7 */
-            for (int j = 0; j < lenSub; ++j)
-            {
-                int yinode2 = sub[j].t.name; /* t_(2i+1) */
-                Y[i] = edge_init(t2i_final, yinode2);
-                bool flag7 = 1;
-                for (int q = 0; q < lenSub; ++q)
-                {
-                    if (edge_equal(T[q], Y[i]))
-                    {
-                        flag7 = 0;
-                        break;
-                    }
-                }
-                if (!flag7)
-                    continue; /* 8 */
-
-                /* 7a */
-                double Gi = 0;
-                for (int r = 0; r <= i; ++r)
-                {
-                    Gi += gain(m, X[r], Y[r]);
-                }
-                if (Gi <= 0)
-                    continue; /* 8 */
-
-                /* 7b */
-                bool flag7b = 1;
-                for (int s = 0; s <= i; ++s)
-                {
-                    if (edge_equal(X[s], Y[i]))
-                    {
-                        flag7b = 0;
-                        break;
-                    }
-                }
-                if (!flag7b)
-                    continue; /* 8 */
-
-                /* 7c */
-                bool flag7c = 0;
-                for (int h = 0; h < lenSub; ++h)
-                {
-                    X[i + 1] = edge_init(yinode2, sub[h].t.name);
-                    for (int c = 0; c < lenSub; ++c)
-                    {
-                        if (edge_equal(T[h], X[i + 1]))
+                        if (edge_equal(X[i], Y[s]))
                         {
-                            flag7c = 1;
+                            flag5b = 0;
                             break;
                         }
                     }
+                    if (!flag5b)
+                        continue;
+                    else
+                    {
+                        flag_cool = 1;
+                        break;
+                    }
+                }
+                printf("here0\n");
+                if (flag_cool)
+                {
+                    printf("here1\n");
+                    FT1 = 0;
+                    for (int z = 0; z < lenSub; ++z)
+                    {
+                        FT1 += getByTown(m, T1[z].node1, T1[z].node2);
+                    }
+                    FT1 += getByTown(m, T1[lenSub-1].node2, T1[0].node1);
+                    if (FT1 < FT)
+                    {
+                        for (int z = 0; z < lenSub; ++z)
+                        {
+                            T[z] = T1[z];
+                        }
+                        break;
+                    }
+                    printf("here2\n");
+                }
+                else
+                {
+                    i--;
+                    continue; /* 9 */
+                }
+
+                /* 7 */
+                printf("here3\n");
+                for (int j = 0; j < lenSub; ++j)
+                {
+                    int yinode2 = sub[j].t.name; /* t_(2i+1) */
+                    printf("i: %d\n", i);
+                    if(X[i].node1 == -1 || X[i].node2 == -1)
+                    {
+                        printf("BAD\n");
+                    }
+                    printf("X[%d].node1: %d\n", i, X[i].node1);
+                    printf("X[%d].node2: %d\n", i, X[i].node2);
+                    Y[i] = edge_init(X[i].node2, yinode2);
+                    bool flag7 = 1;
+                    printf("here4\n");
+                    for (int q = 0; q < lenSub; ++q)
+                    {
+                        if (edge_equal(T[q], Y[i]))
+                        {
+                            flag7 = 0;
+                            break;
+                        }
+                    }
+                    if (!flag7)
+                        continue; /* 8 */
+
+                    /* 7a */
+                    double Gi = 0;
+                    for (int r = 0; r <= i; ++r)
+                    {
+                        Gi += gain(m, X[r], Y[r]);
+                    }
+                    if (Gi <= 0)
+                        continue; /* 8 */
+
+                    /* 7b */
+                    bool flag7b = 1;
+                    for (int s = 0; s <= i; ++s)
+                    {
+                        if (edge_equal(X[s], Y[i]))
+                        {
+                            flag7b = 0;
+                            break;
+                        }
+                    }
+                    if (!flag7b)
+                        continue; /* 8 */
+
+                    /* 7c */
+                    bool flag7c = 0;
+                    for (int h = 0; h < lenSub; ++h)
+                    {
+                        X[i + 1] = edge_init(yinode2, sub[h].t.name);
+                        for (int c = 0; c < lenSub; ++c)
+                        {
+                            if (edge_equal(T[h], X[i + 1]))
+                            {
+                                flag7c = 1;
+                                break;
+                            }
+                        }
+                        if (flag7c)
+                            break;
+                    }
                     if (flag7c)
                         break;
+                    /* 8 */
                 }
-                if (flag7c)
-                    break;
-                /* 8 */
+                printf("here10\n");
             }
+            printf("here100\n");
         }
     }
     int start = 0;
