@@ -2,11 +2,6 @@
 #include "cvrptw-logistic.c"
 #include <time.h> 
 #include <signal.h>
-// #include "logistic.h"
-
-// Компиляция программы: gcc -I/usr/include/python3.8 -c vrp-main.c -lm -o mac 
-// sudo python3 setup.py install
-// python3
 
 static PyObject *parseOneTwTownPy(PyObject *self, PyObject *args) {
    char *in;
@@ -137,7 +132,6 @@ void sigfunc(int sig){
    double runtime = clock();\
    int days, cap, l, g;\
    double full_time = 0;\
-   /*for(int i = 0; i < countTasks;i++)*/\
    signal(SIGINT, sigfunc);\
    while(!stop){\
       clock_t start = clock();\

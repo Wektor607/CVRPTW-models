@@ -15,12 +15,11 @@ class VRP:
         :type int count_towns: Количество городов;
         :type int countTasks:  Количество итераций для решения одной оптимизационной задачи.
     """ 
-    def __init__ (self, alg_name, name_file, path_folder, count_towns, countTasks: int = 10000):
+    def __init__ (self, alg_name, name_file, path_folder, count_towns):
         self.alg_name    = alg_name
         self.name_file   = name_file 
         self.path_folder = path_folder 
         self.count_towns = count_towns
-        self.count_Tasks = countTasks
         self.parse_file()
 
 
