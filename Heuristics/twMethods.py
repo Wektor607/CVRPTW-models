@@ -88,21 +88,28 @@ class CVRPTW (VRP):
         """ 
         vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
-    
-    def lkh(self, name_opt: str = '3opt') -> [float, list]:
+    def opt(self, name_opt: str = '3opt') -> [float, list]:
         """
-        Функция, вызывающая алгоритм "Эвристика Лина-Кёрнигана" для решения задачи CVRPTW. На вход подается один параметр.
+        Функция, вызывающая алгоритмы локальной оптимизации для решения задачи CVRPTW. На вход подается один параметр.
             :type string name_opt: название метода оптимизации: 2-opt, 3-opt.
         По окончании работы создается файл с данными, состоящий из двух колонок:
             1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """
         if(name_opt == '2opt'):
-            vrp_c.modelMetaHeuristic("cvrptw_lkh_2opt", self.path_folder, self.count_towns, self.capacity)
+            vrp_c.modelMetaHeuristic("cvrptw_2opt", self.path_folder, self.count_towns, self.capacity)
         elif(name_opt == '3opt'):
-            vrp_c.modelMetaHeuristic("cvrptw_lkh_3opt", self.path_folder, self.count_towns, self.capacity)
-        elif(name_opt == 'lkh'):
-            vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity)
+            vrp_c.modelMetaHeuristic("cvrptw_3opt", self.path_folder, self.count_towns, self.capacity)
+        return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
+
+    def lkh(self) -> [float, list]:
+        """
+        Функция, вызывающая алгоритм "Эвристика Лина-Кёрнигана" для решения задачи CVRPTW.
+        По окончании работы создается файл с данными, состоящий из двух колонок:
+            1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
+            2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
+        """
+        vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
 
     def gurobi(self) -> [float, list]:

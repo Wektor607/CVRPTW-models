@@ -13,7 +13,7 @@ def main():
     doc = input()
     if(doc == 'YES'):
         help(vrp_c) #TODO: в отредактировать текст в документации
-    print('which method do you want to use to optimize the routse for CVRPTW: SA or LKH or Gurobi?')
+    print('which method do you want to use to optimize the routse for CVRPTW: SA or LKH or OptAlg or Gurobi?')
     method = input()
     idx = 0
     if(method == 'SA'):
@@ -38,15 +38,37 @@ def main():
                 data = res_file.read()
                 with open(f'SA_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                     write_file.write(data)
-    elif(method == 'LKH'):
+    elif(method == 'OptAlg'):
         while(1):
-            print("Input 2opt or 3opt or lkh:")
+            print("Input 2opt or 3opt:")
             name_opt = input()
-            if(name_opt == '2opt' or name_opt == '3opt' or name_opt == 'lkh'):
+            if(name_opt == '2opt' or name_opt == '3opt'):
                 break
             else:
                 print('Try again!')
-        
+        for i in lst:
+            with open(i) as f:
+                count_towns = sum(1 for _ in f) - 1
+            with open(i) as f:
+                [last_line] = deque(f, maxlen=1)
+                last_line = last_line.split('\t')[3].split('-')
+            if(count_towns == 21):
+                max_capacity = 500
+            elif(count_towns == 51):
+                max_capacity = 750
+            elif(count_towns == 101):
+                max_capacity = 1000
+            start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
+            end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
+            a = CVRPTW('OptAlg', i, f"{20}_tw/test{idx}", count_towns, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+            idx += 1
+            print(a.opt(name_opt))
+            if(name_opt == '2opt' or name_opt == '3opt'):
+                with open(f'{name_opt}_CVRPTW_result.txt', 'r') as res_file:
+                    data = res_file.read()
+                    with open(f'{name_opt}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                        write_file.write(data)
+    elif(method == 'LKH'):
         for i in lst:
             with open(i) as f:
                 count_towns = sum(1 for _ in f) - 1
@@ -63,17 +85,11 @@ def main():
             end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
             a = CVRPTW('LKH', i, f"{20}_tw/test{idx}", count_towns, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
-            print(a.lkh(name_opt))
-            if(name_opt == '2opt' or name_opt == '3opt'):
-                with open(f'LKH_{name_opt}_CVRPTW_result.txt', 'r') as res_file:
-                    data = res_file.read()
-                    with open(f'LKH_{name_opt}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
-                        write_file.write(data)
-            else:
-                with open(f'LKH_CVRPTW_result.txt', 'r') as res_file:
-                    data = res_file.read()
-                    with open(f'LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
-                        write_file.write(data)
+            print(a.lkh())
+            with open(f'LKH_CVRPTW_result.txt', 'r') as res_file:
+                data = res_file.read()
+                with open(f'LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                    write_file.write(data)
     else:
         for i in lst:
             with open(i) as f:

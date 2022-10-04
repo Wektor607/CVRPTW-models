@@ -227,12 +227,12 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
       char fileout[] = "LKH_CVRPTW_result.txt";
       CVRPTW(lkhTw); 
    } 
-   else if(strcmp(algname, "cvrptw_lkh_2opt") == 0) {
-      char fileout[] = "LKH_2opt_CVRPTW_result.txt";
+   else if(strcmp(algname, "cvrptw_2opt") == 0) {
+      char fileout[] = "2opt_CVRPTW_result.txt";
       CVRPTW(lkh2optTw); 
    } 
-   else if(strcmp(algname, "cvrptw_lkh_3opt") == 0) {
-      char fileout[] = "LKH_3opt_CVRPTW_result.txt";
+   else if(strcmp(algname, "cvrptw_3opt") == 0) {
+      char fileout[] = "3opt_CVRPTW_result.txt";
       CVRPTW(lkh3optTw); 
    } 
    else if(strcmp(algname, "cvrptw_sa") == 0) {
