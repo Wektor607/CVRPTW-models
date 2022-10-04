@@ -197,6 +197,9 @@ void sigfunc(int sig){
       if(!stop)\
          printf("Время оптимизации: %lf Текущая длина: %lf \n", full_time, distanceInTourBest);\
    }\
+   /* данный параметр очень важно заново обнулять, так как он глобальный и при решении следующих задач
+   будет сразу вызывать Ctrl+C*/\
+   stop = 0;\
    /*distanceInTourBest * 60 * 1000 / 3600*/\
    double final_time = (clock() - runtime) / CLOCKS_PER_SEC;\
    fprintf(out, "%lf\t%lf\n", (distanceInTourBest), final_time);\
