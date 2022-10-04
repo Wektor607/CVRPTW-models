@@ -6,7 +6,7 @@ def main():
     print("Введите количество городов(20, 50, 100): ")
     n = input()
     lst = []
-    for i in range(1, 101):
+    for i in range(1, 2):
         lst.append(f"{n}/Example{i}.csv")
     
     print('If you want open documentation write YES else press Enter')
@@ -26,7 +26,7 @@ def main():
                 last_line = last_line.split('\t')[3].split('-')
             if(count_towns == 21):
                 max_capacity = 500
-                iteretions   = 5000
+                iteretions   = 500
             elif(count_towns == 51):
                 max_capacity = 750
                 iteretions   = 2500
@@ -44,9 +44,9 @@ def main():
                     write_file.write(data)
     elif(method == 'LKH'):
         while(1):
-            print("Input lkh2opt or lkh3opt:")
+            print("Input 2opt or 3opt or lkh:")
             name_opt = input()
-            if(name_opt == 'lkh2opt' or name_opt == 'lkh3opt' or name_opt == 'lkh'):
+            if(name_opt == '2opt' or name_opt == '3opt' or name_opt == 'lkh'):
                 break
             else:
                 print('Try again!')
@@ -71,10 +71,10 @@ def main():
             a = CVRPTW('LKH', i, f"{20}_tw/test{idx}", count_towns, iteretions, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
             idx += 1
             print(a.lkh(name_opt))
-            if(name_opt == 'lkh2opt' or name_opt == 'lkh3opt'):
-                with open(f'LKH_{name_opt[3:]}_CVRPTW_result.txt', 'r') as res_file:
+            if(name_opt == '2opt' or name_opt == '3opt'):
+                with open(f'LKH_{name_opt}_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
-                    with open(f'LKH_{name_opt[3:]}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                    with open(f'LKH_{name_opt}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                         write_file.write(data)
             else:
                 with open(f'LKH_CVRPTW_result.txt', 'r') as res_file:

@@ -1,15 +1,16 @@
 import numpy as np
 
 lst = [ 
-        "results/SA_RES_CVRPTW20.txt",
-        "results/SA_RES_CVRPTW50.txt",
-        "results/SA_RES_CVRPTW100.txt",
-        "results/LKH_2opt_RES_CVRPTW20.txt",
-        "results/LKH_2opt_RES_CVRPTW50.txt",
-        "results/LKH_2opt_RES_CVRPTW100.txt",
-        "results/LKH_3opt_RES_CVRPTW20.txt",
-        "results/LKH_3opt_RES_CVRPTW50.txt",
-        "results/LKH_3opt_RES_CVRPTW100.txt"]
+        # "SA_RES_CVRPTW20.txt",
+        # "SA_RES_CVRPTW50.txt",
+        # "results/SA_RES_CVRPTW100.txt",
+        # "LKH_2opt_RES_CVRPTW20.txt",
+        # "LKH_2opt_RES_CVRPTW50.txt",
+        # "results/LKH_2opt_RES_CVRPTW100.txt",
+        # "LKH_3opt_RES_CVRPTW20.txt",
+        "LKH_3opt_RES_CVRPTW50.txt",
+        # "results/LKH_3opt_RES_CVRPTW100.txt"
+    ]
         
 for p in lst:
     res_file = open(p, 'r')

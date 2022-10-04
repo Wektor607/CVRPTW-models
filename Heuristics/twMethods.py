@@ -44,7 +44,7 @@ def parse_dist_and_tour(file_name, max_capacity, count_vehicles):
 
 def check(all_pairs, timer, distance, start_lst, finish_lst, service):
     local_timer = timer
-    for i, j, k in all_pairs:
+    for i, j, _ in all_pairs:
         local_timer += distance[i, j] + service[j]
         if(not(local_timer >= start_lst[j])):
             local_timer = start_lst[j]
@@ -90,7 +90,7 @@ class CVRPTW (VRP):
         vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity, self.countTasks)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
     
-    def lkh(self, name_opt: str = 'lkh3opt') -> [float, list]:
+    def lkh(self, name_opt: str = '3opt') -> [float, list]:
         """
         Функция, вызывающая алгоритм "Эвристика Лина-Кёрнигана" для решения задачи CVRPTW. На вход подается один параметр.
             :type string name_opt: название метода оптимизации: 2-opt, 3-opt.
@@ -98,9 +98,9 @@ class CVRPTW (VRP):
             1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """
-        if(name_opt == 'lkh2opt'):
+        if(name_opt == '2opt'):
             vrp_c.modelMetaHeuristic("cvrptw_lkh_2opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
-        elif(name_opt == 'lkh3opt'):
+        elif(name_opt == '3opt'):
             vrp_c.modelMetaHeuristic("cvrptw_lkh_3opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
         elif(name_opt == 'lkh'):
             vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity, self.countTasks)

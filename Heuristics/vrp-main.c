@@ -106,7 +106,6 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    twtown *sub = (twtown*)malloc((countTowns-1) * sizeof(twtown));\
    int w = 0;\
    twtown t;\
-   /*Поменял 1 на 0. Т.е. учитываем депо*/\
    for(int i = 1; i < countTowns; i++){\
       t = getTwTownByName(i, countTowns, towns);\
       if(t.t.name == -1) {printf("Error town: %d\n", i); continue;}\
