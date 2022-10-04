@@ -56,10 +56,9 @@ class CVRPTW (VRP):
     """
     Это основной класс для решения задачи CVRPTW
     """
-    def __init__ (self, alg_name, name_file, path_folder, count_towns, countTasks: int = 10000, capacity: int = 30, time_start: int = 0, time_end: int = 0, count_vehicles: int = 10):
-        super().__init__(alg_name, name_file, path_folder, count_towns, countTasks)
+    def __init__ (self, alg_name, name_file, path_folder, count_towns, capacity: int = 30, time_start: int = 0, time_end: int = 0, count_vehicles: int = 10):
+        super().__init__(alg_name, name_file, path_folder, count_towns)
         self.capacity = capacity
-        self.countTasks = countTasks
         self.time_start = time_start
         self.time_end   = time_end
         self.count_vehicles = count_vehicles # 20, 50: 10, 100, 200: 20
@@ -87,7 +86,7 @@ class CVRPTW (VRP):
             1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """ 
-        vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity, self.countTasks)
+        vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
     
     def lkh(self, name_opt: str = '3opt') -> [float, list]:
@@ -99,11 +98,11 @@ class CVRPTW (VRP):
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """
         if(name_opt == '2opt'):
-            vrp_c.modelMetaHeuristic("cvrptw_lkh_2opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
+            vrp_c.modelMetaHeuristic("cvrptw_lkh_2opt", self.path_folder, self.count_towns, self.capacity)
         elif(name_opt == '3opt'):
-            vrp_c.modelMetaHeuristic("cvrptw_lkh_3opt", self.path_folder, self.count_towns, self.capacity, self.countTasks)
+            vrp_c.modelMetaHeuristic("cvrptw_lkh_3opt", self.path_folder, self.count_towns, self.capacity)
         elif(name_opt == 'lkh'):
-            vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity, self.countTasks)
+            vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
 
     def gurobi(self) -> [float, list]:

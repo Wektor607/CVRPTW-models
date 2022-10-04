@@ -1,6 +1,7 @@
 #include <Python.h>
 #include "cvrptw-logistic.c"
 #include <time.h> 
+#include <signal.h>
 // #include "logistic.h"
 
 // Компиляция программы: gcc -I/usr/include/python3.8 -c vrp-main.c -lm -o mac 
@@ -48,6 +49,16 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    return sub[idx];
 }
 
+volatile sig_atomic_t stop;
+
+void sigfunc(int sig){
+   char c;
+   printf("\nХотите прекратить оптимизацию маршрута (y/n):");
+   while((c=getchar()) != 'y'){
+      return;
+   }
+   stop = 1;
+}
 #define CVRPTW(algfunc) \
    srand(time(NULL)); \
    FILE *out = fopen(fileout, "w"); \
@@ -126,7 +137,9 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
    double runtime = clock();\
    int days, cap, l, g;\
    double full_time = 0;\
-   for(int i = 0; i < countTasks;i++){\
+   /*for(int i = 0; i < countTasks;i++)*/\
+   signal(SIGINT, sigfunc);\
+   while(!stop){\
       clock_t start = clock();\
       /*printf("countTaks: %d\n", i);\*/\
       days = 1;\
@@ -187,12 +200,13 @@ twtown save_request_to_sub(twtown *sub, int lensub, int idx, twtown town0)
       clock_t end = clock();\
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;\
       full_time += seconds;\
-      /*printf("One iteration time: %lf\n", seconds);\*/\
+      if(!stop)\
+         printf("Время оптимизации: %lf Текущая длина: %lf \n", full_time, distanceInTourBest);\
    }\
-   /*printf("Full time: %lf\n", full_time);\ 
-   printf("Average time on one task: %lf\n", full_time / countTasks);\*/\
    /*distanceInTourBest * 60 * 1000 / 3600*/\
-   fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
+   double final_time = (clock() - runtime) / CLOCKS_PER_SEC;\
+   fprintf(out, "%lf\t%lf\n", (distanceInTourBest), final_time);\
+   printf("\nОкончательное время оптимизации: %lf \nОкончательная длина маршрута: %lf \n", final_time, distanceInTourBest);\
    fputc('\n', out);\
    free(sub);\
    free(towns);\
@@ -204,9 +218,8 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    char *in, *algname;
    int tcountTown; 
    double maxCapacity;
-   double countTasks;
 
-   if (!PyArg_ParseTuple(args, "ssidd", &algname, &in, &tcountTown, &maxCapacity, &countTasks)) {
+   if (!PyArg_ParseTuple(args, "ssid", &algname, &in, &tcountTown, &maxCapacity)) {
       return NULL;
    }
    countTowns = tcountTown;
