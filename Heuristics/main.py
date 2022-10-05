@@ -40,7 +40,7 @@ def main():
                 a = CVRPTW('SA', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 print(a.sa())
-                with open(f'SA_CVRPTW_result.txt', 'r') as res_file:
+                with open(f'current_result/SA_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
                     with open(f'results/SA_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                         write_file.write(data)
@@ -66,7 +66,7 @@ def main():
                 idx += 1
                 print(a.opt(name_opt))
                 if(name_opt == '2opt' or name_opt == '3opt'):
-                    with open(f'{name_opt}_CVRPTW_result.txt', 'r') as res_file:
+                    with open(f'current_result/{name_opt}_CVRPTW_result.txt', 'r') as res_file:
                         data = res_file.read()
                         with open(f'results/{name_opt}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                             write_file.write(data)
@@ -83,7 +83,7 @@ def main():
                 a = CVRPTW('LKH', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 print(a.lkh())
-                with open(f'LKH_CVRPTW_result.txt', 'r') as res_file:
+                with open(f'current_result/LKH_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
                     with open(f'results/LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                         write_file.write(data)
@@ -160,8 +160,18 @@ def main():
         if(z == 'n'):
             break
     
-    print(lst_results)
-    for name in lst_results:
+    # Отсортировываем название файлов с результатами в порядке, как названия алгоритмов находятся в legend
+    final_lst_results = []
+    for i in lst_results:
+        letter = i.split('/')[1][:1]
+        if(letter == 'S')  : final_lst_results.insert(0, i)
+        elif(letter == '2'): final_lst_results.insert(1, i)
+        elif(letter == '3'): final_lst_results.insert(2, i)
+        elif(letter == 'L'): final_lst_results.insert(3, i)
+        elif(letter == 'G'): final_lst_results.insert(4, i)
+
+    print(final_lst_results)
+    for name in final_lst_results:
         with open(name, 'r') as f:
             file = f.readlines()
         costs = []

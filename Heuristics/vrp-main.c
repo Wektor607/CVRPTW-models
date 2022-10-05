@@ -221,19 +221,19 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    }
    countTowns = tcountTown;
    if(strcmp(algname, "cvrptw_lkh") == 0) {
-      char fileout[] = "LKH_CVRPTW_result.txt";
+      char fileout[] = "current_result/LKH_CVRPTW_result.txt";
       CVRPTW(lkhTw); 
    } 
    else if(strcmp(algname, "cvrptw_2opt") == 0) {
-      char fileout[] = "2opt_CVRPTW_result.txt";
+      char fileout[] = "current_result/2opt_CVRPTW_result.txt";
       CVRPTW(lkh2optTw); 
    } 
    else if(strcmp(algname, "cvrptw_3opt") == 0) {
-      char fileout[] = "3opt_CVRPTW_result.txt";
+      char fileout[] = "current_result/3opt_CVRPTW_result.txt";
       CVRPTW(lkh3optTw); 
    } 
    else if(strcmp(algname, "cvrptw_sa") == 0) {
-      char fileout[] = "SA_CVRPTW_result.txt";
+      char fileout[] = "current_result/SA_CVRPTW_result.txt";
       CVRPTW(saTw);
    } else {
       printf("Error algname: %s\n", algname);
