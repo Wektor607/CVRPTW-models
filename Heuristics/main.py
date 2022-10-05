@@ -42,14 +42,14 @@ def main():
                 print(a.sa())
                 with open(f'SA_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
-                    with open(f'SA_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                    with open(f'results/SA_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                         write_file.write(data)
         
-                if(f'SA_RES_CVRPTW{count_towns-1}.txt' in lst_results):
-                    lst_results.remove(f'SA_RES_CVRPTW{count_towns-1}.txt')
-                    lst_results.append(f'SA_RES_CVRPTW{count_towns-1}.txt')
+                if(f'results/SA_RES_CVRPTW{count_towns-1}.txt' in lst_results):
+                    lst_results.remove(f'results/SA_RES_CVRPTW{count_towns-1}.txt')
+                    lst_results.append(f'results/SA_RES_CVRPTW{count_towns-1}.txt')
                 else:
-                    lst_results.append(f'SA_RES_CVRPTW{count_towns-1}.txt')
+                    lst_results.append(f'results/SA_RES_CVRPTW{count_towns-1}.txt')
 
             elif(method == 'OptAlg'):
                 while(1):
@@ -68,14 +68,14 @@ def main():
                 if(name_opt == '2opt' or name_opt == '3opt'):
                     with open(f'{name_opt}_CVRPTW_result.txt', 'r') as res_file:
                         data = res_file.read()
-                        with open(f'{name_opt}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                        with open(f'results/{name_opt}_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                             write_file.write(data)
 
-                if(f'{name_opt}_RES_CVRPTW{count_towns-1}.txt' in lst_results):
-                    lst_results.remove(f'{name_opt}_RES_CVRPTW{count_towns-1}.txt')
-                    lst_results.append(f'{name_opt}_RES_CVRPTW{count_towns-1}.txt')
+                if(f'results/{name_opt}_RES_CVRPTW{count_towns-1}.txt' in lst_results):
+                    lst_results.remove(f'results/{name_opt}_RES_CVRPTW{count_towns-1}.txt')
+                    lst_results.append(f'results/{name_opt}_RES_CVRPTW{count_towns-1}.txt')
                 else:
-                    lst_results.append(f'{name_opt}_RES_CVRPTW{count_towns-1}.txt')
+                    lst_results.append(f'results/{name_opt}_RES_CVRPTW{count_towns-1}.txt')
 
             elif(method == 'LKH'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
@@ -85,14 +85,14 @@ def main():
                 print(a.lkh())
                 with open(f'LKH_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
-                    with open(f'LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
+                    with open(f'results/LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
                         write_file.write(data)
                 
-                if(f'LKH_RES_CVRPTW{count_towns-1}.txt' in lst_results):
-                    lst_results.remove(f'LKH_RES_CVRPTW{count_towns-1}.txt')
-                    lst_results.append(f'LKH_RES_CVRPTW{count_towns-1}.txt')
+                if(f'results/LKH_RES_CVRPTW{count_towns-1}.txt' in lst_results):
+                    lst_results.remove(f'results/LKH_RES_CVRPTW{count_towns-1}.txt')
+                    lst_results.append(f'results/LKH_RES_CVRPTW{count_towns-1}.txt')
                 else:
-                    lst_results.append(f'LKH_RES_CVRPTW{count_towns-1}.txt')
+                    lst_results.append(f'results/LKH_RES_CVRPTW{count_towns-1}.txt')
 
             elif(method == 'Gurobi'):
                 a = CVRPTW('Gurobi', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
