@@ -1,3 +1,4 @@
+from itertools import count
 from twMethods import *
 from collections import deque
 from datetime import datetime
@@ -37,9 +38,8 @@ def main():
             if(method == 'SA'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                a = CVRPTW('SA', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+                sa = CVRPTW('SA', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end).sa() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
-                print(a.sa())
                 with open(f'current_result/SA_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
                     with open(f'results/SA_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
@@ -62,9 +62,8 @@ def main():
 
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                a = CVRPTW('OptAlg', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+                CVRPTW('OptAlg', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end).opt(name_opt) #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
-                print(a.opt(name_opt))
                 if(name_opt == '2opt' or name_opt == '3opt'):
                     with open(f'current_result/{name_opt}_CVRPTW_result.txt', 'r') as res_file:
                         data = res_file.read()
@@ -80,9 +79,8 @@ def main():
             elif(method == 'LKH'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                a = CVRPTW('LKH', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end) #TODO: некоторые параметры брать автоматически из файла
+                CVRPTW('LKH', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
-                print(a.lkh())
                 with open(f'current_result/LKH_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
                     with open(f'results/LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
@@ -95,7 +93,7 @@ def main():
                     lst_results.append(f'results/LKH_RES_CVRPTW{count_towns-1}.txt')
 
             elif(method == 'Gurobi'):
-                a = CVRPTW('Gurobi', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
+                CVRPTW('Gurobi', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 infile = open('Gurobi_20.txt',  'r')
                 outfile = open('Gurobi_20_CVRPTW_dist.txt',  'w')
@@ -171,6 +169,8 @@ def main():
         elif(letter == 'G'): final_lst_results.insert(4, i)
 
     print(final_lst_results)
+
+    # вычисление средних значений по всем примерам и на основе этого построение графиков каждого из алгоритмов
     for name in final_lst_results:
         with open(name, 'r') as f:
             file = f.readlines()
@@ -220,7 +220,7 @@ def main():
     plt.legend(['SA', '2Opt', '3Opt', 'LKH', 'Gurobi'])
     plt.xlabel('optimization time', fontsize=16)
     plt.ylabel('mean cost', fontsize=16)
-    plt.title('20 points', fontsize=16)
+    plt.title(f'{count_towns-1} points', fontsize=16)
 
     plt.savefig('All_Algorithms.png')
             
