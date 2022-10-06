@@ -109,7 +109,7 @@ void sigfunc(int sig){
       }\
    }\
    printtwtown(towns[1]);\
-   twtown *sub = (twtown*)malloc((countTowns-1) * sizeof(twtown));\
+   twtown *sub = (twtown*) malloc((countTowns-1) * sizeof(twtown));\
    int w = 0;\
    twtown t;\
    for(int i = 1; i < countTowns; i++){\
@@ -133,6 +133,35 @@ void sigfunc(int sig){
    int days, cap, l, g;\
    double full_time = 0;\
    signal(SIGINT, sigfunc);\
+   doShuffleTw(newCountTowns, sub);\
+   /* l = 1;\
+   g = 0;\
+   cap = 0;\
+   for(g = 0; g < newCountTowns; g++) { \
+      if(cap + sub[g].t.weight <= maxCapacity && g != newCountTowns - 1) {\
+         temp[l] = sub[g];\
+         l++;\
+         cap += sub[g].t.weight;\
+      } else{\
+         if(g == newCountTowns - 1){\
+            temp[l] = sub[g];\
+            l++;\
+         }\
+         temp[0] = town0;\
+         if (l >= 3)\
+         {\
+            distanceInTourBest += subtourdistanceTw(temp, l, &m, timer, endTime);\
+         }\
+         l = 1;cap = 0;\
+      }\
+   }\ */\
+   distanceInTourBest += getByTown(&m, town0.t.name, sub[0].t.name);\
+   for (int i = 0; i < newCountTowns - 1; ++i)\
+   {\
+      distanceInTourBest += getByTown(&m, sub[i].t.name, sub[i+1].t.name);\
+   }\
+   distanceInTourBest += getByTown(&m, sub[newCountTowns - 1].t.name, town0.t.name);\
+   printf("START %lf\t%lf\n", (distanceInTourBest), 0.0);\
    while(!stop){\
       clock_t start = clock();\
       /*printf("countTaks: %d\n", i);\*/\
@@ -150,8 +179,8 @@ void sigfunc(int sig){
             if(g == newCountTowns - 1){\
                temp[l] = sub[g];\
                l++;\
-               temp[0] = town0;\
             }\
+            temp[0] = town0;\
             if(l >= 3) {\
                td = algfunc(temp, l, &m, &timer, endTime);  \
             } else {\
