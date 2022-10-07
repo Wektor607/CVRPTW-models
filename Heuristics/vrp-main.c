@@ -127,7 +127,9 @@ void sigfunc(int sig){
    putchar('\n');\
    printtwtown(sub[1]);\
    twtown temp[newCountTowns+1];\
-   twtown start_temp[newCountTowns+1];\
+   twtown** full_temp = calloc(newCountTowns+1, sizeof(twtown*));\
+   int* len_full_temp = calloc(newCountTowns+1, sizeof(int));\
+   int n_temp = 0;\
    double td;\
    double distanceInTourBest = -1.0, distanceInTourNew = 0.0;\
    double runtime = clock();\
@@ -135,30 +137,50 @@ void sigfunc(int sig){
    double full_time = 0;\
    signal(SIGINT, sigfunc);\
    /*doShuffleTw(newCountTowns, sub);*/\
-   /*l = 1;\
+   l = 1;\
    g = 0;\
    cap = 0;\
    for(g = 0; g < newCountTowns; g++) { \
       if(cap + sub[g].t.weight <= maxCapacity && g != newCountTowns - 1) {\
-         start_temp[l] = sub[g];\
+         temp[l] = sub[g];\
          l++;\
          cap += sub[g].t.weight;\
-      } else{\
+      } else {\
          if(g == newCountTowns - 1){\
-            start_temp[l] = sub[g];\
+            temp[l] = sub[g];\
             l++;\
          }\
-         start_temp[0] = town0;\
-         distanceInTourBest += subtourdistanceTw(temp, l, &m, timer, endTime);\
+         temp[0] = town0;\
+         td = subtourdistanceTw(temp, l, &m, timer, endTime);\
+         while(td == -1) {\
+            timer = town0.mTimeStart;\
+            td = subtourdistanceTw(temp, l, &m, timer, endTime);\
+            if(td == -1) {l--; g--;}\
+         }\
+         full_temp[n_temp] = calloc(l, sizeof(twtown));\
+         for(int t = 0; t < l; ++t){\
+            full_temp[n_temp][t] = temp[t];\
+         }\
+         len_full_temp[n_temp] = l;\
+         write_cvrptw_subtour(res_distance, temp, l); \
+         distanceInTourNew += td;\
+         n_temp += 1;\
          l = 1;cap = 0;\
       }\
-   }*/\
-   /*distanceInTourBest += getByTown(&m, town0.t.name, sub[0].t.name);\
-   for (int i = 0; i < newCountTowns - 1; ++i)\
-   {\
-      distanceInTourBest += getByTown(&m, sub[i].t.name, sub[i+1].t.name);\
    }\
-   distanceInTourBest += getByTown(&m, sub[newCountTowns - 1].t.name, town0.t.name);*/\
+   printf("\nSTART_LEN: %lf\n[", distanceInTourNew);\
+   /*for(int num = 0; num < n_temp; ++num){\
+      printf("[");\
+      for(int t = 0; t < len_full_temp[num]; ++t){\
+         printf("%d ", full_temp[num][t].t.name);\
+      }\
+      printf("]\n");\
+      printf("len_full_temp: %d", len_full_temp[num]);\
+   }\
+   printf("]\n");\*/\
+   fprintf(out, "%lf\t%lf\n", (distanceInTourNew), 0.0);\
+   distanceInTourNew = 0;\
+   printf("newCountTowns: %d", newCountTowns);\
    while(!stop){\
       clock_t start = clock();\
       /*printf("countTaks: %d\n", i);\*/\
@@ -178,6 +200,7 @@ void sigfunc(int sig){
                l++;\
             }\
             temp[0] = town0;\
+            printf("l: %d", l);\
             if(l >= 3) {\
                td = algfunc(temp, l, &m, &timer, endTime);  \
             } else {\
