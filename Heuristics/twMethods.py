@@ -38,7 +38,8 @@ def parse_dist_and_tour(file_name, max_capacity, count_vehicles):
                 max_count = float(data[i])
                 mas_dist = list(map(lambda t: list(map(int, t.split(' '))), data[i-1][:-1].split('#')))
                 break
- 
+    
+    print('Итоговый маршрут: ', mas_dist)
     return [max_count, mas_dist]    
 
 def check(all_pairs, timer, distance, start_lst, finish_lst, service):

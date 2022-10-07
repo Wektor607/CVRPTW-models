@@ -3,20 +3,25 @@ from twMethods import *
 from collections import deque
 from datetime import datetime
 import matplotlib.pyplot as plt
+import os
 
 def main():
     print("Введите количество городов(20, 50, 100): ")
     n = input()
+    while(n != '20' and n != '50' and n != '100'):
+        print("Введите количество городов(20, 50, 100): ")
+        n = input()
     lst = []
     for i in range(1, 2):
         lst.append(f"{n}/Example{i}.csv")
     lst_results = []
-    print('If you want open documentation write YES else press Enter')
+    lst_legend = []
+    print('Если хотиет открыть документацию,то напишите YES в противном случае нажмите Enter')
     doc = input()
     if(doc == 'YES'):
         help(vrp_c) #TODO: в отредактировать текст в документации
     idx = 0
-    print('which method do you want to use to optimize the routse for CVRPTW: SA or LKH or OptAlg or Gurobi?')
+    print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
     method = input()
     while(1):
         for i in lst:
@@ -35,10 +40,14 @@ def main():
                 max_capacity   = 1000
                 count_vehicles = 21
             
+            folder_name = f"{count_towns-1}_tw"
+            if(os.path.exists(folder_name) == False):
+                os.mkdir(folder_name)
+
             if(method == 'SA'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                sa = CVRPTW('SA', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end).sa() #TODO: некоторые параметры брать автоматически из файла
+                CVRPTW('SA', i, f"{folder_name}/test{idx}", count_towns, max_capacity, start, end).sa() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 with open(f'current_result/SA_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
@@ -62,7 +71,7 @@ def main():
 
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                CVRPTW('OptAlg', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end).opt(name_opt) #TODO: некоторые параметры брать автоматически из файла
+                CVRPTW('OptAlg', i, f"{folder_name}/test{idx}", count_towns, max_capacity, start, end).opt(name_opt) #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 if(name_opt == '2opt' or name_opt == '3opt'):
                     with open(f'current_result/{name_opt}_CVRPTW_result.txt', 'r') as res_file:
@@ -79,7 +88,7 @@ def main():
             elif(method == 'LKH'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                CVRPTW('LKH', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
+                CVRPTW('LKH', i, f"{folder_name}/test{idx}", count_towns, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 with open(f'current_result/LKH_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
@@ -93,7 +102,7 @@ def main():
                     lst_results.append(f'results/LKH_RES_CVRPTW{count_towns-1}.txt')
 
             elif(method == 'Gurobi'):
-                CVRPTW('Gurobi', i, f"{count_towns-1}_tw/test{idx}", count_towns, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
+                CVRPTW('Gurobi', i, f"{folder_name}/test{idx}", count_towns, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 infile = open('Gurobi_20.txt',  'r')
                 outfile = open('Gurobi_20_CVRPTW_dist.txt',  'w')
@@ -139,39 +148,31 @@ def main():
                 infile.close()
                 outfile.close()
                 #TODO: добавить сюда сохранение результатов в файл
+            if(method not in lst_legend):
+                if(method == 'OptAlg'):
+                    method = name_opt    
+                lst_legend.append(method)
 
         z = input()
         if(z == ''):
-            print('Do you want to use a different algorithm for optimize these instances(y/n):')
+            print('Вы хотите использовать другой алгоритм для оптимизации этой(-их) задач(-и)(y/n):')
             z = input()
         while(z != 'y' or z != 'n'):
             if(z == 'n'):
                 break
             elif(z == 'y'):
-                print('which method do you want to use to optimize the routse for CVRPTW: SA or LKH or OptAlg or Gurobi?')
+                print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
                 method = input()
                 break
             else:
-                print('Try again!')
-                print('Do you want to use a different algorithm for optimize these instances(y/n):')
+                print('Попробуйте ещё раз!')
+                print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
                 z = input()
         if(z == 'n'):
             break
-    
-    # Отсортировываем название файлов с результатами в порядке, как названия алгоритмов находятся в legend
-    final_lst_results = []
-    for i in lst_results:
-        letter = i.split('/')[1][:1]
-        if(letter == 'S')  : final_lst_results.insert(0, i)
-        elif(letter == '2'): final_lst_results.insert(1, i)
-        elif(letter == '3'): final_lst_results.insert(2, i)
-        elif(letter == 'L'): final_lst_results.insert(3, i)
-        elif(letter == 'G'): final_lst_results.insert(4, i)
-
-    print(final_lst_results)
 
     # вычисление средних значений по всем примерам и на основе этого построение графиков каждого из алгоритмов
-    for name in final_lst_results:
+    for name in lst_results:
         with open(name, 'r') as f:
             file = f.readlines()
         costs = []
@@ -217,9 +218,9 @@ def main():
         cost_batched = np.array(cost_batched)
         plt.plot(cost_batched.mean(0))
         
-    plt.legend(['SA', '2Opt', '3Opt', 'LKH', 'Gurobi'])
-    plt.xlabel('optimization time', fontsize=16)
-    plt.ylabel('mean cost', fontsize=16)
+    plt.legend(lst_legend)
+    plt.xlabel('Время оптимизации (секунды)', fontsize=7)
+    plt.ylabel('Средняя стоимость (секунды)', fontsize=7)
     plt.title(f'{count_towns-1} points', fontsize=16)
 
     plt.savefig('All_Algorithms.png')

@@ -75,11 +75,12 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double ti
     }
 
     double localtimer = timer;
-    double dop_time = 0;
+    double dop_time = 0, full_service_time = 0;
 
     for (int i = 0; i < lenSub - 1; i++)
     {
         localtimer += getByTown(m, sub[i].t.name, sub[i + 1].t.name) + sub[i + 1].mTimeService;
+        full_service_time += sub[i + 1].mTimeService;
         if (!(localtimer >= sub[i + 1].mTimeStart))
         {
             dop_time += sub[i + 1].mTimeStart - localtimer;
@@ -102,7 +103,7 @@ double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double ti
     // Если нужно вычислить расстояние, то вычитаем суммарное время ожидания
     // Если же нужно получить общее время, затраченное на всю поездку, то не отнимаем это доп. время, но переводить в метры это время
     // не корректно
-    return localtimer - timer;
+    return localtimer - timer - dop_time - full_service_time;
 }
 
 
@@ -209,6 +210,8 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     }
 
     double best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime), newd;
+    if(best != 0 && best != -1)
+        printf("\nSTART %lf\t%lf\n", best, 0.0);
     if(best == 0) {
         return -1;
     }
@@ -283,6 +286,8 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     }
 
     double best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime), newd;
+    if(best != 0 && best != -1)
+        printf("\nSTART %lf\t%lf\n", best, 0.0);
     if(best == 0) {
         return -1;
     }
@@ -735,6 +740,8 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
     }
 
     double best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime), newd, p;
+    if(best != 0 && best != -1)
+        printf("\nSTART %lf\t%lf\n", best, 0.0);
     double runtime = clock(); 
     int T = tmax;
     for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) {
