@@ -77,7 +77,7 @@ class CVRPTW (VRP):
         if(self.alg_name != 'Gurobi'):
             vrp_c.parseOneTwTownPy(self.name_file, self.path_folder, self.count_towns)
 
-    def sa(self, T: float = 1000, t_min: float = 10) -> [float, list]: #TODO: В SA передавать температуру с клавиатуры
+    def sa(self) -> [float, list]: #TODO: В SA передавать температуру с клавиатуры
         """
         Функция, вызывающая алгоритм "Имитации отжига" для решения задачи CVRPTW. На вход подается два параметра:
             :type float T:     начальная температура, которая с течением времени убывает;
@@ -86,7 +86,11 @@ class CVRPTW (VRP):
             1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """ 
-        vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity)
+        print('Введите начальную температуру: ')
+        Tstart = float(input())
+        print('Введите конечную температуру: ')
+        tmin = float(input())
+        vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity, Tstart, tmin)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
     def opt(self, name_opt: str = '3opt') -> [float, list]:
         """
@@ -97,9 +101,9 @@ class CVRPTW (VRP):
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """
         if(name_opt == '2opt'):
-            vrp_c.modelMetaHeuristic("cvrptw_2opt", self.path_folder, self.count_towns, self.capacity)
+            vrp_c.modelMetaHeuristic("cvrptw_2opt", self.path_folder, self.count_towns, self.capacity, 0.0, 0.0)
         elif(name_opt == '3opt'):
-            vrp_c.modelMetaHeuristic("cvrptw_3opt", self.path_folder, self.count_towns, self.capacity)
+            vrp_c.modelMetaHeuristic("cvrptw_3opt", self.path_folder, self.count_towns, self.capacity, 0.0, 0.0)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
 
     def lkh(self) -> [float, list]:
@@ -109,7 +113,7 @@ class CVRPTW (VRP):
             1. В первом столбце записывается длина маршрута, выраженная в метрах, в определенный момент времени;
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """
-        vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity)
+        vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity, 0.0, 0.0)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
 
     def gurobi(self) -> [float, list]:

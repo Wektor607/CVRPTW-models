@@ -202,7 +202,7 @@ void sigfunc(int sig){
             temp[0] = town0;\
             printf("l: %d", l);\
             if(l >= 3) {\
-               td = algfunc(temp, l, &m, &timer, endTime);  \
+               td = algfunc(temp, l, &m, &timer, endTime, T, t_end);  \
             } else {\
                td = subtourdistanceTw(temp, l, &m, timer, endTime);\
             }\
@@ -213,7 +213,7 @@ void sigfunc(int sig){
                timer = town0.mTimeStart;\
                if(l >= 3)\
                {\
-                  td = algfunc(temp, l, &m, &timer, endTime);\
+                  td = algfunc(temp, l, &m, &timer, endTime, T, t_end);\
                } else {\
                   td = subtourdistanceTw(temp, l, &m, timer, endTime);\
                }\
@@ -264,8 +264,9 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    char *in, *algname;
    int tcountTown; 
    double maxCapacity;
+   double T, t_end;
 
-   if (!PyArg_ParseTuple(args, "ssid", &algname, &in, &tcountTown, &maxCapacity)) {
+   if (!PyArg_ParseTuple(args, "ssiddd", &algname, &in, &tcountTown, &maxCapacity, &T, &t_end)) {
       return NULL;
    }
    countTowns = tcountTown;

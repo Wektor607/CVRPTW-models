@@ -197,7 +197,7 @@ int moveElemsTw(twtown *sub, int start1, int end1, int start2, int end2)
     return 0;
 }
 
-double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime)
+double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2)
 {
     twtown *subcopy = (twtown*)malloc((lenSub) * sizeof(twtown));
     //цикл копирования sub -> subcopy
@@ -262,7 +262,7 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
 	return best;
 }
 
-double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime) // timer - is a now time. Global time on the world.
+double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2) // timer - is a now time. Global time on the world.
 {
 
     /*
@@ -391,7 +391,7 @@ double gain(halfmatrix *m, Edge x, Edge y)
     return getByTown(m, x.node1, x.node2) - getByTown(m, y.node1, y.node2);
 }
 
-double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime)
+double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2)
 {
     /* 1 Create starting tour T */
     printf("LENSUB: %d\n", lenSub );
@@ -750,7 +750,7 @@ void GenerateStateCandidateTw(twtown *sub, twtown *best, int lenSub)
     }
 }
 
-double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime) {
+double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin) {
     twtown subcopy[lenSub];
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)
