@@ -262,7 +262,7 @@ void sigfunc(int sig){
    
 static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    char *in, *algname;
-   int tcountTown; 
+   int tcountTown, countTowns; 
    double maxCapacity;
    double T, t_end;
 
