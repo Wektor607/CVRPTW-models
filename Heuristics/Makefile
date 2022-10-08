@@ -1,4 +1,4 @@
 all:
-	sudo rm -Rf build/
-	sudo python3 setup.py install
-	python3 main.py
+	sudo rm -Rf src/build/
+	sudo python3 src/setup.py install
+	python3 src/main.py

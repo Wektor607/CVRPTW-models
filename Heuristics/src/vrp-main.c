@@ -57,7 +57,7 @@ void sigfunc(int sig){
 #define CVRPTW(algfunc) \
    srand(time(NULL)); \
    FILE *out = fopen(fileout, "w"); \
-   FILE *res_distance = fopen("res_distance.txt", "w");\
+   FILE *res_distance = fopen("current_result/res_distance.txt", "w");\
    if(res_distance == NULL) {exit(-1);}\
    if(out == NULL) {exit(-1);}\
    twtown *towns; \

@@ -31,7 +31,7 @@ def parse_dist_and_tour(file_name, max_capacity, count_vehicles):
     """
     max_count = -1
     mas_dist = []
-    with open('res_distance.txt', 'r') as read_file:
+    with open('current_result/res_distance.txt', 'r') as read_file:
         data = read_file.read().split('@')[:-1]
         for i in range(len(data)-1, 0, -2):
             if(float(data[i]) != -1):

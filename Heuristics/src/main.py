@@ -223,7 +223,7 @@ def main():
     plt.ylabel('Средняя стоимость (секунды)', fontsize=7)
     plt.title(f'{count_towns-1} points', fontsize=16)
 
-    plt.savefig('All_Algorithms.png')
+    plt.savefig('graphs/All_Algorithms.png')
 
     # import pandas as pd
     # import matplotlib.pyplot as plt
