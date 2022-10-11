@@ -1,4 +1,6 @@
 from itertools import count
+
+from sklearn.utils import shuffle
 from twMethods import *
 from collections import deque
 from datetime import datetime
@@ -12,7 +14,7 @@ def main():
         print("Введите количество городов(20, 50, 100): ")
         n = input()
     lst = []
-    for i in range(1, 2):
+    for i in range(1, 4):
         lst.append(f"{n}/Example{i}.csv")
     lst_results = []
     lst_legend = []
@@ -23,11 +25,17 @@ def main():
     idx = 0
     print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
     method = input()
+    shuffle_param = 0
+    i = 0
+    open("current_result/start_tour.txt", "w")
+    meth_alg = ['SA', 'LKH', 'OptAlg', 'Gurobi']
+    z_b = ['y', 'n']
+    Z_b = ['YES', 'NO']
     while(1):
-        for i in lst:
-            with open(i) as f:
+        while(i < len(lst)):
+            with open(lst[i]) as f:
                 count_towns = sum(1 for _ in f) - 1
-            with open(i) as f:
+            with open(lst[i]) as f:
                 [last_line] = deque(f, maxlen=1)
                 last_line = last_line.split('\t')[3].split('-')
             if(count_towns == 21):
@@ -47,7 +55,7 @@ def main():
             if(method == 'SA'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                sa = CVRPTW('SA', i, f"{folder_name}/test{idx}", count_towns, max_capacity, start, end).sa() #TODO: некоторые параметры брать автоматически из файла
+                sa = CVRPTW('SA', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end).sa() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 with open(f'current_result/SA_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
@@ -71,7 +79,7 @@ def main():
 
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                opt_alg = CVRPTW('OptAlg', i, f"{folder_name}/test{idx}", count_towns, max_capacity, start, end).opt(name_opt) #TODO: некоторые параметры брать автоматически из файла
+                opt_alg = CVRPTW('OptAlg', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end).opt(name_opt) #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 if(name_opt == '2opt' or name_opt == '3opt'):
                     with open(f'current_result/{name_opt}_CVRPTW_result.txt', 'r') as res_file:
@@ -88,7 +96,7 @@ def main():
             elif(method == 'LKH'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                lkh = CVRPTW('LKH', i, f"{folder_name}/test{idx}", count_towns, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
+                lkh = CVRPTW('LKH', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 with open(f'current_result/LKH_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
@@ -102,7 +110,7 @@ def main():
                     lst_results.append(f'results/LKH_RES_CVRPTW{count_towns-1}.txt')
 
             elif(method == 'Gurobi'):
-                gurobi = CVRPTW('Gurobi', i, f"{folder_name}/test{idx}", count_towns, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
+                gurobi = CVRPTW('Gurobi', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 infile = open('Gurobi_20.txt',  'r')
                 outfile = open('Gurobi_20_CVRPTW_dist.txt',  'w')
@@ -153,23 +161,51 @@ def main():
                     method = name_opt    
                 lst_legend.append(method)
 
-        z = input()
-        if(z == ''):
-            print('Вы хотите использовать другой алгоритм для оптимизации этой(-их) задач(-и)(y/n):')
             z = input()
-        while(z != 'y' or z != 'n'):
-            if(z == 'n'):
-                break
-            elif(z == 'y'):
-                print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
-                method = input()
-                break
-            else:
-                print('Попробуйте ещё раз!')
-                print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
+            if(z == ''):
+                print('Вы хотите использовать другой алгоритм для оптимизации этой задачи (y/n):')
                 z = input()
-        if(z == 'n'):
+            while(1):
+                if(z == 'n'):
+                    break
+                elif(z == 'y'):
+                    print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
+                    method = input()
+                    while(method not in meth_alg):
+                        print('Попробуйте ещё раз!')
+                        print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')    
+                        method = input()
+                    shuffle_param = 1
+                    break
+                else:
+                    print('Попробуйте ещё раз!')
+                    print('Вы хотите использовать другой алгоритм для оптимизации этой задачи (y/n):')
+                    z = input()
+            if(z == 'n'):
+                print('Вы хотите закончить работу программы (YES/NO):')
+                z = input()
+                while(1):
+                    if(z == 'YES'):
+                        break
+                    elif(z == 'NO'):
+                        print('Какой из методов вы хотите использовать для решения новой задачи оптимизации маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
+                        method = input()
+                        while(method not in meth_alg):
+                            print('Попробуйте ещё раз!')
+                            print('Какой из методов вы хотите использовать для решения новой задачи оптимизации маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')    
+                            method = input()
+                        shuffle_param = 0
+                        i += 1
+                        break
+                    else:
+                        print('Попробуйте ещё раз!')
+                        print('Вы хотите закончить работу программы (YES/NO):')
+                        z = input()
+            if(z == 'YES'):
+                break
+        if(z == 'YES'):
             break
+
 
     # вычисление средних значений по всем примерам и на основе этого построение графиков каждого из алгоритмов
     for name in lst_results:

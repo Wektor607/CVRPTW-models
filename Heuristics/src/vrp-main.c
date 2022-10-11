@@ -144,6 +144,36 @@ void sigfunc(int sig){
    int days, cap, l, g;\
    double full_time = 0;\
    signal(SIGINT, sigfunc);\
+   if(shuffle_param == 0){\
+      FILE *start_tour = fopen("current_result/start_tour.txt", "w");\
+      doShuffleTw(newCountTowns, sub);\
+      for(int h = 0; h < newCountTowns; h++){\
+         fprintf(start_tour, "%d ", sub[h].t.name);\
+      }\
+      fclose(start_tour);\
+   } else if(shuffle_param == 1){\
+      FILE *start_tour = fopen("current_result/start_tour.txt", "r");\
+      int name;\
+      twtown *sub_alg = (twtown*) malloc(newCountTowns * sizeof(twtown));\
+      for(int h = 0; h < newCountTowns; h++){\
+         fscanf(start_tour, "%d ", &name);\
+         for(int s = 0; s < newCountTowns; s++){\
+            if(name == sub[s].t.name){\
+               sub_alg[h] = sub[s];\
+               break;\
+            }\
+         }\
+      }\
+      fclose(start_tour);\
+      for(int h = 0; h < newCountTowns; h++){\
+         sub[h] = sub_alg[h];\
+      }\
+   }\
+   printf("SHUFFLE_param: %d\n", shuffle_param);\
+   printf("SHUFFLE_sub: ");\
+   for(int i = 0; i < newCountTowns; i++) {\
+      printf("%d ", sub[i].t.name);\
+   }\
    /*doShuffleTw(newCountTowns, sub);*/\
    l = 1;\
    g = 0;\
@@ -161,7 +191,7 @@ void sigfunc(int sig){
          temp[0] = town0;\
          td = subtourdistanceTw(temp, l, &m, timer, endTime);\
          while(td == -1) {\
-            timer = town0.mTimeStart;\
+            /*timer = town0.mTimeStart;*/\
             td = subtourdistanceTw(temp, l, &m, timer, endTime);\
             if(td == -1) {l--; g--;}\
          }\
@@ -193,7 +223,6 @@ void sigfunc(int sig){
       clock_t start = clock();\
       /*printf("countTaks: %d\n", i);\*/\
       days = 1;\
-      doShuffleTw(newCountTowns, sub);\
       l = 1;\
       g = 0;\
       cap = 0;\
@@ -273,8 +302,9 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    int tcountTown, countTowns; 
    double maxCapacity;
    double T, t_end;
+   int shuffle_param;
 
-   if (!PyArg_ParseTuple(args, "ssiddd", &algname, &in, &tcountTown, &maxCapacity, &T, &t_end)) {
+   if (!PyArg_ParseTuple(args, "ssidddi", &algname, &in, &tcountTown, &maxCapacity, &T, &t_end, &shuffle_param)) {
       return NULL;
    }
    countTowns = tcountTown;
