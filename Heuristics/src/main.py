@@ -12,7 +12,7 @@ def main():
         print("Введите количество городов(20, 50, 100): ")
         n = input()
     lst = []
-    for i in range(43, 44):
+    for i in range(1, 2):
         lst.append(f"{n}/Example{i}.csv")
     lst_results = []
     lst_legend = []

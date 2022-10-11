@@ -1,7 +1,15 @@
 #include <Python.h>
-#include "cvrptw-logistic.c"
 #include <time.h> 
 #include <signal.h>
+// #include "cvrptw-logistic.c"
+#include "logistic.h"
+#include "supporting_functions/townActions.c"
+#include "supporting_functions/dataProcessing.c"
+#include "algorithms/SA.c"
+#include "algorithms/twoOpt.c"
+#include "algorithms/threeOpt.c"
+#include "algorithms/LKH.c"
+// #include "logistic.h"
 
 static PyObject *parseOneTwTownPy(PyObject *self, PyObject *args) {
    char *in;
@@ -185,7 +193,7 @@ void sigfunc(int sig){
       clock_t start = clock();\
       /*printf("countTaks: %d\n", i);\*/\
       days = 1;\
-      /*doShuffleTw(newCountTowns, sub);*/\
+      doShuffleTw(newCountTowns, sub);\
       l = 1;\
       g = 0;\
       cap = 0;\
@@ -226,7 +234,7 @@ void sigfunc(int sig){
       }\
       if(distanceInTourBest == -1.0) {\
       /*distanceInTourNew * 60 * 1000 / 3600*/\
-         fprintf(out, "%lf\t%lf\n", (distanceInTourNew), 0.0);\
+         fprintf(out, "%lf\t%lf\n", (distanceInTourNew), (clock() - runtime) / CLOCKS_PER_SEC);\
          distanceInTourBest = distanceInTourNew;\
       } \
       if(distanceInTourNew < distanceInTourBest) {\
