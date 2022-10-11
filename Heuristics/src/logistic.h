@@ -3,8 +3,8 @@
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
-#include "distanceMatrix.h"
-#include "parameters.h"
+#include "supporting_functions/distanceMatrix.h"
+#include "supporting_functions/parameters.h"
 #include <limits.h>
 
 
