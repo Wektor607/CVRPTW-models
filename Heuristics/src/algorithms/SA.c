@@ -25,7 +25,7 @@ void GenerateStateCandidateTw(twtown *sub, twtown *best, int lenSub)
     }
 }
 
-double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin) {
+double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin, int countTowns) {
     twtown subcopy[lenSub];
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)

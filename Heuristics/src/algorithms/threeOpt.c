@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2) // timer - is a now time. Global time on the world.
+double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns) // timer - is a now time. Global time on the world.
 {
 
     /*
@@ -95,9 +95,9 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     
     // printf("New total time: %lf\n", best);
     // printf("New list: "); printTwTownList(sub, lenSub);
-    if(best != -1) {
-        *timer += best;  
-    }
+    // if(best != -1) {
+    *timer += best;  
+    // }
     
     return best;
 }

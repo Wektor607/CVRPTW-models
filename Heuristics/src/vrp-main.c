@@ -174,7 +174,6 @@ void sigfunc(int sig){
    for(int i = 0; i < newCountTowns; i++) {\
       printf("%d ", sub[i].t.name);\
    }\
-   /*doShuffleTw(newCountTowns, sub);*/\
    l = 1;\
    g = 0;\
    cap = 0;\
@@ -207,15 +206,6 @@ void sigfunc(int sig){
       }\
    }\
    printf("\nSTART_LEN: %lf\n[", distanceInTourNew);\
-   /*for(int num = 0; num < n_temp; ++num){\
-      printf("[");\
-      for(int t = 0; t < len_full_temp[num]; ++t){\
-         printf("%d ", full_temp[num][t].t.name);\
-      }\
-      printf("]\n");\
-      printf("len_full_temp: %d", len_full_temp[num]);\
-   }\
-   printf("]\n");\*/\
    fprintf(out, "%lf\t%lf\n", (distanceInTourNew), 0.0);\
    distanceInTourNew = 0;\
    printf("newCountTowns: %d", newCountTowns);\
@@ -237,9 +227,8 @@ void sigfunc(int sig){
                l++;\
             }\
             temp[0] = town0;\
-            printf("l: %d", l);\
             if(l >= 3) {\
-               td = algfunc(temp, l, &m, &timer, endTime, T, t_end);  \
+               td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);  \
             } else {\
                td = subtourdistanceTw(temp, l, &m, timer, endTime);\
             }\
@@ -250,7 +239,7 @@ void sigfunc(int sig){
                timer = town0.mTimeStart;\
                if(l >= 3)\
                {\
-                  td = algfunc(temp, l, &m, &timer, endTime, T, t_end);\
+                  td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);\
                } else {\
                   td = subtourdistanceTw(temp, l, &m, timer, endTime);\
                }\
@@ -282,6 +271,7 @@ void sigfunc(int sig){
       full_time += seconds;\
       if(!stop)\
          printf("Время оптимизации: %lf Текущая длина: %lf \n", full_time, distanceInTourBest);\
+      doShuffleTw(newCountTowns, sub);\
    }\
    /* данный параметр очень важно заново обнулять, так как он глобальный и при решении следующих задач
    будет сразу вызывать Ctrl+C*/\
@@ -307,7 +297,9 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    if (!PyArg_ParseTuple(args, "ssidddi", &algname, &in, &tcountTown, &maxCapacity, &T, &t_end, &shuffle_param)) {
       return NULL;
    }
+
    countTowns = tcountTown;
+   
    if(strcmp(algname, "cvrptw_lkh") == 0) {
       char fileout[] = "current_result/LKH_CVRPTW_result.txt";
       CVRPTW(lkhTw); 
