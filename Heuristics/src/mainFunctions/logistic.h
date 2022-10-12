@@ -3,9 +3,9 @@
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
-#include "supporting_functions/distanceMatrix.h"
-#include "supporting_functions/parameters.h"
 #include <limits.h>
+#include "distanceMatrix.h"
+#include "parameters.h"
 
 
 #pragma once
@@ -36,9 +36,8 @@ void printtown(const town t)
 
 double getDistance(const town town1, const town town2)
 {
-	char path[PATH_MAX];
 	char output[120];
-	FILE *fp; int status;
+	FILE *fp;
 
 	char *req = "curl -s 'http://router.project-osrm.org/route/v1/driving/%lf,%lf;%lf,%lf?overview=false'";
 	snprintf(output, 120, req, town1.y, town1.x, town2.y, town2.x);

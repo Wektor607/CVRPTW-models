@@ -29,8 +29,6 @@ def main():
     i = 0
     open("current_result/start_tour.txt", "w")
     meth_alg = ['SA', 'LKH', 'OptAlg', 'Gurobi']
-    z_b = ['y', 'n']
-    Z_b = ['YES', 'NO']
     while(1):
         while(i < len(lst)):
             with open(lst[i]) as f:
@@ -261,129 +259,6 @@ def main():
 
     plt.savefig('graphs/All_Algorithms.png')
 
-    # import pandas as pd
-    # import matplotlib.pyplot as plt
-    # tour = lkh[1]
-
-    # data = pd.read_csv('20/Example1.csv', sep='\t')
-    # xcoord = list(data['x_coord'])
-    # ycoord = list(data['y_coord'])
-
-    # plt.figure(figsize=(12,8))
-    # plt.scatter(xcoord, ycoord, color="red")
-
-    # plt.scatter(xcoord[0], ycoord[0], color="black", marker='D')
-    # plt.annotate("Depo", (xcoord[0]-1, ycoord[0]-5.5))
-
-    # N = count_towns - 1
-    # clients = [i for i in range(N+1) if i != 0]
-    # for i in clients:
-    #     plt.annotate('${%d}$' % i, (xcoord[i]-1, ycoord[i]-5))
-
-    # colors = ["black", "blue", "red", "orange", "yellow", "grey"]
-    # i = 0
-    # for r in tour:
-    # #     print(r)
-    #     for t in range(len(r)-1):
-    # #         print(r[t])
-    #         plt.plot([xcoord[r[t]], xcoord[r[t+1]]], [ycoord[r[t]], ycoord[r[t+1]]], color=colors[i],alpha=0.4)
-    #     plt.plot([xcoord[r[len(r)-1]], xcoord[r[0]]], [ycoord[r[len(r)-1]], ycoord[r[0]]],color=colors[i],alpha=0.4)
-    #     i += 1
-    
-    # plt.savefig('LKH_TOUR.png')
-
             
 if __name__ == "__main__":
     main()
-
-
-#   twtown temp[newCountTowns+1];\
-#    twtown** full_temp = calloc(newCountTowns+1, sizeof(twtown*));\
-#    int* len_full_temp = calloc(newCountTowns+1, sizeof(int));\
-#    int n_temp = 0;\
-#    double td;\
-#    double distanceInTourBest = -1.0, distanceInTourNew = 0.0;\
-#    double runtime = clock();\
-#    int days, cap, l, g;\
-#    double full_time = 0;\
-#    signal(SIGINT, sigfunc);\
-#    /*doShuffleTw(newCountTowns, sub);*/\
-#    l = 1;\
-#    g = 0;\
-#    cap = 0;\
-#    for(g = 0; g < newCountTowns; g++) { \
-#       if(cap + sub[g].t.weight <= maxCapacity && g != newCountTowns - 1) {\
-#          temp[l] = sub[g];\
-#          l++;\
-#          cap += sub[g].t.weight;\
-#       } else {\
-#          if(g == newCountTowns - 1){\
-#             temp[l] = sub[g];\
-#             l++;\
-#          }\
-#          temp[0] = town0;\
-#          td = subtourdistanceTw(temp, l, &m, timer, endTime);\
-#          while(td == -1) {\
-#             timer = town0.mTimeStart;\
-#             td = subtourdistanceTw(temp, l, &m, timer, endTime);\
-#             if(td == -1) {l--; g--;}\
-#          }\
-#          full_temp[n_temp] = calloc(l, sizeof(twtown));\
-#          for(int t = 0; t < l; ++t){\
-#             full_temp[n_temp][t] = temp[t];\
-#          }\
-#          len_full_temp[n_temp] = l;\
-#          write_cvrptw_subtour(res_distance, temp, l); \
-#          distanceInTourNew += td;\
-#          n_temp += 1;\
-#          l = 1;cap = 0;\
-#       }\
-#    }\
-#    printf("\nSTART_LEN: %lf\n[", distanceInTourNew);\
-#    for(int num = 0; num < n_temp; ++num){\
-#       printf("[");\
-#       for(int t = 0; t < len_full_temp[num]; ++t){\
-#          printf("%d ", full_temp[num][t].t.name);\
-#       }\
-#       printf("]\n");\
-#       printf("len_full_temp: %d", len_full_temp[num]);\
-#    }\
-#    printf("]\n");\
-#    fprintf(out, "%lf\t%lf\n", (distanceInTourNew), 0.0);\
-#    distanceInTourNew = 0;\
-#    while(!stop){\
-#       clock_t start = clock();\
-#       /*printf("countTaks: %d\n", i);\*/\
-#       /*doShuffleTw(newCountTowns, sub);*/\
-#       for(int num = 0; num < n_temp; ++num){\
-#          if(len_full_temp[num] >= 3) {\
-#             td = algfunc(full_temp[num], len_full_temp[num], &m, &timer, endTime);  \
-#          } else {\
-#             td = subtourdistanceTw(full_temp[num], len_full_temp[num], &m, timer, endTime);\
-#          }\
-#          while(td == -1){\
-#             td = algfunc(full_temp[num], len_full_temp[num], &m, &timer, endTime);\
-#          }\
-#          write_cvrptw_subtour(res_distance, full_temp[num], len_full_temp[num]); \
-#          distanceInTourNew += td;\
-#       }\
-#       if(distanceInTourBest == -1.0) {\
-#          /*distanceInTourNew * 60 * 1000 / 3600*/\
-#          fprintf(out, "%lf\t%lf\n", (distanceInTourNew), (clock() - runtime) / CLOCKS_PER_SEC);\
-#          distanceInTourBest = distanceInTourNew;\
-#       } \
-#       if(distanceInTourNew < distanceInTourBest) {\
-#          distanceInTourBest = distanceInTourNew;\
-#          write_cvrptw_end_tour(res_distance, distanceInTourBest);\
-#          /*distanceInTourBest * 60 * 1000 / 3600*/\
-#          fprintf(out, "%lf\t%lf\n", (distanceInTourBest), (clock() - runtime) / CLOCKS_PER_SEC);\
-#       }\
-#       else {\
-#          write_cvrptw_end_tour(res_distance, -1);\
-#       }\
-#       distanceInTourNew = 0.0;\
-#       clock_t end = clock();\
-#       double seconds = (double)(end - start) / CLOCKS_PER_SEC;\
-#       full_time += seconds;\
-#       if(!stop)\
-#          printf("Время оптимизации: %lf Текущая длина: %lf \n", full_time, distanceInTourBest);\

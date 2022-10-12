@@ -37,7 +37,6 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
     double best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime), newd, p;
     // if(best != 0 && best != -1)
     //     printf("\nSTART %lf\t%lf\n", best, 0.0);
-    double runtime = clock(); 
     int T = tmax;
     for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) {
         GenerateStateCandidateTw(subcopy, sub, lenSub);
