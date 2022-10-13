@@ -8,6 +8,13 @@ import matplotlib.pyplot as plt
 import os
 
 def main():
+    if(os.path.exists('current_result') == False):
+        os.mkdir('current_result')
+    if(os.path.exists('results') == False):
+        os.mkdir('results')
+    if(os.path.exists('graphs') == False):
+        os.mkdir('graphs')
+
     print("Введите количество городов(20, 50, 100): ")
     n = input()
     while(n != '20' and n != '50' and n != '100'):
@@ -15,7 +22,8 @@ def main():
         n = input()
     lst = []
     for i in range(1, 4):
-        lst.append(f"{n}/Example{i}.csv")
+        lst.append(f"instances/{n}/Example{i}.csv")
+
     lst_results = []
     lst_legend = []
     print('Если хотиет открыть документацию,то напишите YES в противном случае нажмите Enter')
@@ -27,8 +35,10 @@ def main():
     method = input()
     shuffle_param = 0
     i = 0
+
     open("current_result/start_tour.txt", "w")
     meth_alg = ['SA', 'LKH', 'OptAlg', 'Gurobi']
+    
     while(1):
         while(i < len(lst)):
             with open(lst[i]) as f:

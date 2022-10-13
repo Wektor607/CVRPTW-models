@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "dataProcessing.h"
 
 int read_file_tw(const char* name_file, twtown *towns, int counttowns)
 {

@@ -1,5 +1,5 @@
 import vrp_c
-import gurobi_functions as gur_f
+import supportFunctions.gurobiFunctions as gur_f
 from gurobipy import Model, GRB, quicksum
 from datetime import datetime
 import os

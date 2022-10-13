@@ -1,5 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "distanceMatrix.h"
+
+#ifndef CREATEOBJECTS_H
+#define CREATEOBJECTS_H
 
 typedef struct timeWindowTown {
     town t;
@@ -15,3 +17,5 @@ twtown maketwtown(town t, double mTimeStart, double mTimeEnd, double mTimeServic
     tw.mTimeEnd = mTimeEnd;
     return tw;
 }
+
+#endif

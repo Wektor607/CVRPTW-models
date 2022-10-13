@@ -1,11 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct Edge
-{
-    int node1;
-    int node2;
-} Edge;
+#include <stdbool.h>
+#include "LKH.h"
 
 bool edge_equal(Edge x, Edge y)
 {

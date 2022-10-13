@@ -1,4 +1,5 @@
 import numpy as np
+import os
 def generate_data(n_samples=1, 
                   n_customer=20,
                   service_window=1000,
@@ -52,16 +53,19 @@ if __name__ == "__main__":
     # Размерность задачи
     print("Введиите количество городов: ")
     n_customer = int(input())
-
+    if(os.path.exists('instances') == False):
+        os.mkdir('instances')
+    if(os.path.exists(f'instances/{n_customer}') == False):
+        os.mkdir(f'instances/{n_customer}')
     # Время открытия и закрытия депо в часах
     print("Введите начало временного окна депо от 0 до 24 часов в формате XX:XX : ")
     depot_start_time = input()
     print("Введите конец временного окна депо от 0 до 24 часов в формате XX:XX : ")
     depot_end_time = input()
 
-    for i in range(1, 101):
+    for i in range(1, 51):
         depot, points, capacity, tw, deliver_time = generate_data(n_customer=n_customer)
-        with open(f"{n_customer}/Example{i}.csv", "w") as f:
+        with open(f"instances/{n_customer}/Example{i}.csv", "w") as f:
             f.write('x_coord' + '\t' + 'y_coord' + '\t' + 'Weight' + '\t' + 'DeliveryTimeRange' + '\t' + 'UnloadingTime' + '\n')
             
             for j in range(len(points[0])):

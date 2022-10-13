@@ -1,13 +1,10 @@
 #include <Python.h>
 #include <time.h> 
 #include <signal.h>
-#include "mainFunctions/logistic.h"
-#include "mainFunctions/townActions.c"
-#include "mainFunctions/dataProcessing.c"
-#include "algorithms/SA.c"
-#include "algorithms/twoOpt.c"
-#include "algorithms/threeOpt.c"
-#include "algorithms/LKH.c"
+#include "algorithms/LKH.h"
+#include "algorithms/SA.h"
+#include "algorithms/threeOpt.h"
+#include "algorithms/twoOpt.h"
 
 static PyObject *parseOneTwTownPy(PyObject *self, PyObject *args) {
    char *in;
