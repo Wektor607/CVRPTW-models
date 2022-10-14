@@ -209,6 +209,7 @@ char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffl
    }
    printf("\nSTART_LEN: %lf\n[", distanceInTourNew);
    fprintf(out, "%lf\t%lf\n", (distanceInTourNew), 0.0);
+   double start_tour_len = distanceInTourNew;
    distanceInTourNew = 0;
    printf("newCountTowns: %d", newCountTowns);
    while(!stop){
@@ -289,6 +290,7 @@ char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffl
    double final_time = (clock() - runtime) / CLOCKS_PER_SEC;
    fprintf(out, "%lf\t%lf\n", (distanceInTourBest), final_time);
    printf("\nОкончательное время оптимизации: %lf \nОкончательная длина маршрута: %lf \n", final_time, distanceInTourBest);
+   printf("\nНачальная длина маршрута: %lf\n", start_tour_len);
    fputc('\n', out);
    free(sub);
    free(towns);
