@@ -190,7 +190,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                     
                     bool flag8 = 0, flag9 = 0;
                     int y2_cur = 0, x2_cur = 0;
-                    /* 5 */
+                    /* 5 После выбора X[0] и Y[0] делаем i = i + 1*/
                     for (int i = 1; i < lenSub; ++i)
                     {
                         if(flag8 || flag9)
@@ -198,7 +198,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             tmp_cntr++;
                             i = 1;
                         }
-                        if(!flag8)
+                        if(!flag8) /* Если Y[i] существует переходим к шагу 5 в противном случае откатываемся к Y[1]*/
                         {
                             //printf("\n%d %d %d %d %d\n\n", i, X[i-1].node1, X[i-1].node2, Y[i-1].node1, Y[i-1].node2);
                             /* form var for step 6 */
@@ -302,7 +302,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                 FT1 = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
                                 //FT1 += getByTown(m, T1[lenSub-1].node2, T1[0].node1);
                                 //printf("%lf %lf\n", FT1, FT);
-                                if ((FT1 < FT || FT == -1) && FT1 != -1)
+                                if ((FT1 < FT || FT == -1) && FT1 != -1) /* Если найденный тур лучше лучшего,то заменяем*/
                                 {
                                     indexes[subcopy[0].t.name] = 0;
                                     for (int e = 0; e < lenSub; ++e)
