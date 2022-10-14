@@ -1,3 +1,4 @@
+MANIFEST.in
 setup.cfg
 setup.py
 CVRP-TW/__init__.py
@@ -9,8 +10,10 @@ CVRP-TW/algorithms/LKH.c
 CVRP-TW/algorithms/SA.c
 CVRP-TW/algorithms/threeOpt.c
 CVRP-TW/algorithms/twoOpt.c
+CVRP-TW/mainFunctions/createObjects.c
 CVRP-TW/mainFunctions/dataProcessing.c
 CVRP-TW/mainFunctions/distanceMatrix.c
+CVRP-TW/mainFunctions/logistic.c
 CVRP-TW/mainFunctions/townActions.c
 CVRP_TW.egg-info/PKG-INFO
 CVRP_TW.egg-info/SOURCES.txt

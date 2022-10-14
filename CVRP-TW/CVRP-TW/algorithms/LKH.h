@@ -1,5 +1,4 @@
 #include "../mainFunctions/dataProcessing.h"
-#include <stdbool.h>
 
 #ifndef LKH_H
 #define LKH_H

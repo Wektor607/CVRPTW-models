@@ -61,7 +61,7 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
 char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns){
    srand(time(NULL)); 
    FILE *out = fopen(fileout, "w"); 
-   FILE *res_distance = fopen("current_result/res_distance.txt", "w");
+   FILE *res_distance = fopen("CVRP-TW/current_result/res_distance.txt", "w");
    if(res_distance == NULL) {exit(-1);}
    if(out == NULL) {exit(-1);}
    twtown *towns; 
@@ -142,14 +142,14 @@ char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffl
    signal(SIGINT, sigfunc);
 
    if(shuffle_param == 0){
-      FILE *start_tour = fopen("current_result/start_tour.txt", "w");
+      FILE *start_tour = fopen("CVRP-TW/current_result/start_tour.txt", "w");
       doShuffleTw(newCountTowns, sub);
       for(int h = 0; h < newCountTowns; h++){
          fprintf(start_tour, "%d ", sub[h].t.name);
       }
       fclose(start_tour);
    } else if(shuffle_param == 1){
-      FILE *start_tour = fopen("current_result/start_tour.txt", "r");
+      FILE *start_tour = fopen("CVRP-TW/current_result/start_tour.txt", "r");
       int name;
       twtown *sub_alg = (twtown*) malloc(newCountTowns * sizeof(twtown));
       for(int h = 0; h < newCountTowns; h++){
@@ -295,6 +295,7 @@ char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffl
 }
 
 static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
+   printf("HELLO\n");
    char *in, *algname;
    int tcountTown, countTowns; 
    double maxCapacity;
@@ -308,19 +309,19 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    countTowns = tcountTown;
    
    if(strcmp(algname, "cvrptw_lkh") == 0) {
-      char fileout[] = "current_result/LKH_CVRPTW_result.txt";
+      char fileout[] = "CVRP-TW/current_result/LKH_CVRPTW_result.txt";
       CVRPTW(lkhTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns); 
    } 
    else if(strcmp(algname, "cvrptw_2opt") == 0) {
-      char fileout[] = "current_result/2opt_CVRPTW_result.txt";
+      char fileout[] = "CVRP-TW/current_result/2opt_CVRPTW_result.txt";
       CVRPTW(lkh2optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns);  
    } 
    else if(strcmp(algname, "cvrptw_3opt") == 0) {
-      char fileout[] = "current_result/3opt_CVRPTW_result.txt";
+      char fileout[] = "CVRP-TW/current_result/3opt_CVRPTW_result.txt";
       CVRPTW(lkh3optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns);  
    } 
    else if(strcmp(algname, "cvrptw_sa") == 0) {
-      char fileout[] = "current_result/SA_CVRPTW_result.txt";
+      char fileout[] = "CVRP-TW/current_result/SA_CVRPTW_result.txt";
       CVRPTW(saTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns); 
    } else {
       printf("Error algname: %s\n", algname);

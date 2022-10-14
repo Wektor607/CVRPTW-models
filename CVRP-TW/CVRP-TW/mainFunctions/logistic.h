@@ -13,14 +13,6 @@ typedef struct town {
 	int weight;
 } town;
 
-town maketown(int name, double x, double y, int weight)
-{
-	town t;
-	t.name = name;
-	t.x = x;
-	t.y = y;
-	t.weight = weight;
-	return t;
-}
+town maketown(int name, double x, double y, int weight);
 
 #endif
