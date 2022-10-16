@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../mainFunctions/logistic.h"
-#include "../mainFunctions/distanceMatrix.h"
-#include "../mainFunctions/townActions.c"
-#include "../mainFunctions/dataProcessing.c"
+// #include "../mainFunctions/logistic.h"
+// #include "../mainFunctions/distanceMatrix.h"
+// #include "../mainFunctions/townActions.c"
+// #include "../mainFunctions/dataProcessing.c"
 typedef struct Edge
 {
     int node1;
