@@ -57,6 +57,9 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
                     subcopy[j] = sub[j];
                 }
             }
+            printf("REVERSE TOWN: %d %d ", my_min(a, b), my_max(a, b));
+            printTwTownList(sub, 6);
+            printf("\n");
 		}
 	}
     free(subcopy);

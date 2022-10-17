@@ -35,15 +35,23 @@ void testLKH(){
         start_len += getByTown(&m, subb[g].t.name, subb[g+1].t.name);
     }
     start_len += getByTown(&m, subb[0].t.name, subb[newCountTowns].t.name);
+    // double start_len = subtourdistanceTw(subb, newCountTowns, &m, timer, endTime);
     printf("Начальная длина: %lf\n", start_len);
 
     double best = lkhTw(subb, newCountTowns, &m, &timer, endTime, 0, 0, newCountTowns);
+    double curr_len = start_len;
+    while(curr_len > best || curr_len == -1 || best == -1 || curr_len == best)
+    {
+        curr_len = best;
+        best = lkhTw(subb, newCountTowns, &m, &timer, endTime, 0, 0, newCountTowns);
+    }
     
     start_len = 0;
     for(g = 0; g < newCountTowns; g++) { 
         start_len += getByTown(&m, subb[g].t.name, subb[g+1].t.name);
     }
     start_len += getByTown(&m, subb[0].t.name, subb[newCountTowns].t.name);
+    // start_len = subtourdistanceTw(subb, newCountTowns, &m, timer, endTime);
     printf("Конечная длина: %lf\n", start_len);
 
     printf("END SUBB: ");
