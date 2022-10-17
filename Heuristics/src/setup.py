@@ -1,6 +1,5 @@
 from distutils.core import setup, Extension
 setup(
-      # name='CVRP-TW', 
       version='1.1',
 
       author= 'German',
@@ -8,9 +7,19 @@ setup(
 
       url='https://github.com/Wektor607/CVRPTW-models/tree/main/OwnLibrary',
       
-      # packages=['vrp_c'],
       ext_modules=[Extension(
             'vrp_c', 
-            ['src/vrp-main.c'],
-            include_dirs=['src/mainFunctions', 'src/algorithms'])]
+            sources=[   
+            'src/vrp-main.c', 
+            'src/algorithms/SA.c', 
+            'src/algorithms/twoOpt.c',
+            'src/algorithms/threeOpt.c',
+            'src/algorithms/LKH.c',
+            'src/algorithms/testLKH.c',
+            'src/mainFunctions/distanceMatrix.c',
+            'src/mainFunctions/dataProcessing.c',
+            'src/mainFunctions/townActions.c',
+            'src/mainFunctions/createObjects.c',
+            'src/mainFunctions/logistic.c',
+      ])]
 )

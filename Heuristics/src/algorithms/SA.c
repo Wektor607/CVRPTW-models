@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+#include "SA.h"
 
 void GenerateStateCandidateTw(twtown *sub, twtown *best, int lenSub) 
 {

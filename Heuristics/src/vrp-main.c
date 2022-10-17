@@ -1,13 +1,10 @@
 #include <Python.h>
 #include <time.h> 
 #include <signal.h>
-#include "mainFunctions/logistic.h"
-#include "mainFunctions/townActions.c"
-#include "mainFunctions/dataProcessing.c"
-#include "algorithms/SA.c"
-#include "algorithms/twoOpt.c"
-#include "algorithms/threeOpt.c"
-#include "algorithms/LKH.c"
+#include "algorithms/LKH.h"
+#include "algorithms/threeOpt.h"
+#include "algorithms/twoOpt.h"
+#include "algorithms/SA.h"
 
 static PyObject *parseOneTwTownPy(PyObject *self, PyObject *args) {
    char *in;
@@ -154,7 +151,7 @@ char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffl
    } else if(shuffle_param == 1){
       FILE *start_tour = fopen("current_result/start_tour.txt", "r");
       int name;
-      twtown *sub_alg = (twtown*) malloc(newCountTowns * sizeof(twtown));
+      twtown *sub_alg = (twtown*) malloc((newCountTowns) * sizeof(twtown));
       for(int h = 0; h < newCountTowns; h++){
          fscanf(start_tour, "%d ", &name);
          for(int s = 0; s < newCountTowns; s++){

@@ -1,6 +1,5 @@
-#include "../mainFunctions/logistic.h"
-#include "../mainFunctions/townActions.c"
-#include "../mainFunctions/dataProcessing.c"
+#include "../mainFunctions/dataProcessing.h"
+
 
 #ifndef LKH_H
 #define LKH_H

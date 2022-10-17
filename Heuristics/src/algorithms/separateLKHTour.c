@@ -195,7 +195,6 @@ double separateTour(twtown *sub, int lenSub, halfmatrix *m, double *timer, const
             // printf("TOUR FINISHED\n");
             break;
         }
-        // printf("GACHIII!\n");
     }
 
     for (int i = 0; i < lenSub; i++)

@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "createObjects.c"
+#include <stdbool.h>
+#include "townActions.h"
+
 
 int gettownindex(const twtown* sub, const twtown city, int lensub)
 {
