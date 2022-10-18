@@ -16,7 +16,7 @@ Edge edge_init(int nd1, int nd2);
 
 double gain(halfmatrix *m, Edge x, Edge y);
 
-Edge *new_tour_create(Edge *T_old, int lenSub, Edge *X, Edge *Y, int i, int (*neighbours)[2], int *indexes);
+void new_tour_create(Edge *T_old, Edge *T_new, int lenSub, Edge *X, Edge *Y, int i, int (*neighbours)[2], int *indexes);
 
 void print_tour(Edge *T, int n);
 

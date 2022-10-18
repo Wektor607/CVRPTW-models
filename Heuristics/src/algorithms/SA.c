@@ -29,7 +29,7 @@ void GenerateStateCandidateTw(twtown *sub, twtown *best, int lenSub)
 }
 
 double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin, int countTowns, int dist_param) {
-    twtown subcopy[lenSub];
+    twtown *subcopy = (twtown*)malloc((lenSub) * sizeof(twtown));
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)
     {
@@ -55,7 +55,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
     for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) {
         GenerateStateCandidateTw(subcopy, sub, lenSub);
 
-        newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+        // newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
         if(dist_param == 1)
         {
             newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
@@ -95,6 +95,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
             }
         }
     }
+    free(subcopy);
     *timer += best;
     return best;
 }

@@ -1,6 +1,5 @@
 from itertools import count
 
-from sklearn.utils import shuffle
 from twMethods import *
 from collections import deque
 from datetime import datetime
