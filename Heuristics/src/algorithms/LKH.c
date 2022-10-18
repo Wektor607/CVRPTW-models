@@ -173,10 +173,8 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
             for (int t2_var = 0; t2_var < 2; t2_var++)
             {
                 X[0] = edge_init(t1_var, t2[t2_var]);
-
                 /* 4  Choose Y[0] */
                 int t3 = -1;
-                int flag4 = 0;
                 for (int town = 0; town < lenSub; ++town)
                 {
                     t3 = sub[town].t.name;
@@ -186,11 +184,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                     }
                     Y[0] = edge_init(t2[t2_var], t3);
                     double g0 = getByTown(m, X[0].node1, X[0].node2) - getByTown(m, Y[0].node1, Y[0].node2); /* g0 = |X[0]| - |Y[0]| */
-                    if (g0 > 0)
-                    {
-                        flag4 = 1;
-                    }
-                    else
+                    if (g0 <= 0)
                     {
                         continue;
                     }
@@ -320,8 +314,10 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                     print_tour(T1, lenSub);
                                     break; /* 6to2 break */
                                 }
+                                printf("START FREE\n");
                                 free(sub_temp);
                                 free(T1);
+                                printf("END FREE\n");
                                 flag6to2 = 0;
                                 break;
                             } /* 6 end */
@@ -356,7 +352,9 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             {
                                 continue; /* 8 */ 
                             }
+                            // printf("NICE\n");
                             Y[i] = edge_init(X[i].node2, yinode2);
+                            // printf("SAD\n");
                             /* 7a */
                             double Gi = 0;
                             for (int r = 0; r <= i; ++r)
@@ -411,56 +409,49 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                         } /* 7 end */
 
                         /* подготовка к 8 шагу заранее */
-                        if (i == 1 && j < lenSub - 1 && flag7)
-                        {
-                            y2_alt = j + 1;
-                        }
-                        else 
+                        if(i == 1)
                         {
                             y2_alt = -1;
+                            if(j < lenSub - 1 && flag7)
+                            {
+                                y2_alt = j + 1;
+                            }
                         }
 
                         /* 8 */
-                        if (!flag7 && y2_alt != -1)
+                        if(!flag7)
                         {
-                            flag8 = 1;
-                            continue;
-                            // printf("WE ARE HEAR!\n");
+                            if (y2_alt != -1)
+                            {
+                                flag8 = 1;
+                                continue;
+                                // printf("WE ARE HEAR!\n");
+                            }
+                            // /* 9 */
+                            // if (x2_alt != -1)// && counter_flag < 100)
+                            // {
+                            //     flag9 = 1;
+                            //     y2_alt = -1;
+                            //     continue; 
+                            // }
+                            /* 10 */
+                            break;
                         }
 
-                        /* 9 */
-                        // if (!flag7 && x2_alt != -1)// && counter_flag < 100)
-                        // {
-                        //     flag9 = 1;
-                        //     y2_alt = -1;
-                        //     continue; 
-                        // }
-                        
-                        // printf("NOOP\n");
                     } /* 5 end */
                     // printf("5 END\n");
                     if (flag6to2)
                         break;
-
-                    /* 10 */
-
                 } /* 4 end */
                 if (flag6to2)
                     break;
-                if (!flag4)
-                    break; /* 4 to 12 */
-                
-
-                /* 11 */
-
+                    
             } /* 3 end */
             if (flag6to2)
             {
                 printf("change tour\n");
                 break;
             }
-
-            /* 12 */
         } /* 2 end */
         
     }
@@ -476,10 +467,11 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     //     free(X);
     // if(sizeof(Y) != 0)
     //     free(Y);
-    // free(Y);
-    // free(T);
+    free(X);
+    free(Y);
+    free(T);
     // free(T1);
-    // free(indexes);
+    free(indexes);
     /* for (int i = 0; i < lenSub; ++i)
     {
         printf("%d ", sub[i].t.name);
