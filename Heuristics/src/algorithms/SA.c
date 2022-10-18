@@ -28,7 +28,7 @@ void GenerateStateCandidateTw(twtown *sub, twtown *best, int lenSub)
     }
 }
 
-double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin, int countTowns) {
+double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin, int countTowns, int dist_param) {
     twtown subcopy[lenSub];
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)
@@ -37,7 +37,18 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
         // printf("subcopy[%d]: %d\n", i, sub[i].t.name);
     }
 
-    double best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime), newd, p;
+    double best = 0, newd, p;
+    if(dist_param == 1)
+    {
+        best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+    }
+    else
+    {
+        for(int c = 0; c < lenSub-1; c++) { 
+            best += getByTown(m, subcopy[c].t.name, subcopy[c+1].t.name);
+        }
+        best += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
+    }
     // if(best != 0 && best != -1)
     //     printf("\nSTART %lf\t%lf\n", best, 0.0);
     int T = tmax;
@@ -45,6 +56,18 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
         GenerateStateCandidateTw(subcopy, sub, lenSub);
 
         newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+        if(dist_param == 1)
+        {
+            newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+        }
+        else
+        {
+            newd = 0;
+            for(int c = 0; c < lenSub-1; c++) { 
+                newd += getByTown(m, subcopy[c].t.name, subcopy[c+1].t.name);
+            }
+            newd += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
+        }
         if(best == -1 && newd != -1) {
             best = newd;
             //цикл копирования subcopy -> sub

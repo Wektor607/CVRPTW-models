@@ -57,8 +57,8 @@ void sigfunc(int sig){
    }
    stop = 1;
 }
-void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int), 
-char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns){
+
+void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int, int), char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns, int dist_param){
    srand(time(NULL)); 
    FILE *out = fopen(fileout, "w"); 
    FILE *res_distance = fopen("current_result/res_distance.txt", "w");
@@ -187,11 +187,21 @@ char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffl
             l++;
          }
          temp[0] = town0;
-         td = subtourdistanceTw(temp, l, &m, timer, endTime);
-         while(td == -1) {
-            /*timer = town0.mTimeStart;*/
+         if(dist_param == 1)
+         {
             td = subtourdistanceTw(temp, l, &m, timer, endTime);
-            if(td == -1) {l--; g--;}
+            while(td == -1) {
+               /*timer = town0.mTimeStart;*/
+               td = subtourdistanceTw(temp, l, &m, timer, endTime);
+               if(td == -1) {l--; g--;}
+            }
+         }
+         else {
+            td = 0;
+            for(int c = 0; c < newCountTowns-1; c++) { 
+               td += getByTown(&m, temp[c].t.name, temp[c+1].t.name);
+            }
+            td += getByTown(&m, temp[0].t.name, temp[newCountTowns-1].t.name);
          }
          full_temp[n_temp] = calloc(l, sizeof(twtown));
          for(int t = 0; t < l; ++t){
@@ -228,9 +238,20 @@ char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffl
             }
             temp[0] = town0;
             if(l >= 3) {
-               td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);  
+               td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns, dist_param);  
             } else {
-               td = subtourdistanceTw(temp, l, &m, timer, endTime);
+               if(dist_param == 1){
+                  td = subtourdistanceTw(temp, l, &m, timer, endTime);
+               }
+               else 
+               {
+                  td = 0;
+                  for(int c = 0; c < newCountTowns-1; c++) 
+                  { 
+                     td += getByTown(&m, temp[c].t.name, temp[c+1].t.name);
+                  }
+                  td += getByTown(&m, temp[0].t.name, temp[newCountTowns-1].t.name);
+               }
             }
             if(td == -1){
                days++;
@@ -239,9 +260,20 @@ char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffl
                timer = town0.mTimeStart;
                if(l >= 3)
                {
-                  td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);
+                  td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns, dist_param);
                } else {
-                  td = subtourdistanceTw(temp, l, &m, timer, endTime);
+                  if(dist_param == 1){
+                     td = subtourdistanceTw(temp, l, &m, timer, endTime);
+                  }
+                  else 
+                  {
+                     td = 0;
+                     for(int c = 0; c < newCountTowns-1; c++) 
+                     { 
+                        td += getByTown(&m, temp[c].t.name, temp[c+1].t.name);
+                     }
+                     td += getByTown(&m, temp[0].t.name, temp[newCountTowns-1].t.name);
+                  }
                   timer += td;
                }
                if(td == -1) {l--; g--;}
@@ -302,8 +334,9 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    double maxCapacity;
    double T, t_end;
    int shuffle_param;
+   int dist_param;
 
-   if (!PyArg_ParseTuple(args, "ssidddi", &algname, &in, &tcountTown, &maxCapacity, &T, &t_end, &shuffle_param)) {
+   if (!PyArg_ParseTuple(args, "ssidddii", &algname, &in, &tcountTown, &maxCapacity, &T, &t_end, &shuffle_param, &dist_param)) {
       return NULL;
    }
 
@@ -311,19 +344,19 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    
    if(strcmp(algname, "cvrptw_lkh") == 0) {
       char fileout[] = "current_result/LKH_CVRPTW_result.txt";
-      CVRPTW(lkhTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns); 
+      CVRPTW(lkhTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns, dist_param); 
    } 
    else if(strcmp(algname, "cvrptw_2opt") == 0) {
       char fileout[] = "current_result/2opt_CVRPTW_result.txt";
-      CVRPTW(lkh2optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns);  
+      CVRPTW(lkh2optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns, dist_param);  
    } 
    else if(strcmp(algname, "cvrptw_3opt") == 0) {
       char fileout[] = "current_result/3opt_CVRPTW_result.txt";
-      CVRPTW(lkh3optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns);  
+      CVRPTW(lkh3optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns, dist_param);  
    } 
    else if(strcmp(algname, "cvrptw_sa") == 0) {
       char fileout[] = "current_result/SA_CVRPTW_result.txt";
-      CVRPTW(saTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns); 
+      CVRPTW(saTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns, dist_param); 
    } else {
       printf("Error algname: %s\n", algname);
       exit(-1);

@@ -23,6 +23,8 @@ void testLKH(){
     double timer = town0.mTimeStart;
     double endTime = town0.mTimeEnd;
     
+    int dist_param = 0; // расстояние без ограничений
+
     int g;
     // subb[newCountTowns] = town0;
     printf("START SUBB: ");
@@ -31,27 +33,39 @@ void testLKH(){
     }
     printf("\n");
     double start_len = 0;
-    for(g = 0; g < newCountTowns; g++) { 
-        start_len += getByTown(&m, subb[g].t.name, subb[g+1].t.name);
+    if(dist_param == 0)
+    {
+        for(g = 0; g < newCountTowns-1; g++) { 
+            start_len += getByTown(&m, subb[g].t.name, subb[g+1].t.name);
+        }
+        start_len += getByTown(&m, subb[0].t.name, subb[newCountTowns-1].t.name);
     }
-    start_len += getByTown(&m, subb[0].t.name, subb[newCountTowns].t.name);
-    // double start_len = subtourdistanceTw(subb, newCountTowns, &m, timer, endTime);
+    else
+    {
+        start_len = subtourdistanceTw(subb, newCountTowns, &m, timer, endTime);
+    }
     printf("Начальная длина: %lf\n", start_len);
 
-    double best = lkhTw(subb, newCountTowns, &m, &timer, endTime, 0, 0, newCountTowns);
+    double best = lkhTw(subb, newCountTowns, &m, &timer, endTime, 0, 0, newCountTowns, dist_param);
     double curr_len = start_len;
     while(curr_len > best || curr_len == -1 || best == -1 || curr_len == best)
     {
         curr_len = best;
-        best = lkhTw(subb, newCountTowns, &m, &timer, endTime, 0, 0, newCountTowns);
+        best = lkhTw(subb, newCountTowns, &m, &timer, endTime, 0, 0, newCountTowns, dist_param);
     }
     
     start_len = 0;
-    for(g = 0; g < newCountTowns; g++) { 
-        start_len += getByTown(&m, subb[g].t.name, subb[g+1].t.name);
+    if(dist_param == 0)
+    {
+        for(g = 0; g < newCountTowns-1; g++) { 
+            start_len += getByTown(&m, subb[g].t.name, subb[g+1].t.name);
+        }
+        start_len += getByTown(&m, subb[0].t.name, subb[newCountTowns-1].t.name);
     }
-    start_len += getByTown(&m, subb[0].t.name, subb[newCountTowns].t.name);
-    // start_len = subtourdistanceTw(subb, newCountTowns, &m, timer, endTime);
+    else
+    {
+        start_len = subtourdistanceTw(subb, newCountTowns, &m, timer, endTime);
+    }
     printf("Конечная длина: %lf\n", start_len);
 
     printf("END SUBB: ");

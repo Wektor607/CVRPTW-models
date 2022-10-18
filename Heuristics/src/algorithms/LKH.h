@@ -20,6 +20,6 @@ Edge *new_tour_create(Edge *T_old, int lenSub, Edge *X, Edge *Y, int i, int (*ne
 
 void print_tour(Edge *T, int n);
 
-double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns);
+double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns, int dist_param);
 
 #endif

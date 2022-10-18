@@ -116,7 +116,7 @@ void print_tour(Edge *T, int n)
     printf("\n");
 }
 
-double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns)
+double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns, int dist_param)
 {
     /* 1 Create starting tour T */
     //printf("LENSUB: %d\n", lenSub );
@@ -132,7 +132,10 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
         neighbours[town][1] = sub[town + 1].t.name;
         neighbours[town + 1][0] = sub[town].t.name; 
         T[town] = edge_init(sub[town].t.name, sub[town + 1].t.name);
-        // FT += getByTown(m, sub[town].t.name, sub[town + 1].t.name);
+        if(dist_param == 0)
+        {
+            FT += getByTown(m, sub[town].t.name, sub[town + 1].t.name);
+        }
         indexes[sub[town].t.name] = town;
     }
     T[lenSub - 1] = edge_init(sub[lenSub - 1].t.name, sub[0].t.name);
@@ -143,8 +146,14 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     {
         printf("%d %d %d\n", sub[i].t.name, neighbours[i][0], neighbours[i][1]);
     } */
-    // FT += getByTown(m, sub[lenSub - 1].t.name, sub[0].t.name);
-    FT = subtourdistanceTw(sub, lenSub, m, *timer, endTime);
+    if(dist_param == 0)
+    {
+        FT += getByTown(m, sub[lenSub - 1].t.name, sub[0].t.name);
+    }
+    else
+    {
+        FT = subtourdistanceTw(sub, lenSub, m, *timer, endTime);
+    }
     // printf("FT start %lf\n", FT);
 
     bool new_tour = 1;
@@ -274,11 +283,20 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                     {
                                         start = e;
                                     }
-                                    // FT1 += getByTown(m, T1[e].node1, T1[e].node2);
+                                    if(dist_param == 0)
+                                    {
+                                        FT1 += getByTown(m, T1[e].node1, T1[e].node2);
+                                    }
                                 }
                                 
-                                FT1 = subtourdistanceTw(sub_temp, lenSub, m, *timer, endTime);
-                                // FT1 += getByTown(m, T1[lenSub-1].node2, T1[0].node1);
+                                if(dist_param == 0)
+                                {
+                                    FT1 += getByTown(m, T1[lenSub-1].node2, T1[0].node1);
+                                }
+                                else
+                                {
+                                    FT1 = subtourdistanceTw(sub_temp, lenSub, m, *timer, endTime);   
+                                }
                                 //printf("%lf %lf\n", FT1, FT);
                                 if ((FT1 < FT || FT == -1) && FT1 != -1) /* Если найденный тур лучше лучшего,то заменяем*/
                                 {
@@ -454,7 +472,10 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     {
         *timer += best;
     }
-    // free(X);
+    // if(sizeof(X) != 0)
+    //     free(X);
+    // if(sizeof(Y) != 0)
+    //     free(Y);
     // free(Y);
     // free(T);
     // free(T1);
