@@ -191,7 +191,6 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          {
             td = subtourdistanceTw(temp, l, &m, timer, endTime);
             while(td == -1) {
-               /*timer = town0.mTimeStart;*/
                td = subtourdistanceTw(temp, l, &m, timer, endTime);
                if(td == -1) {l--; g--;}
             }
@@ -221,7 +220,6 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
    printf("newCountTowns: %d", newCountTowns);
    while(!stop){
       clock_t start = clock();
-      /*printf("countTaks: %dn", i);*/
       days = 1;
       l = 1;
       g = 0;
@@ -364,36 +362,21 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    return Py_BuildValue("f", "Hello, Python extensions!!");
 };
 
-static char helloworld_docs1[] = 
-   "Для просмотра документации к программе необходимо:\n"
-   "  Если Вы работает в ОС Windows:\n"
-   "     1. Открыть Проводник и в пути до папки с файлами написать: cmd. Автоматически должна открыть командная строка с полным путем до основной папки.\n"
-   "     2. Написать в командной строке команду: start sphinx/_build/html/index.html .\n";
-
-static char helloworld_docs2[] = 
-   "  Если Вы работает в ОС Linux:\n"
-   "     1. Прописать в командной строке полный путь до папки с файлами.\n"
-   "     2. Написать команду: open sphinx\\_build\\html\\index.html .\n" ;
-static char helloworld_docs3[] = 
-   "  После чего автоматически откроется документация в одном из Ваших браузеров на локальном компьютере.\n"
-   "Для выхода из файла для помощи доступа к документации введите команду: :wq .";
-static PyMethodDef helloworld_funcs[] = { //TODO: Как сделать нормально переименование????
-   // {"parseOneTownPy", (PyCFunction)parseOneTownPy,
-   //    METH_VARARGS, helloworld_docs2},
+static PyMethodDef main_funcs[] = { //TODO: Как сделать нормально переименование????
    {"parseOneTwTownPy", (PyCFunction)parseOneTwTownPy,
-      METH_VARARGS, helloworld_docs3},
+      METH_VARARGS},
    {"modelMetaHeuristic", (PyCFunction)modelMetaHeuristic,
-      METH_VARARGS, helloworld_docs1},
+      METH_VARARGS},
    {NULL}
 };
 
 static struct PyModuleDef cModPyDem =
 {
-    PyModuleDef_HEAD_INIT,
-    "VRP", /* name of module */
-    "Extension module example!",          /* module documentation, may be NULL */
-    -1,          /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
-    helloworld_funcs
+   PyModuleDef_HEAD_INIT,
+   "VRP", /* name of module */
+   "Extension module example!",          /* module documentation, may be NULL */
+   -1,          /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
+   main_funcs
 };
 
 PyMODINIT_FUNC PyInit_vrp_c(void)

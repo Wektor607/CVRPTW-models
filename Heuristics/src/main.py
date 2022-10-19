@@ -23,10 +23,7 @@ def main():
         dist_param = 1
     elif(dt == 'n'):
         dist_param = 0
-    # print('Если хотиет открыть документацию,то напишите YES в противном случае нажмите Enter')
-    # doc = input()
-    # if(doc == 'YES'):
-    #     help(vrp_c) #TODO: в отредактировать текст в документации
+   
     idx = 0
     print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
     method = input()

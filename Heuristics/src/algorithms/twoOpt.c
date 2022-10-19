@@ -27,14 +27,9 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
         best += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
     }
     
-    // if(best != 0 && best != -1)
-    //     printf("\nSTART %lf\t%lf\n", best, 0.0);
     if(best == 0) {
         return -1;
     }
-
-    // printf("\n--*--\nOld total time: %lf\n", best);
-    // printf("Old list: "); printTwTownList(subcopy, lenSub); putchar('\n');
 
 	for(int a = 0; a < lenSub; a++)
 	{
@@ -87,10 +82,7 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
 	}
     free(subcopy);
 
-	// printf("New distance: %lf\n", best);
-	// printf("New list: "); printTwTownList(sub, lenSub);
-    // if(best != -1) {
     *timer += best;  
-    // }
+
 	return best;
 }

@@ -1,5 +1,5 @@
 import vrp_c
-# import supportFunctions.gurobiFunctions as gur_f
+import supportFunctions.gurobiFunctions as gur_f
 from gurobipy import Model, GRB, quicksum
 from datetime import datetime
 import os
@@ -200,7 +200,7 @@ class CVRPTW (VRP):
         arco_time = [(i, k) for i in nodes for k in vehicles]
 
         # Модель
-        model = Model('VRPTW')
+        model = Model('CVRPTW')
 
         # Переменные для решения
         x = model.addVars(arco_var, vtype=GRB.BINARY, name = 'x')
