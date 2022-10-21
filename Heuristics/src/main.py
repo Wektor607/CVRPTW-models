@@ -112,12 +112,19 @@ def main():
             elif(method == 'Gurobi'):
                 gurobi = CVRPTW('Gurobi', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, count_vehicles).gurobi() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
-                infile = open('Gurobi_20.txt',  'r')
-                outfile = open('Gurobi_20_CVRPTW_dist.txt',  'w')
+                infile = open(f'Gurobi_{n}.txt',  'r')
+                outfile = open(f'Gurobi_{n}_CVRPTW_dist.txt',  'w')
 
                 pst = ['-', 'best', 'continuous,', 'Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun','second', '']
                 copy = False
                 k = n
+                if(k == '20'):
+                    time_constraint = 300
+                elif(k == '50'):
+                    time_constraint = 1000
+
+                infile = open(f'Gurobi_{n}_dist.txt',  'r')
+ 
                 for line in infile:
                     if 'Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time' in line:
                         copy = True
@@ -127,29 +134,46 @@ def main():
                         content = line.split()
                         new_line = ''
                         if len(content) == 10:
-                            if((content[5] not in pst) and (prev_content not in pst) and 'e+' not in content[5] and 'e+' not in prev_content):
-                                if(float(content[5]) - float(prev_content) > 0.1):
+                            if(content[5] not in pst):
+                                flag = True
+                                for i in pst:
+                                    if(content[5].find(i) != -1):
+                                        flag = False
+                                if(flag):
+                                    new_line += content[5]
+                                    if(content[-1][:-1].isdigit() == True):
+                                        if(int(content[-1][:-1]) < time_constraint):
+                                            prev_content = int(content[-1][:-1])
+                                else:
                                     outfile.write('')
-                                    
-                            if(content[5] not in pst and (prev_content not in pst) and 'e+' not in content[5] and 'e+' not in prev_content):
-                                new_line += content[5]
-                                prev_content = content[5]
+                            else:
+                                outfile.write('')
                         elif len(content) == 8:
-                            if((content[3] not in pst) and (prev_content not in pst) and 'e+' not in content[3] and 'e+' not in prev_content):
-                                if(float(content[3]) - float(prev_content) > 0.1):
+                            if(content[3] not in pst):
+                                flag = True
+                                for i in pst:
+                                    if(content[3].find(',') != -1):
+                                        flag = False
+                                if(flag):
+                                    new_line += content[3]
+                                    if(content[-1][:-1].isdigit() == True):
+                                        if(int(content[-1][:-1]) < time_constraint):
+                                            prev_content = int(content[-1][:-1])
+                                else:
                                     outfile.write('')
-
-                            if(content[3] not in pst and (prev_content not in pst) and ('e+' not in content[3]) and ('e+' not in prev_content)):
-                                new_line += content[3]
-                                prev_content = content[3]
+                            else:
+                                outfile.write('')
                         if len(content) != 0 and content[-1] != 'processors)' and '.' not in content[-1] and content[-1].isdigit() == False:
                             new_line += '\t' + content[-1] 
                             new_line = new_line[:-1] + '\n'
                             if(new_line[0] != '\t' and new_line[0] != ''):
                                 outfile.write(new_line)
                             if(k == 20):
-                                if(content[-1][:-1] == '300'):
-                                    outfile.write('\n')
+                                if(content[-1][:-1].isdigit() == True):
+                                    print(content[-1][:-1], prev_content)
+                                    if(int(content[-1][:-1]) == time_constraint or int(content[-1][:-1]) < int(prev_content)):
+                                        outfile.write('\n')
+                                        prev_content = '0'
                             elif(k == 50):
                                 if(content[-1][:-1] == '1000'):
                                     outfile.write('\n')    
