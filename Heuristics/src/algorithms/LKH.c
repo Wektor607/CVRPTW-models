@@ -39,14 +39,15 @@ void new_tour_create(Edge *T_old, Edge *T_new, int lenSub, Edge *X, Edge *Y, int
     for (int e_new = 0, e_old = 0; e_new < lenSub; ++e_new)
     {
         bool change_edge = 0;
-        /* printf("%d\n", e_old);
-        printf("%d\n", Xindex[e_old]);
-        //printf("X[x]: %d\n", X[Xindex[e_old]].node1);
-        if (Xindex[e_old] != -1 && edge_equal(T_old[e_old], X[Xindex[e_old]]))
-        {
-            change_edge = 1;
-        }
-        printf("ne upal\n"); */
+        // printf("%d\n", e_old);
+        // printf("%d\n", Xindex[e_old]);
+        // printf("X[x]: %d %d\n", X[Xindex[e_old]].node1, X[Xindex[e_old]].node2);
+        // if (Xindex[e_old] != -1 && edge_equal(T_old[e_old], X[Xindex[e_old]]))
+        // {
+        //     change_edge = 1;
+        //     printf("%d %d %d %d\n", T_old[e_old].node1, T_old[e_old].node2,X[Xindex[e_old]].node1, X[Xindex[e_old]].node2);
+        // }
+        // printf("ne upal\n");
         for (int x = 0; x <= i; ++x)
         {
             if (edge_equal(T_old[e_old], X[x]))
@@ -68,6 +69,7 @@ void new_tour_create(Edge *T_old, Edge *T_new, int lenSub, Edge *X, Edge *Y, int
                 T_new[e_new] = edge_init(T_old[e_old].node2, T_old[e_old].node1);
                 e_old = e_old == 0 ? lenSub - 1 : e_old - 1;
             }
+            // printf("T_old[e_old].node2: %d, T_old[e_old].node1: %d\n", T_old[e_old].node2, T_old[e_old].node1);
         }
         else /* меняем ребро */
         {
@@ -90,6 +92,7 @@ void new_tour_create(Edge *T_old, Edge *T_new, int lenSub, Edge *X, Edge *Y, int
                 }
                 if (Y[y].node2 == T_new[e_new - 1].node2)
                 {
+                    // printf("Y[y].node1: %d, Y[y].node2: %d\n", Y[y].node1, Y[y].node2);
                     T_new[e_new] = edge_init(Y[y].node2, Y[y].node1);
                     cur_town = Y[y].node1;
                     break;
@@ -99,9 +102,14 @@ void new_tour_create(Edge *T_old, Edge *T_new, int lenSub, Edge *X, Edge *Y, int
             while(e_new < lenSub-1)
             {
                 int flag_neighb = 0;
+                // printf("CYCLE START\n");
                 for (int neighb = 0; neighb < 2; ++neighb)
                 {
+                    // printf("INIT EDGE\n");
+                    // printf("T_new[%d].node2: %d\n", e_new, T_new[e_new].node2);
+                    // printf("neighbours[indexes[T_new[e_new].node2]][neighb]: %d\n", neighbours[indexes[T_new[e_new].node2]][neighb]);
                     Edge T_tmp = edge_init(T_new[e_new].node2, neighbours[indexes[T_new[e_new].node2]][neighb]);
+                    // printf("SECOND CYCLE START\n");
                     int flag = 1;
                     for (int n = 0; n <= i; ++n)
                     {
@@ -111,6 +119,7 @@ void new_tour_create(Edge *T_old, Edge *T_new, int lenSub, Edge *X, Edge *Y, int
                             break;
                         }
                     }
+                    // printf("SECOND CYCLE END\n");
                     /* if (indexes[T_tmp.node1] < indexes[T_tmp.node2] && edge_equal(T_tmp, X[Xindex[T_tmp.node1]]) ||
                         indexes[T_tmp.node1] > indexes[T_tmp.node2] && edge_equal(T_tmp, X[Xindex[T_tmp.node2]]))
                     {
@@ -130,12 +139,16 @@ void new_tour_create(Edge *T_old, Edge *T_new, int lenSub, Edge *X, Edge *Y, int
                         }
                         if (e_old == edge)
                         {
-                            direction = indexes[T_tmp.node2] > indexes[T_tmp.node1]; /* ошибка */
+                            int idx1 = indexes[T_tmp.node1], idx2 = indexes[T_tmp.node2];
+                            // direction = indexes[T_tmp.node2] > indexes[T_tmp.node1]; /* ошибка */
+                            direction = idx1 == 0 && idx2 == 1 || idx1 == lenSub - 1 && idx2 == 0 ||
+                                        idx1 > 0 && idx1 < lenSub - 1 && idx1 + 1 == idx2;
                         }
                         flag_neighb = 1;
                         break;
                     }
                 }
+                // printf("CYCLE END\n");
                 if(!flag_neighb)
                 {
                     // printf("I am hear!\n");
@@ -556,7 +569,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
             } /* 3 end */
             if (new_tour)
             {
-                printf("change tour\n");
+                // printf("change tour\n");
                 break;
             }
         } /* 2 end */
@@ -568,7 +581,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     {
         *timer += best;
     }
-    printf("%d %d %d\n", useflag8, useflag9, ynoty);
+    // printf("%d %d %d\n", useflag8, useflag9, ynoty);
 
     return best;
 }
