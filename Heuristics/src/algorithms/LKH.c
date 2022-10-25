@@ -577,10 +577,10 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     }
     // print_tour(T, lenSub);
     double best = FT;//subtourdistanceTw(sub, lenSub, m, *timer, endTime);
-    if (best != -1)
-    {
-        *timer += best;
-    }
+//     if (best != -1)
+//     {
+//         *timer += best;
+//     }
     // printf("%d %d %d\n", useflag8, useflag9, ynoty);
 
     return best;
