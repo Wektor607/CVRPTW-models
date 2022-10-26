@@ -26,17 +26,8 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     }
 
     double best = 0, newd;
-    if(dist_param == 1)
-    {
-        best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-    }
-    else
-    {
-        for(int c = 0; c < lenSub-1; c++) { 
-            best += getByTown(m, subcopy[c].t.name, subcopy[c+1].t.name);
-        }
-        best += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
-    }
+    
+    best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
     // if(best != 0 && best != -1)
     //     printf("\nSTART %lf\t%lf\n", best, 0.0);
     if(best == 0) {
@@ -80,18 +71,8 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
                     }
                 }
 
-                if(dist_param == 1)
-                {
-                    newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-                }
-                else
-                {
-                    newd = 0;
-                    for(int c = 0; c < lenSub-1; c++) { 
-                        newd += getByTown(m, subcopy[c].t.name, subcopy[c+1].t.name);
-                    }
-                    newd += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
-                }
+                newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+                
                 if(best == -1 && newd != -1) {
                     best = newd;
                     //цикл копирования subcopy -> sub
@@ -118,8 +99,11 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
         }
     }
     free(subcopy);
-    
-//     *timer += best;  
+    // Это делается в vrp-main.c
+    // if (best != -1)
+    // {
+    //     *timer += best;
+    // }  
     
     return best;
 }

@@ -15,17 +15,8 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     }
 
     double best = 0, newd;
-    if(dist_param == 1)
-    {
-        best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-    }
-    else
-    {
-        for(int c = 0; c < lenSub-1; c++) { 
-            best += getByTown(m, subcopy[c].t.name, subcopy[c+1].t.name);
-        }
-        best += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
-    }
+    
+    best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
     
     if(best == 0) {
         return -1;
@@ -35,20 +26,10 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
 	{
 		for(int b = a + 1; b < lenSub; b++)
 		{
-		
 			reverseTownTw(subcopy, my_min(a, b), my_max(a, b));
-			if(dist_param == 1)
-            {
-                newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-            }
-            else
-            {
-                newd = 0;
-                for(int c = 0; c < lenSub-1; c++) { 
-                    newd += getByTown(m, subcopy[c].t.name, subcopy[c+1].t.name);
-                }
-                newd += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
-            }
+			
+            newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+            
             if(best == -1 && newd != -1) 
             {
                 best = newd;
@@ -75,14 +56,17 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
                     subcopy[j] = sub[j];
                 }
             }
-            printf("REVERSE TOWN: %d %d ", my_min(a, b), my_max(a, b));
-            printTwTownList(sub, 6);
-            printf("\n");
+            // printf("REVERSE TOWN: %d %d ", my_min(a, b), my_max(a, b));
+            // printTwTownList(sub, 6);
+            // printf("\n");
 		}
 	}
     free(subcopy);
+    // Это делается в vrp-main.c    
+    // if (best != -1)
+    // {
+    //     *timer += best;
+    // }  
 
-//     *timer += best;  
-
-	return best;	
+	return best;
 }
