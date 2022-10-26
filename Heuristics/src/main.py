@@ -13,7 +13,7 @@ def main():
         print("Введите количество городов(20, 50, 100): ")
         n = input()
     lst = []
-    for i in range(1, 2):
+    for i in range(1, 5):
         lst.append(f"{n}/Example{i}.csv")
     lst_results = []
     lst_legend = []
@@ -118,6 +118,7 @@ def main():
                 pst = ['-', 'best', 'continuous,', 'Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun','second', '']
                 copy = False
                 k = n
+                prev_content = '0'
                 if(k == '20'):
                     time_constraint = 300
                 elif(k == '50'):
@@ -275,8 +276,10 @@ def main():
                     continue
 
                 cost_batched[num][int(n // step)] = min(cost_batched[num][int(n // step)], cur_cost[n])
+                time_batched[num][int(n // step)] = max(time_batched[num][int(n // step)], cur_time[n])
         cost_batched = np.array(cost_batched)
-        plt.plot(cost_batched.mean(0))
+        time_batched = np.array(time_batched)
+        plt.plot(time_batched.mean(0), cost_batched.mean(0))
         
     plt.legend(lst_legend)
     plt.xlabel('Время оптимизации (секунды)', fontsize=7)

@@ -82,7 +82,7 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
 	}
     free(subcopy);
 
-    *timer += best;  
+    // *timer += best;  
 
 	return best;
 }
