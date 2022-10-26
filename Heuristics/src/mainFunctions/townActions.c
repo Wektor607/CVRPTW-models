@@ -102,10 +102,22 @@ void printTwTownList(const twtown* towns, int counttowns) {
 
 void reverseTownTw(twtown *sub, int i, int j)
 {
-    int s = (j - i) / 2;
-    for (int k = 1; k <= s; ++k)
-    {
-        swapTw(&sub[i + k], &sub[j - k + 1]);
+    // int s = (j - i) / 2;
+    // for (int k = 1; k <= s; ++k)
+    // {
+    //     swapTw(&sub[i + k], &sub[j - k + 1]);
+    // }
+    int s = (j + i) / 2;
+    if((j + i) % 2 == 1) {
+        for(int k = 0; k < (j - i + 1) / 2; k++)
+        {
+            swapTw(&sub[s - k], &sub[s+1+k]);
+        }
+    } else {
+        for(int k = 0; k < (j - i) / 2; k++)
+        {
+            swapTw(&sub[s-1-k], &sub[s+1+k]);
+        }
     }
 }
 

@@ -278,14 +278,15 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       clock_t end = clock();
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;
       full_time += seconds;
-      if(!stop)
-         printf("Время оптимизации: %lf Текущая длина: %lf \n", full_time, distanceInTourBest);
-      
-      printf("Печать перемешанного тура: ");
-      for(int i = 0; i < newCountTowns; i++) {
-         printf("%d ", sub[i].t.name);
+      if(full_time > 20)
+      {
+         stop = 1;
       }
-      putchar('\n');
+      // printf("Печать перемешанного тура: ");
+      // for(int i = 0; i < newCountTowns; i++) {
+      //    printf("%d ", sub[i].t.name);
+      // }
+      // putchar('\n');
       doShuffleTw(newCountTowns, sub);
    }
    /* данный параметр очень важно заново обнулять, так как он глобальный и при решении следующих задач
