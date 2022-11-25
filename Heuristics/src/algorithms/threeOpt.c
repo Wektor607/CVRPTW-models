@@ -4,9 +4,8 @@
 #include <math.h>
 #include "threeOpt.h"
 
-double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns, int dist_param) // timer - is a now time. Global time on the world.
+double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns) // timer - is a now time. Global time on the world.
 {
-
     /*
     2-opt
     0: Or O  O
@@ -18,6 +17,8 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     5: O  [Or O ]
     6: O  [O  Or]
     */
+    depoShift(lenSub, sub);
+    
     twtown *subcopy = (twtown*)malloc(lenSub * sizeof(twtown));
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)
@@ -25,85 +26,46 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
         subcopy[i] = sub[i];
     }
 
-    double best = 0, newd;
+    double best, newd;
     
     best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-    // if(best != 0 && best != -1)
-    //     printf("\nSTART %lf\t%lf\n", best, 0.0);
     if(best == 0) {
         return -1;
     }
 
-    // printf("\n--*--\nOld total time: %lf\n", best);
-    // printf("Old list: "); printTwTownList(subcopy, lenSub); putchar('\n');
-
-    int mode;
-
-    for(int a = 0; a < lenSub; a++) 
+    for(int a = 0; a < lenSub - 2; a++) 
     {
-        for(int b = a + 1; b < lenSub; b++) 
+        for(int b = a + 1; b < lenSub - 1; b++) 
         {
-            for(mode = 0; mode < 7; mode++) 
+            for(int c = b + 1; c < lenSub; c++)
             {
-                switch(mode){
-                    case(0): {reverseTownTw(subcopy, 0, a);break;}
-                    case(1): {reverseTownTw(subcopy, a+1, b);break;}
-                    case(2): {reverseTownTw(subcopy, b+1, lenSub-1);break;}
-                    case(3): {moveElemsTw(subcopy, a+1, b, b+1,lenSub-1);break;}
-                    case(4): {
-                        
-                        reverseTownTw(subcopy, 0, a);
-                        moveElemsTw(subcopy, a+1, b, b+1,lenSub-1);
-                        
-                        break;
-                    }
-                    case(5): {
-                        
-                        reverseTownTw(subcopy, a+1, b);
-                        moveElemsTw(subcopy, a+1, b, b+1,lenSub-1);
-                    
-                        break;
-                    }
-                    case(6): {
-                        reverseTownTw(subcopy, b+1, lenSub-1);
-                        moveElemsTw(subcopy, a+1, b, b+1,lenSub-1);
-                        break;
-                    }
-                }
-
+                reverse_segment_if_better(m, subcopy, a, b, c, lenSub);
                 newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
                 
-                if(best == -1 && newd != -1) {
+                if(newd != -1 && (best == -1 || newd < best)) 
+                {
                     best = newd;
-                    //цикл копирования subcopy -> sub
                     for(int j = 0; j < lenSub; j++)
                     {
                         sub[j] = subcopy[j];
                     }
                 }
-
-                if(newd != -1 && newd < best) {
-                    best = newd;
-                    //цикл копирования subcopy -> sub
-                    for(int j = 0; j < lenSub; j++)
-                    {
-                        sub[j] = subcopy[j];
-                    }
-                } else {
+                else 
+                {
                     for(int j = 0; j < lenSub; j++)
                     {
                         subcopy[j] = sub[j];
                     }
                 }
-            }
+            } 
         }
     }
-    free(subcopy);
-    // Это делается в vrp-main.c
-    // if (best != -1)
-    // {
-    //     *timer += best;
-    // }  
+
+    if(best != -1)
+    {
+        *timer += best;  
+    }
     
+    free(subcopy);
     return best;
 }
