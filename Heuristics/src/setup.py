@@ -15,7 +15,6 @@ setup(
             'src/algorithms/twoOpt.c',
             'src/algorithms/threeOpt.c',
             'src/algorithms/LKH.c',
-            'src/algorithms/testLKH.c',
             'src/mainFunctions/distanceMatrix.c',
             'src/mainFunctions/dataProcessing.c',
             'src/mainFunctions/townActions.c',

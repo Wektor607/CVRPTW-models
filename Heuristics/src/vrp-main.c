@@ -58,7 +58,8 @@ void sigfunc(int sig){
    stop = 1;
 }
 
-void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int, int), char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns, int dist_param){
+void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int), char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns)
+{
    srand(time(NULL)); 
    FILE *out = fopen(fileout, "w"); 
    FILE *res_distance = fopen("current_result/res_distance.txt", "w");
@@ -234,8 +235,8 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
             }
             temp[0] = town0;
             
-            if(l >= 3) {
-               td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns, dist_param);  
+            if(l >= 4) {
+               td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);  
             } else {
                td = subtourdistanceTw(temp, l, &m, timer, endTime);
             }
@@ -245,9 +246,9 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
             while(td == -1) 
             {
                timer = town0.mTimeStart;
-               if(l >= 3)
+               if(l >= 4)
                {
-                  td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns, dist_param);
+                  td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);
                } else {
                   td = subtourdistanceTw(temp, l, &m, timer, endTime);
                }
@@ -278,15 +279,14 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       clock_t end = clock();
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;
       full_time += seconds;
-      if(full_time > 20)
-      {
-         stop = 1;
-      }
-      // printf("Печать перемешанного тура: ");
-      // for(int i = 0; i < newCountTowns; i++) {
-      //    printf("%d ", sub[i].t.name);
+      // if(full_time > 20)
+      // {
+      //    stop = 1;
       // }
-      // putchar('\n');
+      if(stop == 1)
+         break;
+      printf("Время оптимизации: %lf Длина маршрута: %lf\n", full_time, distanceInTourBest);
+
       doShuffleTw(newCountTowns, sub);
    }
    /* данный параметр очень важно заново обнулять, так как он глобальный и при решении следующих задач
@@ -311,9 +311,8 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    double maxCapacity;
    double T, t_end;
    int shuffle_param;
-   int dist_param;
 
-   if (!PyArg_ParseTuple(args, "ssidddii", &algname, &in, &tcountTown, &maxCapacity, &T, &t_end, &shuffle_param, &dist_param)) {
+   if (!PyArg_ParseTuple(args, "ssidddi", &algname, &in, &tcountTown, &maxCapacity, &T, &t_end, &shuffle_param)) {
       return NULL;
    }
 
@@ -321,19 +320,19 @@ static PyObject *modelMetaHeuristic(PyObject *self, PyObject *args) {
    
    if(strcmp(algname, "cvrptw_lkh") == 0) {
       char fileout[] = "current_result/LKH_CVRPTW_result.txt";
-      CVRPTW(lkhTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns, dist_param); 
+      CVRPTW(lkhTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns); 
    } 
    else if(strcmp(algname, "cvrptw_2opt") == 0) {
       char fileout[] = "current_result/2opt_CVRPTW_result.txt";
-      CVRPTW(lkh2optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns, dist_param);  
+      CVRPTW(lkh2optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns);  
    } 
    else if(strcmp(algname, "cvrptw_3opt") == 0) {
       char fileout[] = "current_result/3opt_CVRPTW_result.txt";
-      CVRPTW(lkh3optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns, dist_param);  
+      CVRPTW(lkh3optTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns);  
    } 
    else if(strcmp(algname, "cvrptw_sa") == 0) {
       char fileout[] = "current_result/SA_CVRPTW_result.txt";
-      CVRPTW(saTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns, dist_param); 
+      CVRPTW(saTw, in, tcountTown, maxCapacity, T, t_end, shuffle_param, fileout, countTowns); 
    } else {
       printf("Error algname: %s\n", algname);
       exit(-1);

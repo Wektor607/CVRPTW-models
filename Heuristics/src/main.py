@@ -13,16 +13,10 @@ def main():
         print("Введите количество городов(20, 50, 100): ")
         n = input()
     lst = []
-    for i in range(1, 5):
+    for i in range(2, 5):
         lst.append(f"{n}/Example{i}.csv")
     lst_results = []
     lst_legend = []
-    print("Для вычисления расстояния использовать subtourDistanceTw?(y/n):")
-    dt = input()
-    if(dt == 'y'):
-        dist_param = 1
-    elif(dt == 'n'):
-        dist_param = 0
    
     idx = 0
     print('Какой из методов вы хотите использовать для оптимизация маршрута для CVRPTW: SA or LKH or OptAlg or Gurobi?')
@@ -55,7 +49,7 @@ def main():
             if(method == 'SA'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                sa = CVRPTW('SA', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, dist_param, max_capacity, start, end, dist_param).sa() #TODO: некоторые параметры брать автоматически из файла
+                sa = CVRPTW('SA', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end).sa() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 with open(f'current_result/SA_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
@@ -79,7 +73,7 @@ def main():
 
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                opt_alg = CVRPTW('OptAlg', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, dist_param, max_capacity, start, end, dist_param).opt(name_opt) #TODO: некоторые параметры брать автоматически из файла
+                opt_alg = CVRPTW('OptAlg', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end).opt(name_opt) #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 if(name_opt == '2opt' or name_opt == '3opt'):
                     with open(f'current_result/{name_opt}_CVRPTW_result.txt', 'r') as res_file:
@@ -96,7 +90,7 @@ def main():
             elif(method == 'LKH'):
                 start = (int(last_line[0].split(':')[0]) + int(last_line[0].split(':')[1])) * 60
                 end   = (int(last_line[1].split(':')[0]) + int(last_line[1].split(':')[1])) * 60
-                lkh = CVRPTW('LKH', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, dist_param, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
+                lkh = CVRPTW('LKH', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
                 idx += 1
                 with open(f'current_result/LKH_CVRPTW_result.txt', 'r') as res_file:
                     data = res_file.read()
