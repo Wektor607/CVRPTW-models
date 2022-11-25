@@ -1,4 +1,4 @@
-import pandas as pd
+# import pandas as pd
 import requests
 
 def try_request(url):
