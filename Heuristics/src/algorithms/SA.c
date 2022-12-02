@@ -102,8 +102,6 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
         {
             sub[p] = sub_old_current[p];
         }
-
-        *timer += current_Energy;
     }
     
 
