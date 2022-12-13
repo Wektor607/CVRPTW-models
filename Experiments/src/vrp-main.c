@@ -311,7 +311,7 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       clock_t end = clock();
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;
       full_time += seconds;
-      if(full_time > 600)
+      if(full_time > 1500)
       {
          stop = 1;
       }
