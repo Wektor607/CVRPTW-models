@@ -4,8 +4,9 @@
 #include <math.h>
 #include "twoOpt.h"
 
-double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns, int dist_param)
+double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns)
 {
+    depoShift(lenSub, sub);
     twtown *subcopy = (twtown*)malloc((lenSub) * sizeof(twtown));
     //цикл копирования sub -> subcopy
 
@@ -15,58 +16,48 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     }
 
     double best = 0, newd;
-    
     best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
     
     if(best == 0) {
         return -1;
     }
 
-	for(int a = 0; a < lenSub; a++)
+    double lengthDelta = 0;
+	for(int a = 0; a < lenSub - 2; a++)
 	{
-		for(int b = a + 1; b < lenSub; b++)
+		for(int b = a + 2; b < lenSub; b++)
 		{
-			reverseTownTw(subcopy, my_min(a, b), my_max(a, b));
-			
-            newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-            
-            if(best == -1 && newd != -1) 
-            {
-                best = newd;
-                //цикл копирования subcopy -> sub
-                for(int j = 0; j < lenSub; j++)
-                {
-                    sub[j] = subcopy[j];
-                }
-            }
+            lengthDelta = -getByTown(m, sub[a].t.name, sub[(a + 1) % lenSub].t.name) - getByTown(m, sub[b].t.name, sub[(b + 1) % lenSub].t.name) 
+            + getByTown(m, sub[a].t.name, sub[b].t.name) + getByTown(m, sub[(b + 1) % lenSub].t.name, sub[(a + 1) % lenSub].t.name);
 
-            if(newd != -1 && newd < best) 
+            if(lengthDelta < 0)
             {
-                best = newd;
-                //цикл копирования subcopy -> sub
-                for(int j = 0; j < lenSub; j++)
+                reverseTownTw(subcopy, my_min(a, b), my_max(a, b));
+                
+                newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+                // printf("%lf\n", newd);
+                // В случае успеха запоминаем лучший тур
+                if(newd != -1 && (best == -1 || newd < best)) 
                 {
-                    sub[j] = subcopy[j];
-                }
-            } 
-            else 
-            {
-                for(int j = 0; j < lenSub; j++)
+                    best = newd;
+                    //цикл копирования subcopy -> sub
+                    for(int j = 0; j < lenSub; j++)
+                    {
+                        sub[j] = subcopy[j];
+                    }
+                } 
+                // В противном случае возвращаемся к предыдущему лучшему туру
+                else 
                 {
-                    subcopy[j] = sub[j];
+                    for(int j = 0; j < lenSub; j++)
+                    {
+                        subcopy[j] = sub[j];
+                    }
                 }
             }
-            // printf("REVERSE TOWN: %d %d ", my_min(a, b), my_max(a, b));
-            // printTwTownList(sub, 6);
-            // printf("\n");
 		}
 	}
-    free(subcopy);
-    // Это делается в vrp-main.c    
-    if (best != -1)
-    {
-        *timer += best;
-    }  
 
+    free(subcopy);
 	return best;
 }

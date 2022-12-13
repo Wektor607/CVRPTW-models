@@ -4,8 +4,16 @@
 #include <math.h>
 #include "SA.h"
 
-void GenerateStateCandidateTw(twtown *sub, twtown *best, int lenSub) 
+void GenerateStateCandidateTw(twtown *sub, int lenSub) 
 {
+    twtown *sub_copy = (twtown*)malloc((lenSub) * sizeof(twtown));    
+    //цикл копирования sub -> subcopy
+    for(int i = 0; i < lenSub; i++)
+    {
+        sub_copy[i] = sub[i];
+    }
+    
+    // printf("\n");
     int indexA = rand() % lenSub;
     int indexB = rand() % lenSub;
     while(indexA == indexB){
@@ -14,95 +22,83 @@ void GenerateStateCandidateTw(twtown *sub, twtown *best, int lenSub)
 
     for(int i = 0; i < my_min(indexA,indexB); i++) 
     {
-        sub[i] = best[i];
+        sub[i] = sub_copy[i];
     }
 
     for(int i = 0; i < my_max(indexA, indexB) - my_min(indexA, indexB) + 1; i++) 
     { 
-        sub[my_min(indexA, indexB) + i] = best[my_max(indexA, indexB) - i]; 
+        sub[my_min(indexA, indexB) + i] = sub_copy[my_max(indexA, indexB) - i]; 
     }
 
     for(int i = my_max(indexA, indexB) + 1; i < lenSub; i++) 
     {
-        sub[i] = best[i];
+        sub[i] = sub_copy[i];
     }
+    
+    free(sub_copy);
 }
 
-double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin, int countTowns, int dist_param) {
-    twtown *subcopy = (twtown*)malloc((lenSub) * sizeof(twtown));
-    twtown *subcopy_copy = (twtown*)malloc((lenSub) * sizeof(twtown));
+double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin, int countTowns) {
+    depoShift(lenSub, sub);
+    
+    twtown *sub_current = (twtown*)malloc((lenSub) * sizeof(twtown));
+    twtown *sub_old_current = (twtown*)malloc((lenSub) * sizeof(twtown));
     
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)
     {
-        subcopy[i] = sub[i];
-        subcopy_copy[i] = sub[i];
+        sub_current[i] = sub[i];
+        sub_old_current[i] = sub[i];
     }
 
-    double best = 0, newd, p;
-    if(dist_param == 1)
-    {
-        best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-    }
-    else
-    {
-        for(int c = 0; c < lenSub-1; c++) { 
-            best += getByTown(m, subcopy[c].t.name, subcopy[c+1].t.name);
-        }
-        best += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
-    }
+    double candidate_Energy, p;
+    double current_Energy = subtourdistanceTw(sub_old_current, lenSub, m, *timer, endTime);
 
     int T = tmax;
-    for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) {
-        GenerateStateCandidateTw(subcopy, subcopy_copy, lenSub);
-        if(dist_param == 1)
+
+    for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) 
+    {
+        // кладем старый маршрут в новый и подаем в генерацию
+        for(int i = 0; i < lenSub; i++)
         {
-            newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-            // printf("YESS\n");
+            sub_current[i] = sub_old_current[i];
         }
-        else
+        GenerateStateCandidateTw(sub_current, lenSub);
+        candidate_Energy = subtourdistanceTw(sub_current, lenSub, m, *timer, endTime);
+
+        if((current_Energy == -1 || candidate_Energy < current_Energy) && candidate_Energy != -1)
         {
-            newd = 0;
-            for(int c = 0; c < lenSub-1; c++) { 
-                newd += getByTown(m, subcopy[c].t.name, subcopy[c+1].t.name);
-            }
-            newd += getByTown(m, subcopy[0].t.name, subcopy[lenSub-1].t.name);
-        }
-        if((best == -1 || newd < best) && newd != -1) {
-            best = newd;
-            //цикл копирования subcopy -> sub
-            for(int j = 0; j < lenSub; j++)
+            current_Energy = candidate_Energy;
+            for(int i = 0; i < lenSub; i++)
             {
-                subcopy_copy[j] = subcopy[j];
+                sub_old_current[i] = sub_current[i];
             }
         }
-        
-        if(newd != -1 && newd >= best && best != -1) 
+        else if(current_Energy != -1 && candidate_Energy != -1 && candidate_Energy > current_Energy)
         {
-            p = exp((best - newd) / T);
-            if(p > (rand() % 10000 / 10000.0)) 
+            p = exp((current_Energy - candidate_Energy) / T);
+            // printf("p: %lf, random: %lf\n", p, (double) rand() / RAND_MAX);
+            if(p >= ((double) rand() / (double) RAND_MAX))
             {
-                best = newd;
-                for(int i = 0; i < lenSub; i++) 
+                current_Energy = candidate_Energy;
+                for(int i = 0; i < lenSub; i++)
                 {
-                    subcopy_copy[i] = subcopy[i];
+                    sub_old_current[i] = sub_current[i];
                 }
             }
         }
     }
-    best = subtourdistanceTw(subcopy_copy, lenSub, m, *timer, endTime);
-    if(best != -1)
+    
+    if(current_Energy != -1)
     {
         for(int p = 0; p < lenSub; ++p)
         {
-            sub[p] = subcopy_copy[p];
+            sub[p] = sub_old_current[p];
         }
     }
-    free(subcopy);
-    free(subcopy_copy);
-    if(best != -1)
-    {
-        *timer += best;
-    }
-    return best;
+    
+    free(sub_current);
+    free(sub_old_current);
+
+    return current_Energy;
 }

@@ -19,8 +19,8 @@ int read_file_tw(const char* name_file, twtown *towns, int counttowns)
     int hst, mst, het, met;
     for(int i = counttowns-1; i >= 0 ; i--)
     {
-        fscanf(in, "%lf\t%lf\t%lf\t%d:%d-%d:%d\t%lf\n", &x, &y, &cap, &hst, &mst, &het, &met, &st);
-        towns[i] = maketwtown(maketown(i, x, y, cap), (hst * 60 + mst) * 60, (het * 60 + met) * 60, st * 60);
+        fscanf(in, "%lf\t%lf\t%lf\t%d-%d\t%lf\n", &x, &y, &cap, &mst, &met, &st);
+        towns[i] = maketwtown(maketown(i, x * 100, y * 100, cap), mst, met, st);
     }
     fclose(in);
     return 0;
@@ -37,7 +37,7 @@ void parseOneTwTownNoIndex(const char pathFile[], const char newFileName[], int 
 
     snprintf(pathTown, 2000, "%s-town.bin", newFileName);
     snprintf(pathTable, 2000, "%s-table.bin", newFileName);
-    // printf("%s\n", pathTown);
+    printf("%s\n", pathTown);
     FILE* outtown = fopen(pathTown, "wb");
     if(outtown == NULL) {
         printf("Error writing file: %s", pathTown);
@@ -60,7 +60,8 @@ void parseOneTwTownNoIndex(const char pathFile[], const char newFileName[], int 
         for(int j = 0; j < tcountTowns-i-1; j++)
         {
             
-            dist = getDistanceE(getTwTownByName(i, tcountTowns, towns).t, getTwTownByName(m.width-j, tcountTowns, towns).t) * KmToSeconds;
+            dist = getDistanceE(getTwTownByName(i, tcountTowns, towns).t, getTwTownByName(m.width-j, tcountTowns, towns).t);// * KmToSeconds;
+            // printf("%d %d %lf\n", getTwTownByName(i, tcountTowns, towns).t.name, getTwTownByName(m.width-j, tcountTowns, towns).t.name, dist);
             pointAthalfmatrix(&m, i, j, dist);
 
         }
@@ -90,7 +91,7 @@ void readOneTwTownByBinaryNoIndex(twtown *towns, halfmatrix *m, const char newFi
     char pathTown[2000], pathTable[2000];
     snprintf(pathTown, 2000, "%s-town.bin", newFileName);
     snprintf(pathTable, 2000, "%s-table.bin", newFileName);
-    // printf("%s\n", pathTown);
+    printf("%s\n", pathTown);
     FILE* intown = fopen(pathTown, "r");
     if(intown == NULL) {
         printf("Error writing file: %s", pathTown);

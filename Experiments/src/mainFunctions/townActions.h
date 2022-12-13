@@ -18,6 +18,10 @@ void printTwTownList(const twtown* towns, int counttowns);
 
 void reverseTownTw(twtown *sub, int i, int j);
 
-int moveElemsTw(twtown *sub, int start1, int end1, int start2, int end2);
+void depoShift(int lenSub, twtown *sub);
+
+void reverse_segment_if_better(halfmatrix *m, twtown *tour, int i, int j, int k, int len);
+
+void moveElemsTw(twtown *sub, int i, int j, int k);
 
 #endif

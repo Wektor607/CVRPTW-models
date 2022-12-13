@@ -59,14 +59,14 @@ if __name__ == "__main__":
     print("Введите конец временного окна депо от 0 до 24 часов в формате XX:XX : ")
     depot_end_time = input()
 
-    for i in range(1, 101):
+    for i in range(0, 1):
         depot, points, capacity, tw, deliver_time = generate_data(n_customer=n_customer)
         with open(f"{n_customer}/Example{i}.csv", "w") as f:
             f.write('x_coord' + '\t' + 'y_coord' + '\t' + 'Weight' + '\t' + 'DeliveryTimeRange' + '\t' + 'UnloadingTime' + '\n')
             
             for j in range(len(points[0])):
-                f.write(str(points[0][j][0] * 100) + '\t' + str(points[0][j][1] * 100) + '\t' + str(capacity[0][j]) 
-                        + '\t' + str(translate_minute(tw[0][j][0])) + '-' + str(translate_minute(tw[0][j][1])) + '\t' + str(deliver_time) + '\n')
+                f.write(str(points[0][j][0]) + '\t' + str(points[0][j][1]) + '\t' + str(capacity[0][j]) 
+                        + '\t' + str(tw[0][j][0]) + '-' + str(tw[0][j][1]) + '\t' + str(deliver_time) + '\n')
             
-            f.write(str(depot[0][0][0] * 100) + '\t' + str(depot[0][0][1] * 100) + '\t' + str(0) 
+            f.write(str(depot[0][0][0]) + '\t' + str(depot[0][0][1]) + '\t' + str(0) 
                         + '\t' + depot_start_time + '-' + depot_end_time + '\t' + str(0))

@@ -59,8 +59,6 @@ void inithalfmatrix(halfmatrix *m, int h)
 
 double getByTown(const halfmatrix *canvas, int townx, int towny)
 {
-    //printf("i: %d, j: %d\n", my_min(townx, towny), canvas->width - my_max(townx, towny));
-    //printf("hlf: %d, townx: %d, towny: %d\n", canvas->width, townx, towny);
     return canvas->data[my_min(townx, towny)][canvas->width - my_max(townx, towny)];
 }
 
