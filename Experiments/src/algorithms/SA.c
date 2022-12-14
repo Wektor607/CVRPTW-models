@@ -47,7 +47,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)
     {
-        sub_current[i] = sub[i];
+        // sub_current[i] = sub[i];
         sub_old_current[i] = sub[i];
     }
 
@@ -56,7 +56,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
 
     int T = tmax;
 
-    for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) 
+    for(int k = 0; T >= tmin; T = (tmax * 0.1 / k), k++) 
     {
         // кладем старый маршрут в новый и подаем в генерацию
         for(int i = 0; i < lenSub; i++)
