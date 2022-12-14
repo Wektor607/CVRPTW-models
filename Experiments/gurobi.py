@@ -12,17 +12,17 @@ def check(all_pairs, timers):
 
 def main():
     min_res = []
-    allResultFile = "allResults_50.txt"
+    allResultFile = "allResults_100.txt"
     for num in range(1, 100):
         final_res = []
-        name_file = f"VRP_50/Example{num}.csv"
+        name_file = f"VRP_100/Example{num}.csv"
         data_file = pd.read_csv(name_file, sep="\t", error_bad_lines=True)
 
         # Запишем все данные в виде массива списков, где каждый список это строка с значениями конкретных столбцов
         arr_data = data_file.values
 
         # Задаём объем грузовика
-        Q_max    = 750 # Для 20:500, 50:750, 100:1000
+        Q_max    = 1000 # Для 20:500, 50:750, 100:1000
 
         # Создаём списки координат и грузов для каждого клиента
         xc       = np.zeros(len(arr_data))
@@ -78,7 +78,7 @@ def main():
             time[i, j] = distance[i, j]
             # print([i,j], ':', time[i, j], '\n')
 
-        for count_vehicles in range(1, 10):
+        for count_vehicles in range(1, 20):
             #Список транспортных средств
             vehicles = [i for i in range(0, count_vehicles)]
 
@@ -122,8 +122,8 @@ def main():
             model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
             # Optimizing the model
-            model.Params.TimeLimit = 600 # Временной лимит 10 минут
-            model.Params.MIPGap = 0.05   # Лимит GAP = 5%
+            model.Params.TimeLimit = 3000 # Временной лимит 10 минут
+            model.Params.MIPGap = 0.1   # Лимит GAP = 10%
             model.Params.LogFile= f"Gurobi_{len(arr_data)-1}.txt"
             model.optimize()
             if model.status == GRB.OPTIMAL:
@@ -186,7 +186,7 @@ def main():
                     s = "NoSolution"
                     r = "NoSolution" 
                     
-                with open("allResultFile.txt", "a") as f:
+                with open("allResultFile_100.txt", "a") as f:
                     f.write(name_file.split('/')[1].split('.csv')[0] + ' ' + str(count_vehicles) + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
                 f.close()
 
