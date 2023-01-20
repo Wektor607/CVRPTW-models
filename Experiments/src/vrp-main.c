@@ -92,16 +92,16 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          towns[c].mTimeStart = town0.mTimeStart;
          towns[c].mTimeEnd = town0.mTimeEnd;
       }
-      else if((town0.mTimeEnd > towns[c].mTimeStart && town0.mTimeStart < towns[c].mTimeEnd && town0.mTimeEnd < town0.mTimeStart) || 
-         (town0.mTimeStart < towns[c].mTimeStart && town0.mTimeEnd > towns[c].mTimeEnd && towns[c].mTimeEnd < towns[c].mTimeStart && town0.mTimeEnd < town0.mTimeStart) || 
-         (town0.mTimeStart < towns[c].mTimeEnd && towns[c].mTimeStart > town0.mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd) || 
-         (town0.mTimeStart < towns[c].mTimeEnd && towns[c].mTimeStart < town0.mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd) || 
-         (town0.mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > towns[c].mTimeStart && towns[c].mTimeStart > towns[c].mTimeEnd) || 
-         (towns[c].mTimeEnd > towns[c].mTimeStart && town0.mTimeEnd > towns[c].mTimeEnd && town0.mTimeStart > town0.mTimeEnd) || 
-         (towns[c].mTimeEnd > towns[c].mTimeStart && towns[c].mTimeStart > town0.mTimeStart && towns[c].mTimeEnd > town0.mTimeEnd))
-      {
-         continue;
-      }
+      // else if((town0.mTimeEnd > towns[c].mTimeStart && town0.mTimeStart < towns[c].mTimeEnd && town0.mTimeEnd < town0.mTimeStart) || 
+      //    (town0.mTimeStart < towns[c].mTimeStart && town0.mTimeEnd > towns[c].mTimeEnd && towns[c].mTimeEnd < towns[c].mTimeStart && town0.mTimeEnd < town0.mTimeStart) || 
+      //    (town0.mTimeStart < towns[c].mTimeEnd && towns[c].mTimeStart > town0.mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd) || 
+      //    (town0.mTimeStart < towns[c].mTimeEnd && towns[c].mTimeStart < town0.mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd) || 
+      //    (town0.mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > towns[c].mTimeStart && towns[c].mTimeStart > towns[c].mTimeEnd) || 
+      //    (towns[c].mTimeEnd > towns[c].mTimeStart && town0.mTimeEnd > towns[c].mTimeEnd && town0.mTimeStart > town0.mTimeEnd) || 
+      //    (towns[c].mTimeEnd > towns[c].mTimeStart && towns[c].mTimeStart > town0.mTimeStart && towns[c].mTimeEnd > town0.mTimeEnd))
+      // {
+      //    continue;
+      // }
       if(towns[c].mTimeService > towns[c].mTimeEnd - towns[c].mTimeStart){
          towns[c].t = zerotown;
       }
@@ -228,7 +228,6 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
 
       while(g < newCountTowns)
       { 
-         // printf("start for: l: %d g: %d\n", l, g);
          while(g != newCountTowns && cap + sub[g].t.weight <= maxCapacity) 
          {
             temp[l] = sub[g];
@@ -238,13 +237,6 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          
          temp[0] = town0;
 
-         // printf("Start: ");
-         
-         // for(int i = 0; i < l; i++)
-         // {
-         //    printf("%d, ", temp[i].t.name);
-         // }
-         // printf("\n");
          if(l > 2) 
          {
             td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);  

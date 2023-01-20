@@ -3,43 +3,40 @@ import numpy as np
 from gurobipy import Model, GRB, quicksum
 import math
 
-def check(all_pairs, timers):
-    for i, j, k in all_pairs:
-        if(j == 0):
-            local_timer = timers[f't[{i},{k}]']
-            break
-    return local_timer
-
 def main():
-    min_res = []
-    allResultFile = "allResults_100.txt"
-    for num in range(1, 100):
-        final_res = []
-        name_file = f"VRP_100/Example{num}.csv"
+    print('Введите количество городов (50, 100): ')
+    countTowns = int(input())
+    for num in range(1, 101):
+        name_file = f"VRP_{countTowns}/Example{num}.csv"
         data_file = pd.read_csv(name_file, sep="\t", error_bad_lines=True)
 
         # Запишем все данные в виде массива списков, где каждый список это строка с значениями конкретных столбцов
-        arr_data = data_file.values
+        arr_data  = data_file.values
 
         # Задаём объем грузовика
-        Q_max    = 1000 # Для 20:500, 50:750, 100:1000
+        if(countTowns == 20):
+            Q_max = 500
+        elif(countTowns == 50):
+            Q_max = 750
+        elif(countTowns == 100):
+            Q_max = 1000
 
         # Создаём списки координат и грузов для каждого клиента
-        xc       = np.zeros(len(arr_data))
-        yc       = np.zeros(len(arr_data))
+        xc = np.zeros(len(arr_data))
+        yc = np.zeros(len(arr_data))
 
         for i in range(len(arr_data)):
             if(arr_data[i][2] <= Q_max):
-                xc[i] = arr_data[len(arr_data) - 1 - i][0] * 100
-                yc[i] = arr_data[len(arr_data) - 1 - i][1] * 100
+                xc[i] = arr_data[len(arr_data) - 1 - i][0]
+                yc[i] = arr_data[len(arr_data) - 1 - i][1]
 
         # Создаём список клиентов
-        clients  = []
+        clients = []
         for i in range(1, len(arr_data)):
             clients.append(i)
 
         # Cоздаем список клиентов вместе с депо. Депо обозначено, как последний элемент в arr_data
-        nodes   = [0] + clients
+        nodes = [0] + clients
 
         # Задаём словари временных ограничений на посещение
 
@@ -50,10 +47,11 @@ def main():
         service    = {}
         q = {}
         del_elem = []
+        error_cost = 0
         for i in nodes:
-            st = int(arr_data[len(arr_data) - 1 - i][3].split('-')[0]) 
-            fs = int(arr_data[len(arr_data) - 1 - i][3].split('-')[1]) 
-            sv = int(arr_data[len(arr_data) - 1 - i][4]) 
+            st = int(arr_data[len(arr_data) - 1 - i][3].split('-')[0]) # start time
+            fs = int(arr_data[len(arr_data) - 1 - i][3].split('-')[1]) # finish time
+            sv = int(arr_data[len(arr_data) - 1 - i][4])               # service time
             if(sv <= fs - st):
                 start_lst[i] = st
                 finish_lst[i] = fs
@@ -65,8 +63,8 @@ def main():
         for i in del_elem:
             clients.remove(i)
             nodes.remove(i)
+            error_cost += 1
 
-        # print("Удаленные точки:", del_elem)
         # Создаём список всевохможных пар между клиентами, включая депо
         paires  = [(i, j) for i in nodes for j in nodes if i != j]
 
@@ -75,16 +73,15 @@ def main():
         distance = {}
         for i, j in paires:
             distance[i, j] = math.sqrt((xc[i] - xc[j]) ** 2 + (yc[i] - yc[j]) ** 2)
-            time[i, j] = distance[i, j]
-            # print([i,j], ':', time[i, j], '\n')
-
-        for count_vehicles in range(1, 20):
+            time[i, j] = distance[i, j] * 100
+            
+        # 100 точек - минимум 44 машин
+        for count_vehicles in range(1, 11):
             #Список транспортных средств
-            vehicles = [i for i in range(0, count_vehicles)]
+            vehicles  = [i for i in range(0, count_vehicles)]
 
             #Словарь вместимости транспортных средств
-            Q         = {i: Q_max for i in range(0, count_vehicles)}
-
+            
             arco_var  = [(i, j, k) for i in nodes for j in nodes for k in vehicles if i != j]
 
             arco_time = [(i, k) for i in nodes for k in vehicles]
@@ -97,7 +94,7 @@ def main():
             t = model.addVars(arco_time, vtype=GRB.CONTINUOUS, name = 't')
 
             #Целевая функция
-            model.setObjective(quicksum(distance[i, j] * x[i,j,k] for i, j, k in arco_var), GRB.MINIMIZE)
+            model.setObjective(quicksum(distance[i, j] * x[i,j,k] for i, j, k in arco_var) * 13 + error_cost * 10, GRB.MINIMIZE)
 
             #Ограничения
 
@@ -110,25 +107,27 @@ def main():
             # Ограничение по посещению маршрута ровно один раз и ровно одним грузовиком
             model.addConstrs(quicksum(x[i, j, k] for j in nodes for k in vehicles if i != j) == 1 for i in clients)
 
-            #
-            model.addConstrs(quicksum(x[i, j, k] for j in nodes if i != j) - quicksum(x[j, i, k] for j in nodes if i != j) == 0 for i in clients for k in vehicles)
+            #Ограничение на количество выездов в города и выезов из городов
+            model.addConstrs(quicksum(x[i, h, k] for i in nodes if i != h) - quicksum(x[h, j, k] for j in nodes if h != j) == 0 for h in clients for k in vehicles)
 
             #Ограничение на вместимость грузовика
-            model.addConstrs(quicksum(q[i] * quicksum(x[i, j, k] for j in nodes if i != j) for i in clients) <= Q[k] for k in vehicles)
+            model.addConstrs(quicksum(q[i] * quicksum(x[i, j, k] for j in nodes if i != j) for i in clients) <= Q_max for k in vehicles)
 
-            #Ограничение по времени
+            #Ограничение на временя
             model.addConstrs((x[i,j,k] * (t[i, k] + service[i] + time[i, j] - t[j, k]) <= 0) for i in clients for j in clients for k in vehicles if i != j)
+            
             model.addConstrs(t[i, k] >= start_lst[i] for i, k in arco_time)
             model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
             # Optimizing the model
-            model.Params.TimeLimit = 3000 # Временной лимит 10 минут
-            model.Params.MIPGap = 0.1   # Лимит GAP = 10%
-            model.Params.LogFile= f"Gurobi_{len(arr_data)-1}.txt"
+            model.Params.TimeLimit = 1000 # Временной лимит 
+            model.Params.MIPGap = 0.05  # Лимит GAP = 5%
+            model.Params.LogFile= f"Gurobi_{len(arr_data)-1}_more_cars.txt"
             model.optimize()
             if model.status == GRB.OPTIMAL:
                 print('1.Optimal objective: %g' % model.objVal)
-                # print('Optimal cost: %g' % model.objVal)
+                print("Итоговое расстояние: ", model.objVal)
+                value_result = model.objVal
             elif model.status == GRB.INFEASIBLE:
                 print('3.Model is infeasible')
             elif model.status == GRB.UNBOUNDED:
@@ -136,67 +135,8 @@ def main():
             else:
                 print('5.Optimization ended with status %d' % model.status)
 
-            # Список времен в секундах, которое понадобилось для прохождения каждого подмаршрута
-            # print("model.objVal: ", model.objVal)
-            print()
             if(model.status == GRB.OPTIMAL):
-                timers = {}
-                for v in model.getVars():
-                    if(v.x > 1):
-                        timers[v.VarName] = v.x
-                print(timers)
-                print()
-                if (model.objVal != math.inf):
-                    active_arcs = [a for a in arco_var if x[a].x > 0.99]
-                    print(active_arcs)
-                    res_gur = []
-                    timer = start_lst[0]
-                    for c in range(0, count_vehicles):
-                        active_arcs_1 = []
-                        for i in range(len(active_arcs)):
-                            if(active_arcs[i][2] == c):
-                                active_arcs_1.append(active_arcs[i])
-
-                        res_sort = []
-                        if(active_arcs_1 != []):
-                            res_sort.append(active_arcs_1[0])
-                            while(res_sort[len(res_sort)-1][1] != 0):
-                                for i in range(len(active_arcs_1)):
-                                    if(active_arcs_1[i][0] == res_sort[len(res_sort)-1][1]):
-                                        tu = active_arcs_1[i]
-                                        break
-                                res_sort.append(tu)
-                            print(res_sort)
-                            time_len = check(res_sort, timers)
-                            res_gur.append(time_len)
-                            print("RES: ", res_gur)
-                    # Общее время прохождения всего маршрута
-                    s = 0
-                    r = model.objVal
-                    for i in res_gur:
-                        if(i != 'BAD'):
-                            s += i
-                        else:
-                            s = "NoSolution"
-                            r = "NoSolution"
-                            break
-                    print('')
-                    print('Real summary time: ',s)
-                else:
-                    s = "NoSolution"
-                    r = "NoSolution" 
-                    
-                with open("allResultFile_100.txt", "a") as f:
-                    f.write(name_file.split('/')[1].split('.csv')[0] + ' ' + str(count_vehicles) + ' ' + str(s) + ' ' + str(model.Runtime) + '\n')
-                f.close()
-
-                if(s != "NoSolution"):
-                    final_res.append(s)
-        if(final_res == []):
-            min_res.append("NoSolution")
-        else:
-            min_res.append(min(final_res))
-    print("MIN_LST: ", min_res)
+                break
 
 if __name__ == "__main__":
     main()

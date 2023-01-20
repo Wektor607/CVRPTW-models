@@ -253,7 +253,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     int opts = lenSub / 2;
     if(lenSub > 30)
     {
-        opts = 10;
+        opts = 7;
     }
     ////////////////////////////////////////////
     // opts = 2;
@@ -487,20 +487,13 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                         }
                         for (; j < lenSub; ++j)
                         {
-                            //////printf("HEAR 1\n");
-                            // fflush(stdout);
-                            // //printf("X[i] and Y[i]: %d %d\n", X[i].node2, sub_copy[j].t.name);
-                            // //printf("minus: %d\n", minus(indexes[sub_copy[j].t.name], lenSub));
-                            // //printf("bomj: %d\n", (indexes[sub_copy[j].t.name] + 1) % lenSub);
-                            // //printf("IF START\n");
                             int yinode2 = sub_copy[j].t.name; /* t_(2i+1) */
                             int next_idx = indexes[X[i].node2];
                             if (indexes[yinode2] == minus(next_idx, lenSub) || indexes[yinode2] == (next_idx + 1) % lenSub || yinode2 == X[i].node2)
                             {
                                 continue; /* 8 */ 
                             }
-                            // //printf("IF END\n");
-                            // //printf("CYCLE START\n");
+
                             Y[i] = edge_init(X[i].node2, yinode2);
                             //////printf("HEAR 2\n");
                             // fflush(stdout);
@@ -525,8 +518,6 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             double Gi = 0;
                             for (int r = 0; r <= i; ++r)
                             {
-                                //printf("X: %d %d\n", X[r].node1, X[r].node2);
-                                //printf("Y: %d %d\n", Y[r].node1, Y[r].node2);
                                 Gi += gain(m, X[r], Y[r]);
                             }
                             if (Gi <= 0)
