@@ -217,7 +217,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       write_cvrptw_subtour(res_distance, temp, l); 
       distanceInTourNew += tr.only_distance;
       
-      l = 1; cap = 0;
+      l = 1; cap = 0; td = -1;
    }
    // Для того,чтобы сравниться с результатами Андрея
    fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), 0.0);
@@ -278,7 +278,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
          write_cvrptw_subtour(res_distance, temp, l); 
          distanceInTourNew += tr.only_distance;
          
-         l = 1; cap = 0;
+         l = 1; cap = 0; td = -1;
          
       }
       
