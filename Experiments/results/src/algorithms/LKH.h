@@ -1,4 +1,4 @@
-#include "../mainFunctions/dataProcessing.h"
+#include "../extraFunctions/dataProcessing.h"
 
 
 #ifndef LKH_H
@@ -24,6 +24,6 @@ void new_tour_create(halfmatrix *m, Edge *T_old, Edge *T_new, twtown *sub, int l
 
 void print_tour(Edge *T, int n);
 
-double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns);
+struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns);
 
 #endif

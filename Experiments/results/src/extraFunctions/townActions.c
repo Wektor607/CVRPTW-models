@@ -52,40 +52,57 @@ void doShuffleTw(int counttown, twtown *towns)
     }
 }
 
-double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double timer, const double endTime)
+struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double timer, const double endTime)
 {
+    struct twoResults tr = {.localtimer = 0, .only_distance = 0};
     if (lenSub == 1)
     {
-        return 0;
+        return tr;
     }
-
     depoShift(lenSub, sub);
     double localtimer = timer;
-
+    double wait_time = 0, time_warp = 0;
+    double only_distance = 0;
     for (int i = 0; i < lenSub - 1; i++)
     {
-        localtimer += getByTown(m, sub[i].t.name, sub[i + 1].t.name);
+        localtimer += getByTown(m, sub[i].t.name, sub[i + 1].t.name) * 100;
+        // Убрали время ожидания. Спросить об этом Сороку
         if (localtimer < sub[i + 1].mTimeStart)
         {
+            wait_time += sub[i + 1].mTimeStart - localtimer;
             localtimer = sub[i + 1].mTimeStart;
         }
-        localtimer += sub[i+1].mTimeService;
-        if (localtimer < sub[i + 1].mTimeStart || localtimer > sub[i + 1].mTimeEnd || localtimer > endTime)
+        else if (localtimer > sub[i + 1].mTimeEnd)
         {
-            return -1;
+            time_warp += localtimer - sub[i + 1].mTimeEnd;
+            localtimer = sub[i + 1].mTimeEnd;
         }
+        localtimer += sub[i+1].mTimeService;
+        
+        if (localtimer > endTime)
+        {
+            tr.localtimer = -1;
+            tr.only_distance = -1;
+            return tr;
+        }
+        only_distance += getByTown(m, sub[i].t.name, sub[i + 1].t.name);
     }
 
-    localtimer += getByTown(m, sub[0].t.name, sub[lenSub - 1].t.name);
-    if (!(localtimer <= endTime))
+    localtimer += getByTown(m, sub[0].t.name, sub[lenSub - 1].t.name) * 100;
+    if (localtimer > endTime)
     {
-        return -1;
+        tr.localtimer = -1;
+        tr.only_distance = -1;
+        return tr;
     }
+    only_distance += getByTown(m, sub[0].t.name, sub[lenSub - 1].t.name);
 
     // Если нужно вычислить расстояние, то вычитаем суммарное время ожидания
     // Если же нужно получить общее время, затраченное на всю поездку, то не отнимаем это доп. время, но переводить в метры это время
     // не корректно
-    return localtimer - timer;
+    tr.localtimer = localtimer - timer + wait_time + time_warp;
+    tr.only_distance = only_distance;
+    return tr;
 }
 
 

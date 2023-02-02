@@ -4,7 +4,7 @@
 #include <math.h>
 #include "twoOpt.h"
 
-double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns)
+struct twoResults lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns)
 {
     depoShift(lenSub, sub);
     twtown *subcopy = (twtown*)malloc((lenSub) * sizeof(twtown));
@@ -16,10 +16,13 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     }
 
     double best = 0, newd;
-    best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+    struct twoResults tr = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+    best = tr.localtimer;
     
     if(best == 0) {
-        return -1;
+        tr.localtimer = -1;
+        tr.only_distance = -1;
+        return tr;
     }
 
     double lengthDelta = 0;
@@ -34,7 +37,8 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
             {
                 reverseTownTw(subcopy, my_min(a, b), my_max(a, b));
                 
-                newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+                tr = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+                newd = tr.localtimer;
                 // printf("%lf\n", newd);
                 // В случае успеха запоминаем лучший тур
                 if(newd != -1 && (best == -1 || newd < best)) 
@@ -59,5 +63,5 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
 	}
 
     free(subcopy);
-	return best;
+	return tr;
 }

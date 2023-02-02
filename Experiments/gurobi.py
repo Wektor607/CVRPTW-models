@@ -6,7 +6,7 @@ import math
 def main():
     print('Введите количество городов (50, 100): ')
     countTowns = int(input())
-    for num in range(1, 101):
+    for num in range(8, 101):
         name_file = f"VRP_{countTowns}/Example{num}.csv"
         data_file = pd.read_csv(name_file, sep="\t", error_bad_lines=True)
 
@@ -46,24 +46,16 @@ def main():
         finish_lst = {}
         service    = {}
         q = {}
-        del_elem = []
         error_cost = 0
         for i in nodes:
             st = int(arr_data[len(arr_data) - 1 - i][3].split('-')[0]) # start time
             fs = int(arr_data[len(arr_data) - 1 - i][3].split('-')[1]) # finish time
             sv = int(arr_data[len(arr_data) - 1 - i][4])               # service time
-            if(sv <= fs - st):
-                start_lst[i] = st
-                finish_lst[i] = fs
-                service[i] = sv
-                q[i] = arr_data[len(arr_data) - 1 - i][2]
-            else:
-                del_elem.append(i)
-
-        for i in del_elem:
-            clients.remove(i)
-            nodes.remove(i)
-            error_cost += 1
+            
+            start_lst[i] = st
+            finish_lst[i] = fs
+            service[i] = sv
+            q[i] = arr_data[len(arr_data) - 1 - i][2]
 
         # Создаём список всевохможных пар между клиентами, включая депо
         paires  = [(i, j) for i in nodes for j in nodes if i != j]
@@ -76,7 +68,7 @@ def main():
             time[i, j] = distance[i, j] * 100
             
         # 100 точек - минимум 44 машин
-        for count_vehicles in range(1, 11):
+        for count_vehicles in range(15, 25):
             #Список транспортных средств
             vehicles  = [i for i in range(0, count_vehicles)]
 
@@ -120,14 +112,14 @@ def main():
             model.addConstrs(t[i, k] <= finish_lst[i] for i, k in arco_time)
 
             # Optimizing the model
-            model.Params.TimeLimit = 1000 # Временной лимит 
-            model.Params.MIPGap = 0.05  # Лимит GAP = 5%
+            model.Params.TimeLimit = 3000 # Временной лимит 
+            model.Params.MIPGap = 0.3  # Лимит GAP = 10%
             model.Params.LogFile= f"Gurobi_{len(arr_data)-1}_more_cars.txt"
             model.optimize()
             if model.status == GRB.OPTIMAL:
-                print('1.Optimal objective: %g' % model.objVal)
-                print("Итоговое расстояние: ", model.objVal)
-                value_result = model.objVal
+                print('1.Optimal objective: %g' % model.objbound)
+                print("Итоговое расстояние: ", model.objbound)
+                value_result = model.objbound
             elif model.status == GRB.INFEASIBLE:
                 print('3.Model is infeasible')
             elif model.status == GRB.UNBOUNDED:

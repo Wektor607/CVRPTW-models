@@ -2,6 +2,12 @@
 #ifndef TOWNACTIONS_H
 #define TOWNACTIONS_H
 
+struct twoResults
+{
+    double localtimer;
+    double only_distance;
+};
+
 int gettownindex(const twtown* sub, const twtown city, int lensub);
 
 twtown getTwTownByName(int name, int counttown, const twtown* towns);
@@ -12,7 +18,7 @@ void swapTw(twtown *town1, twtown *town2);
 
 void doShuffleTw(int counttown, twtown *towns);
 
-double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double timer, const double endTime);
+struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double timer, const double endTime);
 
 void printTwTownList(const twtown* towns, int counttowns);
 

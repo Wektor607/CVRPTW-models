@@ -15,10 +15,10 @@ setup(
             'src/algorithms/twoOpt.c',
             'src/algorithms/threeOpt.c',
             'src/algorithms/LKH.c',
-            'src/mainFunctions/distanceMatrix.c',
-            'src/mainFunctions/dataProcessing.c',
-            'src/mainFunctions/townActions.c',
-            'src/mainFunctions/createObjects.c',
-            'src/mainFunctions/logistic.c',
+            'src/extraFunctions/distanceMatrix.c',
+            'src/extraFunctions/dataProcessing.c',
+            'src/extraFunctions/townActions.c',
+            'src/extraFunctions/createObjects.c',
+            'src/extraFunctions/logistic.c',
       ])]
 )

@@ -38,7 +38,7 @@ void GenerateStateCandidateTw(twtown *sub, int lenSub)
     free(sub_copy);
 }
 
-double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin, int countTowns) {
+struct twoResults saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double endTime, double tmax, double tmin, int countTowns) {
     depoShift(lenSub, sub);
     
     twtown *sub_current = (twtown*)malloc((lenSub) * sizeof(twtown));
@@ -50,9 +50,12 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
         // sub_current[i] = sub[i];
         sub_old_current[i] = sub[i];
     }
-
+    
+    // struct twoResults tr;
+    
     double candidate_Energy, p;
-    double current_Energy = subtourdistanceTw(sub_old_current, lenSub, m, *timer, endTime);
+    struct twoResults tr = subtourdistanceTw(sub_old_current, lenSub, m, *timer, endTime);
+    double current_Energy = tr.localtimer;
 
     int T = tmax;
 
@@ -64,7 +67,8 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
             sub_current[i] = sub_old_current[i];
         }
         GenerateStateCandidateTw(sub_current, lenSub);
-        candidate_Energy = subtourdistanceTw(sub_current, lenSub, m, *timer, endTime);
+        tr = subtourdistanceTw(sub_old_current, lenSub, m, *timer, endTime);
+        candidate_Energy = tr.localtimer;
 
         if((current_Energy == -1 || candidate_Energy < current_Energy) && candidate_Energy != -1)
         {
@@ -100,5 +104,5 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
     free(sub_current);
     free(sub_old_current);
 
-    return current_Energy;
+    return tr;
 }

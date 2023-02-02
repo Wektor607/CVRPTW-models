@@ -55,13 +55,13 @@ if __name__ == "__main__":
 
     # Время открытия и закрытия депо в часах
     print("Введите начало временного окна депо от 0 до 24 часов в формате XX:XX : ")
-    depot_start_time = input()
+    depot_start_time = 0#input()
     print("Введите конец временного окна депо от 0 до 24 часов в формате XX:XX : ")
-    depot_end_time = input()
+    depot_end_time = 1000 #input()
 
-    for i in range(0, 1):
+    for i in range(0, 50):
         depot, points, capacity, tw, deliver_time = generate_data(n_customer=n_customer)
-        with open(f"{n_customer}/Example{i}.csv", "w") as f:
+        with open(f"VRP_{n_customer}/Example{i}.csv", "w") as f:
             f.write('x_coord' + '\t' + 'y_coord' + '\t' + 'Weight' + '\t' + 'DeliveryTimeRange' + '\t' + 'UnloadingTime' + '\n')
             
             for j in range(len(points[0])):
@@ -69,4 +69,4 @@ if __name__ == "__main__":
                         + '\t' + str(tw[0][j][0]) + '-' + str(tw[0][j][1]) + '\t' + str(deliver_time) + '\n')
             
             f.write(str(depot[0][0][0]) + '\t' + str(depot[0][0][1]) + '\t' + str(0) 
-                        + '\t' + depot_start_time + '-' + depot_end_time + '\t' + str(0))
+                        + '\t' + str(depot_start_time) + '-' + str(depot_end_time) + '\t' + str(0))

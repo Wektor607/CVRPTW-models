@@ -4,7 +4,7 @@
 #include <math.h>
 #include "threeOpt.h"
 
-double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns) // timer - is a now time. Global time on the world.
+struct twoResults lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns) // timer - is a now time. Global time on the world.
 {
     /*
     2-opt
@@ -27,10 +27,13 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     }
 
     double best, newd;
-    
-    best = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
-    if(best == 0) {
-        return -1;
+    struct twoResults tr = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+    best = tr.localtimer;
+    if(best == 0) 
+    {
+        tr.localtimer = -1;
+        tr.only_distance = -1;
+        return tr;
     }
 
     for(int a = 0; a < lenSub - 2; a++) 
@@ -40,7 +43,8 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
             for(int c = b + 1; c < lenSub; c++)
             {
                 reverse_segment_if_better(m, subcopy, a, b, c, lenSub);
-                newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+                tr = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+                newd = tr.localtimer;
                 
                 if(newd != -1 && (best == -1 || newd < best)) 
                 {
@@ -62,5 +66,5 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     }
     
     free(subcopy);
-    return best;
+    return tr;
 }

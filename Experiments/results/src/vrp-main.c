@@ -58,7 +58,7 @@ void sigfunc(int sig){
    stop = 1;
 }
 
-void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int), char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns)
+void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int), char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns)
 {
    /* srand(time(NULL));  */
    FILE *out = fopen(fileout, "w"); 
@@ -69,7 +69,7 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
    towns = malloc(tcountTown * sizeof(twtown));
    halfmatrix m; 
    readOneTwTownByBinaryNoIndex(towns, &m, in); 
-   // printhalfmatrix(&m);
+   printhalfmatrix(&m);
    twtown town0 = getTwTownByName(0, countTowns, towns);
    double timer = town0.mTimeStart;
    double endTime = town0.mTimeEnd;
@@ -92,16 +92,16 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          towns[c].mTimeStart = town0.mTimeStart;
          towns[c].mTimeEnd = town0.mTimeEnd;
       }
-      // else if((town0.mTimeEnd > towns[c].mTimeStart && town0.mTimeStart < towns[c].mTimeEnd && town0.mTimeEnd < town0.mTimeStart) || 
-      //    (town0.mTimeStart < towns[c].mTimeStart && town0.mTimeEnd > towns[c].mTimeEnd && towns[c].mTimeEnd < towns[c].mTimeStart && town0.mTimeEnd < town0.mTimeStart) || 
-      //    (town0.mTimeStart < towns[c].mTimeEnd && towns[c].mTimeStart > town0.mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd) || 
-      //    (town0.mTimeStart < towns[c].mTimeEnd && towns[c].mTimeStart < town0.mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd) || 
-      //    (town0.mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > towns[c].mTimeStart && towns[c].mTimeStart > towns[c].mTimeEnd) || 
-      //    (towns[c].mTimeEnd > towns[c].mTimeStart && town0.mTimeEnd > towns[c].mTimeEnd && town0.mTimeStart > town0.mTimeEnd) || 
-      //    (towns[c].mTimeEnd > towns[c].mTimeStart && towns[c].mTimeStart > town0.mTimeStart && towns[c].mTimeEnd > town0.mTimeEnd))
-      // {
-      //    continue;
-      // }
+      else if((town0.mTimeEnd > towns[c].mTimeStart && town0.mTimeStart < towns[c].mTimeEnd && town0.mTimeEnd < town0.mTimeStart) || 
+         (town0.mTimeStart < towns[c].mTimeStart && town0.mTimeEnd > towns[c].mTimeEnd && towns[c].mTimeEnd < towns[c].mTimeStart && town0.mTimeEnd < town0.mTimeStart) || 
+         (town0.mTimeStart < towns[c].mTimeEnd && towns[c].mTimeStart > town0.mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd) || 
+         (town0.mTimeStart < towns[c].mTimeEnd && towns[c].mTimeStart < town0.mTimeEnd && towns[c].mTimeStart > towns[c].mTimeEnd) || 
+         (town0.mTimeStart > towns[c].mTimeEnd && town0.mTimeEnd > towns[c].mTimeStart && towns[c].mTimeStart > towns[c].mTimeEnd) || 
+         (towns[c].mTimeEnd > towns[c].mTimeStart && town0.mTimeEnd > towns[c].mTimeEnd && town0.mTimeStart > town0.mTimeEnd) || 
+         (towns[c].mTimeEnd > towns[c].mTimeStart && towns[c].mTimeStart > town0.mTimeStart && towns[c].mTimeEnd > town0.mTimeEnd))
+      {
+         continue;
+      }
       if(towns[c].mTimeService > towns[c].mTimeEnd - towns[c].mTimeStart){
          towns[c].t = zerotown;
       }
@@ -126,9 +126,16 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
    twtown *sub = (twtown*) malloc((countTowns-1) * sizeof(twtown));
    int w = 0;
    twtown t;
+   // считаем количество плохих городов
+   int errorCounter = 0;
    for(int i = 1; i < countTowns; i++){
       t = getTwTownByName(i, countTowns, towns);
-      if(t.t.name == -1) {printf("Error town: %d\n", i); continue;}
+      if(t.t.name == -1) 
+      {
+         errorCounter++;
+         printf("Error town: %d\n", i); 
+         continue;
+      }
       sub[w] = t;
       w++;
    }
@@ -179,8 +186,9 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
    l = 1;
    g = 0;
    cap = 0;
+   struct twoResults tr;
    while(g < newCountTowns) 
-   { 
+   {
       while(g != newCountTowns && cap + sub[g].t.weight <= maxCapacity) 
       {
          temp[l] = sub[g];
@@ -189,14 +197,16 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       }
 
       temp[0] = town0;
-      td = subtourdistanceTw(temp, l, &m, timer, endTime);
+      tr = subtourdistanceTw(temp, l, &m, timer, endTime);
+      td = tr.localtimer;
       timer += td;
-      
       while(td == -1) 
       {
          l--; g--;
          timer = town0.mTimeStart;
-         td = subtourdistanceTw(temp, l, &m, timer, endTime);
+         // distanceInTourNew = 0;
+         tr = subtourdistanceTw(temp, l, &m, timer, endTime);
+         td = tr.localtimer;
          timer += td;
       }
       
@@ -205,14 +215,20 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          timer = town0.mTimeStart;
       }
 
-      write_cvrptw_subtour(res_distance, temp, l); 
-      distanceInTourNew += td;
+      if(l > 1)
+      {
+         write_cvrptw_subtour(res_distance, temp, l); 
+         // printf(" -> when write  td = %lf\n", td);
+         distanceInTourNew += tr.only_distance;
+      }
       l = 1; cap = 0;
    }
-   
-   fprintf(out, "%lf\t%lf\n", (distanceInTourNew), 0.0);
+   // Для того,чтобы сравниться с результатами Андрея
+   fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), 0.0);
    
    distanceInTourNew = 0;
+   tr.localtimer = 0;
+   tr.only_distance = 0;
    // for (int i = 0; i < newCountTowns; ++i)
    // {
    //    printf("%d, ", sub[i].t.name);
@@ -228,6 +244,7 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
 
       while(g < newCountTowns)
       { 
+         // printf("start for: l: %d g: %d\n", l, g);
          while(g != newCountTowns && cap + sub[g].t.weight <= maxCapacity) 
          {
             temp[l] = sub[g];
@@ -237,13 +254,22 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          
          temp[0] = town0;
 
+         // printf("Start: ");
+         
+         // for(int i = 0; i < l; i++)
+         // {
+         //    printf("%d, ", temp[i].t.name);
+         // }
+         // printf("\n");
          if(l > 2) 
          {
-            td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);  
+            tr = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);
+            td = tr.localtimer;
          } 
          else 
          {
-            td = subtourdistanceTw(temp, l, &m, timer, endTime);
+            tr = subtourdistanceTw(temp, l, &m, timer, endTime);
+            td = tr.localtimer;
          }
 
          timer += td;
@@ -253,11 +279,15 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          {
             l--; g--;
             timer = town0.mTimeStart;
-            if(l > 2)
+            if(l > 2) 
             {
-               td = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);
-            } else {
-               td = subtourdistanceTw(temp, l, &m, timer, endTime);
+               tr = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);
+               td = tr.localtimer;
+            } 
+            else 
+            {
+               tr = subtourdistanceTw(temp, l, &m, timer, endTime);
+               td = tr.localtimer;
             }
             timer += td;
          }
@@ -277,7 +307,7 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          {
             write_cvrptw_subtour(res_distance, temp, l); 
             // printf(" -> when write  td = %lf\n", td);
-            distanceInTourNew += td;
+            distanceInTourNew += tr.only_distance;
          }
          l = 1; cap = 0;
          
@@ -286,15 +316,16 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       
       if(distanceInTourBest == -1.0) {
       /*distanceInTourNew * 60 * 1000 / 3600*/
-         fprintf(out, "%lf\t%lf\n", (distanceInTourNew), (clock() - runtime) / CLOCKS_PER_SEC);
+         // Для того,чтобы сравниться с результатами Андрея
+         fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), (clock() - runtime) / CLOCKS_PER_SEC);
          distanceInTourBest = distanceInTourNew;
       } 
       if(distanceInTourNew < distanceInTourBest) {
          distanceInTourBest = distanceInTourNew;
          // printf("\nAll days: %d %lf\n", days, distanceInTourBest); 
          write_cvrptw_end_tour(res_distance, distanceInTourBest);
-         /*distanceInTourBest * 60 * 1000 / 3600*/
-         fprintf(out, "%lf\t%lf\n", (distanceInTourNew), (clock() - runtime) / CLOCKS_PER_SEC);
+         // Для того,чтобы сравниться с результатами Андрея
+         fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), (clock() - runtime) / CLOCKS_PER_SEC);
       }
       else {
          write_cvrptw_end_tour(res_distance, -1);
@@ -303,7 +334,9 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       clock_t end = clock();
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;
       full_time += seconds;
-      if(full_time > 600)
+      // 100 секунд - 50 городов
+      // 200 секунд - 100 городов
+      if(full_time > 100)
       {
          stop = 1;
       }
@@ -316,9 +349,8 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
    /* данный параметр очень важно заново обнулять, так как он глобальный и при решении следующих задач
    будет сразу вызывать Ctrl+C*/
    stop = 0;
-   /*distanceInTourBest * 60 * 1000 / 3600*/
    double final_time = (clock() - runtime) / CLOCKS_PER_SEC;
-   fprintf(out, "%lf\t%lf\n", (distanceInTourBest), final_time);
+   fprintf(out, "%lf\t%lf\n", (distanceInTourBest * 13 + errorCounter * 10), final_time);
    printf("2Opt:%d 3Opt:%d KOpt:%d\n", two_opt, three_opt, k_opt);
    two_opt = 0;
    three_opt = 0;

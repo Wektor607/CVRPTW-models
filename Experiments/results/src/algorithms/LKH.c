@@ -248,16 +248,14 @@ void new_tour_create(halfmatrix *m, Edge *T_old, Edge *T_new, twtown *sub, int l
     }
 }
 
-double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns)
+struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns)
 {
     int opts = lenSub / 2;
     if(lenSub > 30)
     {
-        opts = 7;
+        opts = 10;
     }
-    ////////////////////////////////////////////
-    // opts = 2;
-    ////////////////////////////////////////////
+
     depoShift(lenSub, sub);
     /* 1 Create starting tour T */
     Edge T[lenSub]; // ребра тура, который является наилучшим из найденных в текущий момент
@@ -280,7 +278,8 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     }
     T[lenSub - 1] = edge_init(sub[lenSub - 1].t.name, sub[0].t.name); // замыкание тура
     
-    FT = subtourdistanceTw(sub, lenSub, m, *timer, endTime);
+    struct twoResults tr = subtourdistanceTw(sub, lenSub, m, *timer, endTime);
+    FT = tr.localtimer;
     bool new_tour = 1; // данный флаг показывает был ли найден более оптимальный тур во время одной итерации while
     while(new_tour)
     {
@@ -290,7 +289,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
         {
             int t1_var = T[t1_idx].node1;
             /* 3 choose X[0] */
-            ////////printf("3 START\n");
+            
             int t2[2] = {T[minus(t1_idx, lenSub)].node1, T[(t1_idx + 1) % lenSub].node1}; // соседи города t1_var
             for (int t2_var = 0; t2_var < 2; t2_var++)
             {
@@ -309,7 +308,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                     Xindex[t2_idx] = 0;
                 }
                 /* 4  Choose Y[0] */
-                ////////printf("4 START\n");
+                
                 for (int town = 0; town < lenSub; ++town)
                 {
                     int t3 = sub_copy[town].t.name;
@@ -328,7 +327,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                     bool flag8 = 0, flag9 = 0;
                     int y2_alt = -1, x2_alt = -1;
                     /* 5 После выбора X[0] и Y[0] делаем i = i + 1*/
-                    //printf("5 START\n");
+                    
                     for (int i = 1; i < opts; ++i)
                     {
                         // //printf("HELLO\n");
@@ -344,7 +343,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             int t2i[2] = {T[minus(prev_idx, lenSub)].node1, T[(prev_idx + 1) % lenSub].node1};
                             int xi_node1 = Y[i - 1].node2; /* t_(2i-1) */
                             /* 6 Choose X[i] */
-                            //////printf("6 START\n");
+                            
                             int t2i_var = 0;
                             if(i == 1 && flag9) {
                                 t2i_var = (x2_alt != -1) ? 1 : 2;
@@ -353,13 +352,13 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             bool flag6 = 0;
                             for (; t2i_var < 2; ++t2i_var)
                             {
-                                //////printf("6 HEAR 1\n");
+                                
                                 if(xi_node1 == t2i[t2i_var])
                                 {
                                     continue;
                                 }
                                 X[i] = edge_init(xi_node1, t2i[t2i_var]);
-                                //printf("Add X Edge: %d %d\n", xi_node1, t2i[t2i_var]);
+                                
                                 int flag_was = 0;
                                 for (int s = 0; s < i; ++s)
                                 {
@@ -380,7 +379,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                 {
                                     Xindex[t2i_idx] = i;
                                 }
-                                // //printf("6 HEAR 2\n");
+                                
                                 if(t2i[t2i_var] != t1_var)
                                 {
                                     Y[i] = edge_init(t2i[t2i_var], t1_var); /* join t2i t1 */
@@ -389,13 +388,12 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                 {
                                     continue;
                                 }
-                                // //printf("6 HEAR 2_1\n");
+                                
                                 /* 6a create T1 and check T1 is tour */
                                 Edge T1[lenSub]; // ребра тура кандитата на новый наилучший тур
                                 new_tour_create(m, T, T1, sub_copy, lenSub, X, Y, i, indexes, Xindex);
                                 bool flag6a = 1;
                                 /* Проверяем, что всех городов по два */
-                                //////printf("6 HEAR 3\n");
                                 for (int cur_town = 0; cur_town < lenSub; ++cur_town)
                                 {
                                     int cntr = 0;
@@ -413,22 +411,22 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                     if(flag6a == 0)
                                         break;
                                 }
-                                // //printf("6 HEAR 4\n");
 
                                 if(!flag6a || T1[lenSub - 1].node2 != T1[0].node1)
                                 {
                                     /* bad tour T1 */
                                     continue;
                                 }
-                                // //printf("6 HEAR 5\n");
+                                
                                 FT1 = 0;
                                 twtown sub_temp[lenSub];
                                 for (int e = 0; e < lenSub; ++e)
                                 {
                                     sub_temp[e] = sub_copy[indexes[T1[e].node1]];
                                 }
-                                FT1 = subtourdistanceTw(sub_temp, lenSub, m, *timer, endTime);   
-                                // //printf("6 HEAR 6\n");
+                                tr = subtourdistanceTw(sub_temp, lenSub, m, *timer, endTime);
+                                FT1 = tr.localtimer;
+                                
                                 /* Если найденный тур лучше лучшего,то заменяем*/
                                 if ((FT1 < FT || FT == -1) && FT1 != -1)
                                 {
@@ -449,12 +447,12 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                     new_tour = 1;
                                     break; /* 6to2 break */
                                 }
-                                // //printf("6 HEAR 7\n");
+                                
                                 new_tour = 0;
                                 flag6 = 1;
                                 break;
                             } /* 6 end */
-                            //////printf("6 END\n");
+                        
                             if(!flag6)
                             {
                                 break;
@@ -476,8 +474,6 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                         }
 
                         /* 7 Choose Y[i] */
-                        //////printf("7 START\n");
-                        // fflush(stdout);
                         bool flag7 = 0;
                         int j = 0;
                         if(i == 1 && flag8) {
@@ -495,8 +491,6 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             }
 
                             Y[i] = edge_init(X[i].node2, yinode2);
-                            //////printf("HEAR 2\n");
-                            // fflush(stdout);
                             bool flag7_equal = 0;
                             for (int s = 0; s < i; ++s)
                             {
@@ -511,10 +505,8 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             {
                                 continue;
                             }
-                            // //printf("HEAR 3\n");
+
                             /* 7a */
-                            //printf("7A\n");
-                            // fflush(stdout);
                             double Gi = 0;
                             for (int r = 0; r <= i; ++r)
                             {
@@ -620,7 +612,6 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                 }
                     
             } /* 3 end */
-            ////////printf("3 END\n");
 
             if (new_tour)
             {
@@ -637,7 +628,8 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
         }
     }
 
-    double best = subtourdistanceTw(sub_copy, lenSub, m, *timer, endTime);
+    tr = subtourdistanceTw(sub_copy, lenSub, m, *timer, endTime);
+    double best = tr.localtimer;
     if(best != -1)
     {
         for(int p = 0; p < lenSub; ++p)
@@ -646,5 +638,5 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
         }
     }
     free(sub_copy);
-    return best;
+    return tr;
 }

@@ -20,7 +20,8 @@ int read_file_tw(const char* name_file, twtown *towns, int counttowns)
     for(int i = counttowns-1; i >= 0 ; i--)
     {
         fscanf(in, "%lf\t%lf\t%lf\t%d-%d\t%lf\n", &x, &y, &cap, &mst, &met, &st);
-        towns[i] = maketwtown(maketown(i, x * 100, y * 100, cap), mst, met, st);
+        
+        towns[i] = maketwtown(maketown(i, x, y, cap), mst, met, st);
     }
     fclose(in);
     return 0;
