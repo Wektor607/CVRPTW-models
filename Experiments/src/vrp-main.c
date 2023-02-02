@@ -70,9 +70,9 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
    readOneTwTownByBinaryNoIndex(towns, &m, in); 
    printhalfmatrix(&m);
    twtown town0 = getTwTownByName(0, countTowns, towns);
-   double timer = town0.mTimeStart;
+   double startTime = town0.mTimeStart;
    double endTime = town0.mTimeEnd;
-   // printTwTownList(towns, tcountTown);
+   
    printf("\n");
    for(int c = 0; c < countTowns; c++)
    {
@@ -194,18 +194,17 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
          l++; g++;
       }
 
-      if(timer >= town0.mTimeEnd)
+      if(startTime >= town0.mTimeEnd)
       {
-         timer = town0.mTimeStart;
+         startTime = town0.mTimeStart;
+         days++;
       }
 
       temp[0] = town0;
-
-      // if(td == -1){days++;}
       
       while(td == -1) 
       {
-         tr = subtourdistanceTw(temp, l, &m, timer, endTime);
+         tr = subtourdistanceTw(temp, l, &m, startTime, endTime);
          td = tr.localtimer;
          if(td == -1)
          {
@@ -213,7 +212,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
          }
       }
 
-      timer += td;
+      startTime += td;
       
       write_cvrptw_subtour(res_distance, temp, l); 
       distanceInTourNew += tr.only_distance;
@@ -231,7 +230,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       g = 0;
       cap = 0;
       
-      timer = town0.mTimeStart;
+      startTime = town0.mTimeStart;
       td = -1;
       
       distanceInTourNew = 0;
@@ -247,24 +246,23 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
             l++; g++;
          } 
 
-         if(timer >= town0.mTimeEnd)
+         if(startTime >= town0.mTimeEnd)
          {
-            timer = town0.mTimeStart;
+            startTime = town0.mTimeStart;
+            days++;
          }
 
          temp[0] = town0;
-
-         // if(td == -1){days++;}
 
          while(td == -1) 
          {
             if(l > 2) 
             {
-               tr = algfunc(temp, l, &m, &timer, endTime, T, t_end, countTowns);
+               tr = algfunc(temp, l, &m, &startTime, endTime, T, t_end, countTowns);
             } 
             else 
             {
-               tr = subtourdistanceTw(temp, l, &m, timer, endTime);
+               tr = subtourdistanceTw(temp, l, &m, startTime, endTime);
             }
 
             td = tr.localtimer;
@@ -275,7 +273,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
             }
          }
 
-         timer += td;
+         startTime += td;
          
          write_cvrptw_subtour(res_distance, temp, l); 
          distanceInTourNew += tr.only_distance;
@@ -284,22 +282,25 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
          
       }
       
-      if(distanceInTourBest == -1.0) {
+      if(distanceInTourBest == -1.0) 
+      {
          // Для того,чтобы сравниться с результатами Андрея
          fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), (clock() - runtime) / CLOCKS_PER_SEC);
          distanceInTourBest = distanceInTourNew;
       } 
-      if(distanceInTourNew < distanceInTourBest) {
+      
+      if(distanceInTourNew < distanceInTourBest) 
+      {
          distanceInTourBest = distanceInTourNew;
-         // printf("\nAll days: %d %lf\n", days, distanceInTourBest); 
          write_cvrptw_end_tour(res_distance, distanceInTourBest);
          // Для того,чтобы сравниться с результатами Андрея
          fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), (clock() - runtime) / CLOCKS_PER_SEC);
       }
-      else {
+      else 
+      {
          write_cvrptw_end_tour(res_distance, -1);
       }
-      distanceInTourNew = 0;
+      
       clock_t end = clock();
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;
       full_time += seconds;

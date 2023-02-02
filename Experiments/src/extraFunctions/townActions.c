@@ -67,7 +67,7 @@ struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, cons
     for (int i = 0; i < lenSub - 1; i++)
     {
         localtimer += getByTown(m, sub[i].t.name, sub[i + 1].t.name) * 100;
-        // Убрали время ожидания. Спросить об этом Сороку
+        
         if (localtimer < sub[i + 1].mTimeStart)
         {
             wait_time += sub[i + 1].mTimeStart - localtimer;
@@ -87,7 +87,7 @@ struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, cons
             tr.only_distance = -1;
             return tr;
         }
-        
+
         only_distance += getByTown(m, sub[i].t.name, sub[i + 1].t.name);
     }
 
