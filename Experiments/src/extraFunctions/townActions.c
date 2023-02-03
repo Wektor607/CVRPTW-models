@@ -59,29 +59,40 @@ struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, cons
     {
         return tr;
     }
+
+    double localtimer;
+    if(timer >= endTime)
+    {
+        localtimer = sub[0].mTimeStart;
+    }
+    else
+    {
+        localtimer = timer;
+    }
+    
     depoShift(lenSub, sub);
-    double localtimer = timer;
-    double wait_time = 0, time_warp = 0;
+    // double wait_time = 0, time_warp = 0;
     double only_distance = 0;
 
     for (int i = 0; i < lenSub - 1; i++)
     {
-        localtimer += getByTown(m, sub[i].t.name, sub[i + 1].t.name) * 100;
+        double dist = getByTown(m, sub[i].t.name, sub[i + 1].t.name) * 100;
+        localtimer += dist;
         
         if (localtimer < sub[i + 1].mTimeStart)
         {
-            wait_time += sub[i + 1].mTimeStart - localtimer;
+            // wait_time += sub[i + 1].mTimeStart - localtimer;
             localtimer = sub[i + 1].mTimeStart;
         }
         else if (localtimer > sub[i + 1].mTimeEnd)
         {
-            time_warp += localtimer - sub[i + 1].mTimeEnd;
+        //     time_warp += localtimer - sub[i + 1].mTimeEnd;
             localtimer = sub[i + 1].mTimeEnd;
         }
-
-        localtimer += sub[i+1].mTimeService;
         
-        if (localtimer > endTime)
+        localtimer += sub[i+1].mTimeService;
+        // if (localtimer > sub[i + 1].mTimeEnd || 
+        if(localtimer > endTime)
         {
             tr.localtimer = -1;
             tr.only_distance = -1;
@@ -100,21 +111,43 @@ struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, cons
     }
     only_distance += getByTown(m, sub[0].t.name, sub[lenSub - 1].t.name);
 
-    // Если нужно вычислить расстояние, то вычитаем суммарное время ожидания
-    // Если же нужно получить общее время, затраченное на всю поездку, то не отнимаем это доп. время, но переводить в метры это время
-    // не корректно
-    tr.localtimer = localtimer - timer + wait_time + time_warp;
+    tr.localtimer = (localtimer - timer);// + wait_time + time_warp;
     tr.only_distance = only_distance;
     return tr;
+
+    //  if (localtimer > sub[i + 1].mTimeEnd)
+    //     {
+    //         if(localtimer - dist < sub[i + 1].mTimeEnd)
+    //         {
+    //             localtimer += getByTown(m, sub[i].t.name, sub[0].t.name) - dist;
+    //             if(localtimer < endTime)
+    //             {
+    //                 tr.localtimer = localtimer - timer;
+    //                 tr.only_distance = only_distance;
+    //                 return tr;
+    //             }
+    //             else
+    //             {
+    //                 tr.localtimer = -1;
+    //                 tr.only_distance = -1;
+    //                 return tr;
+    //             }
+    //         }
+    //         // tr.localtimer = -1;
+    //         // tr.only_distance = -1;
+    //         // return tr;
+    //     }
+
+    //     localtimer > endTime
 }
 
 
 void printTwTownList(const twtown* towns, int counttowns) {
-    //printf("[");
+    printf("[");
     for(int i = 0; i < counttowns; i++) {
-        //printf("%d ", towns[i].t.name);
+        printf("%d ", towns[i].t.name);
     }
-    //printf("]");
+    printf("]");
 }
 
 void depoShift(int lenSub, twtown *sub)
@@ -190,7 +223,7 @@ void moveElemsTw(twtown *sub, int i, int j, int k)
 
 void reverse_segment_if_better(halfmatrix *m, twtown *tour, int i, int j, int k, int len)
 {
-    // Given tour [...A-B...C-D...E-F...]
+    // Подается тур [...A-B...C-D...E-F...]
     int A = tour[i].t.name, B = tour[i+1].t.name, C = tour[j].t.name, D = tour[j+1].t.name, E = tour[k].t.name, F = tour[(k+1) % len].t.name;
     double d0 = getByTown(m, A, B) + getByTown(m, C, D) + getByTown(m, E, F);
     double d1 = getByTown(m, A, C) + getByTown(m, B, D) + getByTown(m, E, F);
@@ -200,43 +233,18 @@ void reverse_segment_if_better(halfmatrix *m, twtown *tour, int i, int j, int k,
     
     if (d0 > d1)
     {
-        //printf("FIRST IF\n");
         reverseTownTw(tour, i, j);
-        for (int p = 0; p < len-1; ++p)
-        {
-            //printf("%d %d\n", tour[p].t.name, tour[p + 1].t.name);
-        }
     }
     else if (d0 > d2)
     {
-        //printf("SECOND IF\n");
         reverseTownTw(tour, j, k);
-        for (int p = 0; p < len-1; ++p)
-        {
-            //printf("%d %d\n", tour[p].t.name, tour[p + 1].t.name);
-        }
     }
     else if (d0 > d4)
     {
-        //printf("THIRD IF\n");
         reverseTownTw(tour, i, k);
-        for (int p = 0; p < len-1; ++p)
-        {
-            //printf("%d %d\n", tour[p].t.name, tour[p + 1].t.name);
-        }
     }
     else if (d0 > d3)
     {
-        //printf("FOURTH IF\n");
-        for (int p = 0; p < len-1; ++p)
-        {
-            //printf("%d %d\n", tour[p].t.name, tour[p + 1].t.name);
-        }
         moveElemsTw(tour, i, j, k);
-        //printf("AFTER\n");
-        for (int p = 0; p < len-1; ++p)
-        {
-            //printf("%d %d\n", tour[p].t.name, tour[p + 1].t.name);
-        }
     }
 }

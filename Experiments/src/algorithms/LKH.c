@@ -253,7 +253,7 @@ struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, c
     int opts = lenSub / 2;
     if(lenSub > 30)
     {
-        opts = 15;
+        opts = 10;
     }
 
     depoShift(lenSub, sub);
