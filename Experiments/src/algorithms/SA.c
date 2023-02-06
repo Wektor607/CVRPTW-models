@@ -13,7 +13,6 @@ void GenerateStateCandidateTw(twtown *sub, int lenSub)
         sub_copy[i] = sub[i];
     }
     
-    // printf("\n");
     int indexA = rand() % lenSub;
     int indexB = rand() % lenSub;
     while(indexA == indexB){
@@ -47,11 +46,8 @@ struct twoResults saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, co
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)
     {
-        // sub_current[i] = sub[i];
         sub_old_current[i] = sub[i];
     }
-    
-    // struct twoResults tr;
     
     double candidate_Energy, p;
     struct twoResults tr = subtourdistanceTw(sub_old_current, lenSub, m, *timer, endTime);

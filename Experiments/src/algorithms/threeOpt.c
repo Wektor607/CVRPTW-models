@@ -6,17 +6,7 @@
 
 struct twoResults lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns) // timer - is a now time. Global time on the world.
 {
-    /*
-    2-opt
-    0: Or O  O
-    1: O  Or O
-    2: O  O  Or
-    3-opt
-    3: O  [O  O ]
-    4: Or [O  O ]
-    5: O  [Or O ]
-    6: O  [O  Or]
-    */
+
     depoShift(lenSub, sub);
     
     twtown *subcopy = (twtown*)malloc(lenSub * sizeof(twtown));

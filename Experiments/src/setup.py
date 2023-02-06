@@ -5,7 +5,7 @@ setup(
       author= 'German',
       author_email='1069035F@mail.ru',
 
-      url='https://github.com/Wektor607/CVRPTW-models/tree/main/OwnLibrary',
+      url='https://github.com/Wektor607/CVRPTW-models/tree/main/Experiments',
       
       ext_modules=[Extension(
             'vrp_c', 

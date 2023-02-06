@@ -53,21 +53,17 @@ void parseOneTwTownNoIndex(const char pathFile[], const char newFileName[], int 
 
     read_file_tw(pathFile, towns, tcountTowns);
 
-    // printTwTownList(towns, tcountTowns);
-    // printf("After town printing!\n");
     double dist;
     for(int i = 0; i < tcountTowns; i++)
     {
         for(int j = 0; j < tcountTowns-i-1; j++)
         {
             
-            dist = getDistanceE(getTwTownByName(i, tcountTowns, towns).t, getTwTownByName(m.width-j, tcountTowns, towns).t);// * KmToSeconds;
-            // printf("%d %d %lf\n", getTwTownByName(i, tcountTowns, towns).t.name, getTwTownByName(m.width-j, tcountTowns, towns).t.name, dist);
+            dist = getDistanceE(getTwTownByName(i, tcountTowns, towns).t, getTwTownByName(m.width-j, tcountTowns, towns).t);
             pointAthalfmatrix(&m, i, j, dist);
 
         }
     }
-    // printtownmatrix(&m);
     
 
     fwrite(&m.width, sizeof(int), 1, outtable);
@@ -106,7 +102,6 @@ void readOneTwTownByBinaryNoIndex(twtown *towns, halfmatrix *m, const char newFi
         exit(-1);
     }
 
-    // printf("End readOneTownByBinary\n");
     fread(&m->width, sizeof(int), 1, intable);
 
     inithalfmatrix(m, m->width);
@@ -119,10 +114,10 @@ void readOneTwTownByBinaryNoIndex(twtown *towns, halfmatrix *m, const char newFi
 
     int tmp;
     fread(&tmp, sizeof(int), 1, intown);
-    // printf("%d\n", tmp);
+    
     for(int i = 0; i < tmp; i++) {
         fread(&towns[i], sizeof(struct timeWindowTown), 1, intown);
     }
-    // printf("End readOneTownByBinary\n");
+    
 
 }

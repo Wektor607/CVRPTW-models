@@ -71,7 +71,6 @@ void separate_array(twtown arr[], int n, twtown *arr1, twtown *arr2, int *n1, in
       {
          arr1[i+1] = arr[i]; 
          cap += arr[i].t.weight;
-         time += getByTown(m, arr[i].t.name, arr[i + 1].t.name) * 100;
       }
       else
       {
@@ -305,9 +304,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
             }
             separate_array(addition_other_temp, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
          }
-         
          temp[0] = town0;
-
 
          while(td == -1) 
          {
@@ -366,7 +363,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       full_time += seconds;
       // 100 секунд - 50 городов
       // 200 секунд - 100 городов
-      if(full_time > 20)
+      if(full_time > 100)
       {
          stop = 1;
       }
@@ -383,7 +380,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
    three_opt = 0;
    k_opt = 0;
    printf("\nОкончательное время оптимизации: %lf \nОкончательная длина маршрута: %lf \n", final_time, (distanceInTourBest * 13 + errorCounter * 10));
-   // printf("\nНачальная длина маршрута: %lf\n", start_tour_len);
+   
    fputc('\n', out);
    free(sub);
    free(towns);

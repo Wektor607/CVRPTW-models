@@ -78,7 +78,6 @@ struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, cons
     {
         double time_dist = getByTown(m, sub[i].t.name, sub[i + 1].t.name) * 100;
         localtimer += time_dist;
-        
         if (localtimer < sub[i + 1].mTimeStart) /* .... */
         {
             localtimer = sub[i + 1].mTimeStart;
@@ -93,7 +92,7 @@ struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, cons
 
             return tr;
         }
-        
+    
         localtimer += sub[i+1].mTimeService;
         
         if(localtimer > endTime)

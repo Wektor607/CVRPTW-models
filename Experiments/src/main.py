@@ -13,7 +13,7 @@ def main():
         print("Введите количество городов(50, 100): ")
         n = input()
     lst = []
-    for i in range(2, 3): #100
+    for i in range(2, 51): #100
     # for i in [8, 4, 87, 45, 65, 29, 57, 34, 82, 20]:
         lst.append(f"VRP_{n}/Example{i}.csv")
     lst_results = []

@@ -15,7 +15,7 @@ void finalizehalfmatrix(halfmatrix *m)
 //Проверяет вышел ли элемент за пределы половинчетой матрицы TODO: check
 bool checkPositionAthalfmatrix(const halfmatrix *canvas, int i, int j) 
 {
-    return i>=0 && j>=0 && (canvas->width - 1 - i) >= j && i < canvas->height;//(x >= 0 && x < canvas->width && y >= x && y < canvas->height);
+    return i>=0 && j>=0 && (canvas->width - 1 - i) >= j && i < canvas->height;
 }
 
 void pointAthalfmatrix(halfmatrix *canvas, int i, int j, double elem) {
@@ -40,7 +40,7 @@ void inithalfmatrix(halfmatrix *m, int h)
 {
 	m->height = h;
 	m->width = h;
-	m->data = (double**)malloc(h * sizeof(double*)); //(h*(h+1)/2)
+	m->data = (double**)malloc(h * sizeof(double*));
 	if(m->data == NULL) 
     {
         printf("Error malloc\n");

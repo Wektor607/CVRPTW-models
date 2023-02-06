@@ -39,7 +39,7 @@ struct twoResults lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *time
                 
                 tr = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
                 newd = tr.localtimer;
-                // printf("%lf\n", newd);
+                
                 // В случае успеха запоминаем лучший тур
                 if(newd != -1 && (best == -1 || newd < best)) 
                 {
