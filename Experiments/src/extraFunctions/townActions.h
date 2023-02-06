@@ -6,8 +6,7 @@ struct twoResults
 {
     double localtimer;
     double only_distance;
-    int err_towns;
-    // double[] cnv_clients; /**/
+    int count_err_towns;
 };
 
 int gettownindex(const twtown* sub, const twtown city, int lensub);

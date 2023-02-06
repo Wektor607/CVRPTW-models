@@ -1,6 +1,8 @@
 #include <Python.h>
 #include <time.h> 
 #include <signal.h>
+#include <stdio.h> 
+#include <stdlib.h>
 #include "algorithms/LKH.h"
 #include "algorithms/threeOpt.h"
 #include "algorithms/twoOpt.h"
@@ -57,6 +59,37 @@ void sigfunc(int sig){
    }
    stop = 1;
 }
+ 
+void separate_array(twtown arr[], int n, twtown *arr1, twtown *arr2, int *n1, int *n2, const int maxCapacity, const double startTime, const double endTime, halfmatrix* m) 
+{ 
+   int i; 
+   int cap = 0;
+   double time = startTime;
+   for (i = 0; i < n - 1; i++) 
+   {
+      if(cap + arr[i].t.weight <= maxCapacity)
+      {
+         arr1[i+1] = arr[i]; 
+         cap += arr[i].t.weight;
+         time += getByTown(m, arr[i].t.name, arr[i + 1].t.name) * 100;
+      }
+      else
+      {
+         break;
+      }
+      
+   } 
+   
+   *n1 = i + 1; 
+   int index = i;
+
+   for (; i < n - 1; i++) 
+   { 
+      arr2[i - index] = arr[i]; 
+   } 
+
+   *n2 = n - 1 - index; 
+} 
 
 void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int), char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns)
 {
@@ -127,7 +160,8 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
    twtown t;
    // считаем количество плохих городов
    int errorCounter = 0;
-   for(int i = 1; i < countTowns; i++){
+   for(int i = 1; i < countTowns; i++)
+   {
       t = getTwTownByName(i, countTowns, towns);
       if(t.t.name == -1) 
       {
@@ -142,7 +176,6 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
    printf("%d\n", newCountTowns);
    sub = realloc(sub, newCountTowns * sizeof(twtown));
 
-   twtown temp[newCountTowns+1];
    double td;
    double distanceInTourBest = -1.0, distanceInTourNew = 0.0;
    double runtime = clock();
@@ -179,53 +212,74 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       }
    }
 
-   printf("NOT FALL\n");
-   l = 1;
-   g = 0;
-   cap = 0;
+   g = newCountTowns + 1;
+
    td = -1;
+
+   int len_temp = 0;
+   twtown *temp = (twtown *)calloc(g, sizeof(twtown));
+   twtown *other_temp = (twtown *)calloc(g, sizeof(twtown));
+   twtown *addition_other_temp = (twtown *)calloc(g, sizeof(twtown));
+   int len_other_temp = 0;
+
    struct twoResults tr;
-   while(g < newCountTowns) 
+   
+   while(g > 1) 
    {
-      while(g != newCountTowns && cap + sub[g].t.weight <= maxCapacity) 
+      if(g == newCountTowns + 1)
       {
-         temp[l] = sub[g];
-         cap += sub[g].t.weight;
-         l++; g++;
+         separate_array(sub, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
+      }
+      else
+      {
+         for(int i = 0; i < g; i++)
+         {
+            addition_other_temp[i] = other_temp[i];
+         }
+         separate_array(addition_other_temp, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
       }
 
       temp[0] = town0;
       
       while(td == -1) 
       {
-         tr = subtourdistanceTw(temp, l, &m, startTime, endTime);
+         tr = subtourdistanceTw(temp, len_temp, &m, startTime, endTime);
          td = tr.localtimer;
          if(td == -1)
-         {
-            l--; g--;
+         {  
+            if(len_temp == 1 && temp[len_temp - 1].t.name == 0)
+            {
+               break;
+            }
+            len_temp--;
+            other_temp[len_other_temp] = temp[len_temp];
+            len_other_temp++;
+            
             startTime = town0.mTimeStart;
          }
+
       }
+
       startTime += td;
       
-      if(l > 1)
+      if(len_temp > 1)
       {
-         write_cvrptw_subtour(res_distance, temp, l); 
+         write_cvrptw_subtour(res_distance, temp, len_temp); 
          distanceInTourNew += tr.only_distance;
       }
-      
-      l = 1; cap = 0; td = -1;
+   
+      td = -1;
+      g = len_other_temp + 1;
+
    }
-   // Для того,чтобы сравниться с результатами Андрея
+
    fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), 0.0);
    
    while(!stop)
    {
       clock_t start = clock();
       days = 1;
-      l = 1;
-      g = 0;
-      cap = 0;
+      g = newCountTowns + 1;
       
       startTime = town0.mTimeStart;
       td = -1;
@@ -234,51 +288,64 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       tr.localtimer = 0;
       tr.only_distance = 0;
 
-      while(g < newCountTowns)
-      { 
-         while(g != newCountTowns && cap + sub[g].t.weight <= maxCapacity) 
-         {
-            temp[l] = sub[g];
-            cap += sub[g].t.weight;
-            l++; g++;
-         } 
+      int len_temp = 0;
+      int len_other_temp = 0;
 
+      while(g > 1)
+      { 
+         if(g == newCountTowns + 1)
+         {
+            separate_array(sub, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
+         }
+         else
+         {
+            for(int i = 0; i < len_other_temp; i++)
+            {
+               addition_other_temp[i] = other_temp[i];
+            }
+            separate_array(addition_other_temp, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
+         }
+         
          temp[0] = town0;
+
 
          while(td == -1) 
          {
-            if(l > 2) 
+            if(len_temp > 2) 
             {
-               tr = algfunc(temp, l, &m, &startTime, endTime, T, t_end, countTowns);
+               tr = algfunc(temp, len_temp, &m, &startTime, endTime, T, t_end, countTowns);
             } 
             else 
             {
-               tr = subtourdistanceTw(temp, l, &m, startTime, endTime);
+               tr = subtourdistanceTw(temp, len_temp, &m, startTime, endTime);
             }
-
             td = tr.localtimer;
             if(td == -1)
-            {
-               l--; g--;
+            {  
+               len_temp--;
+               other_temp[len_other_temp] = temp[len_temp];
+               len_other_temp++;
+               
                startTime = town0.mTimeStart;
             }
+
          }
 
          startTime += td;
          
-         if(l > 1)
+         if(len_temp > 1)
          {
-            write_cvrptw_subtour(res_distance, temp, l); 
+            write_cvrptw_subtour(res_distance, temp, len_temp); 
             distanceInTourNew += tr.only_distance;
          }
          
-         l = 1; cap = 0; td = -1;
+         td = -1;
+         g = len_other_temp + 1;
          
       }
       
       if(distanceInTourBest == -1.0) 
       {
-         // Для того,чтобы сравниться с результатами Андрея
          fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), (clock() - runtime) / CLOCKS_PER_SEC);
          distanceInTourBest = distanceInTourNew;
       } 
@@ -287,7 +354,6 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       {
          distanceInTourBest = distanceInTourNew;
          write_cvrptw_end_tour(res_distance, distanceInTourBest);
-         // Для того,чтобы сравниться с результатами Андрея
          fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), (clock() - runtime) / CLOCKS_PER_SEC);
       }
       else 
@@ -300,12 +366,11 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       full_time += seconds;
       // 100 секунд - 50 городов
       // 200 секунд - 100 городов
-      if(full_time > 100)
+      if(full_time > 20)
       {
          stop = 1;
       }
       // break;
-
       doShuffleTw(newCountTowns, sub);
    }
    /* данный параметр очень важно заново обнулять, так как он глобальный и при решении следующих задач
@@ -317,7 +382,7 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
    two_opt = 0;
    three_opt = 0;
    k_opt = 0;
-   // printf("\nОкончательное время оптимизации: %lf \nОкончательная длина маршрута: %lf \n", final_time, distanceInTourBest);
+   printf("\nОкончательное время оптимизации: %lf \nОкончательная длина маршрута: %lf \n", final_time, (distanceInTourBest * 13 + errorCounter * 10));
    // printf("\nНачальная длина маршрута: %lf\n", start_tour_len);
    fputc('\n', out);
    free(sub);

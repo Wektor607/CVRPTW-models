@@ -81,7 +81,7 @@ struct twoResults saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, co
         else if(current_Energy != -1 && candidate_Energy != -1 && candidate_Energy > current_Energy)
         {
             p = exp((current_Energy - candidate_Energy) / T);
-            // printf("p: %lf, random: %lf\n", p, (double) rand() / RAND_MAX);
+            
             if(p >= ((double) rand() / (double) RAND_MAX))
             {
                 current_Energy = candidate_Energy;

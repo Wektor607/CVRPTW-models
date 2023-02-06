@@ -54,6 +54,7 @@ void doShuffleTw(int counttown, twtown *towns)
 
 struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double timer, const double endTime)
 {
+    
     struct twoResults tr = {.localtimer = 0, .only_distance = 0};
     if (lenSub == 1)
     {
@@ -71,27 +72,30 @@ struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, cons
     }
     
     depoShift(lenSub, sub);
-    // double wait_time = 0, time_warp = 0;
     double only_distance = 0;
-
+    
     for (int i = 0; i < lenSub - 1; i++)
     {
-        double dist = getByTown(m, sub[i].t.name, sub[i + 1].t.name) * 100;
-        localtimer += dist;
+        double time_dist = getByTown(m, sub[i].t.name, sub[i + 1].t.name) * 100;
+        localtimer += time_dist;
         
-        if (localtimer < sub[i + 1].mTimeStart)
+        if (localtimer < sub[i + 1].mTimeStart) /* .... */
         {
-            // wait_time += sub[i + 1].mTimeStart - localtimer;
             localtimer = sub[i + 1].mTimeStart;
         }
         else if (localtimer > sub[i + 1].mTimeEnd)
         {
-        //     time_warp += localtimer - sub[i + 1].mTimeEnd;
-            localtimer = sub[i + 1].mTimeEnd;
+            localtimer -= time_dist;
+            swapTw(&sub[i+1], &sub[lenSub-1]);
+
+            tr.localtimer = -1;
+            tr.only_distance = -1;
+
+            return tr;
         }
         
         localtimer += sub[i+1].mTimeService;
-        // if (localtimer > sub[i + 1].mTimeEnd || 
+        
         if(localtimer > endTime)
         {
             tr.localtimer = -1;
@@ -111,34 +115,10 @@ struct twoResults subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, cons
     }
     only_distance += getByTown(m, sub[0].t.name, sub[lenSub - 1].t.name);
 
-    tr.localtimer = (localtimer - timer);// + wait_time + time_warp;
+    tr.localtimer = (localtimer - timer);
     tr.only_distance = only_distance;
     return tr;
 
-    //  if (localtimer > sub[i + 1].mTimeEnd)
-    //     {
-    //         if(localtimer - dist < sub[i + 1].mTimeEnd)
-    //         {
-    //             localtimer += getByTown(m, sub[i].t.name, sub[0].t.name) - dist;
-    //             if(localtimer < endTime)
-    //             {
-    //                 tr.localtimer = localtimer - timer;
-    //                 tr.only_distance = only_distance;
-    //                 return tr;
-    //             }
-    //             else
-    //             {
-    //                 tr.localtimer = -1;
-    //                 tr.only_distance = -1;
-    //                 return tr;
-    //             }
-    //         }
-    //         // tr.localtimer = -1;
-    //         // tr.only_distance = -1;
-    //         // return tr;
-    //     }
-
-    //     localtimer > endTime
 }
 
 

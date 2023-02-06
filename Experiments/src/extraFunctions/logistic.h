@@ -11,6 +11,7 @@ typedef struct town {
 	int name;
 	double x, y;
 	int weight;
+	// bool valid;
 } town;
 
 town maketown(int name, double x, double y, int weight);

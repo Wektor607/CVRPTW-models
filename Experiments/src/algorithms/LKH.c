@@ -77,7 +77,6 @@ void new_tour_create(halfmatrix *m, Edge *T_old, Edge *T_new, twtown *sub, int l
         return;
     }
 
-    //////printf("3Opt\n");
     if(i == 2 && lenSub > 3) // 3-opt
     {
         twtown sub_temp[lenSub];
@@ -86,12 +85,12 @@ void new_tour_create(halfmatrix *m, Edge *T_old, Edge *T_new, twtown *sub, int l
             sub_temp[j] = sub[j];
             T_new[j] = T_old[j];
         }
-        //////printf("INDEXES\n");
+        
         int min = my_min(my_min(indexes[X[0].node1], indexes[X[1].node1]), indexes[X[2].node1]);
         int max = my_max(my_max(indexes[X[0].node1], indexes[X[1].node1]), indexes[X[2].node1]);
         int central = 0;
         int flag_central = 0;
-        //////printf("%d\n", lenSub);
+        
         for(int r = 0; r < 3; ++r)
         {
             if(indexes[X[r].node1] < max && indexes[X[r].node1] > min)
@@ -104,28 +103,20 @@ void new_tour_create(halfmatrix *m, Edge *T_old, Edge *T_new, twtown *sub, int l
         if(flag_central == 0)
             return;
             
-        //////printf("IF\n");
+
         if((abs(max - min) > 1) + (abs(max - central) > 1) + (abs(central - min) > 1) > 1)
         {
-            // //printf("START FUNCTION\n");
-            //////printf("MIN: %d, CENTRAL:%d, MAX:%d\n", min, central, max);
             reverse_segment_if_better(m, sub_temp, min, central, max, lenSub);
-            //////printf("END FUNCTION\n");
+            
             for (int j = 0; j < lenSub-1; ++j)
             {
-                //////printf("first: %d\n", sub_temp[j].t.name); 
-                //////printf("second: %d\n", sub_temp[j + 1].t.name);
                 T_new[j] = edge_init(sub_temp[j].t.name, sub_temp[j + 1].t.name);
             }
-            //////printf("END CYCLE\n");
             T_new[lenSub-1] = edge_init(sub_temp[lenSub-1].t.name, sub_temp[0].t.name);
-            //////printf("END IF\n");
         }
-        //////printf("3OPT END\n");
         return;
     }
 
-    //////printf("KOpt\n");
     bool direction = 1;
     for (int e_new = 0, e_old = 0; e_new < lenSub; ++e_new)
     {
@@ -253,7 +244,7 @@ struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, c
     int opts = lenSub / 2;
     if(lenSub > 30)
     {
-        opts = 10;
+        opts = 4;
     }
 
     depoShift(lenSub, sub);
@@ -330,7 +321,6 @@ struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, c
                     
                     for (int i = 1; i < opts; ++i)
                     {
-                        // //printf("HELLO\n");
                         if(flag8 || flag9)
                         {
                             i = 1;
@@ -516,8 +506,7 @@ struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, c
                                 continue; /* 8 */
 
                             /* 7c */
-                            //printf("7C START\n");
-                            // fflush(stdout);
+
                             int flag7c = 0;
                             // cur_neigh это соседи yinode2
                             int cur_neigh[2] = {T[minus(indexes[yinode2], lenSub)].node1, T[(indexes[yinode2] + 1) % lenSub].node1};
@@ -538,8 +527,6 @@ struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, c
                                     break;
                                 }
                             }
-                            //printf("7C END\n");
-                            // fflush(stdout);
                             
                             if (Gi > 0 && flag7c < 2)
                             {
@@ -547,8 +534,6 @@ struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, c
                                 break;
                             }
                         } /* 7 end */
-                        //printf("7 END\n");
-                        // fflush(stdout);
 
                         /* подготовка к 8 шагу заранее */
                         if(i == 1)
@@ -590,9 +575,7 @@ struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, c
                             /* 10 */
                             break;
                         }
-                        //////printf("8 END\n");
                     } /* 5 end */
-                    //printf("5 END\n");
 
                     if (new_tour)
                         break;
@@ -602,7 +585,6 @@ struct twoResults lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, c
                             Xindex[x_idx] = -1;  
                     }
                 } /* 4 end */
-                ////////printf("4 END\n");
 
                 if (new_tour)
                     break;

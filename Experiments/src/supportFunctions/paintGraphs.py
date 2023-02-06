@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import math
+import numpy as np
 
-def paintGraphs(lst_results):
+def paintGraphs(lst_results, count_towns):
+    meth_alg = ['SA', '2Opt', '3Opt', 'LKH']
     for name in lst_results:
         with open(name, 'r') as f:
             file = f.readlines()

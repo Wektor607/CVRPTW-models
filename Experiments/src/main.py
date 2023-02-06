@@ -4,7 +4,6 @@ from twMethods import *
 from supportFunctions.paintGraphs import *
 from collections import deque
 from datetime import datetime
-import matplotlib.pyplot as plt
 import os
 
 def main():
@@ -14,7 +13,7 @@ def main():
         print("Введите количество городов(50, 100): ")
         n = input()
     lst = []
-    for i in range(1, 100):
+    for i in range(2, 3): #100
     # for i in [8, 4, 87, 45, 65, 29, 57, 34, 82, 20]:
         lst.append(f"VRP_{n}/Example{i}.csv")
     lst_results = []
@@ -22,7 +21,7 @@ def main():
     idx = 0
     i = 0
     open("current_result/start_tour.txt", "w")
-    meth_alg = ['SA', '2Opt', '3Opt', 'LKH']
+
     while(i < len(lst)):
         with open(lst[i]) as f:
             count_towns = sum(1 for _ in f) - 1
@@ -31,7 +30,7 @@ def main():
             last_line = last_line.split('\t')[3].split('-')
         if(count_towns == 21):
             max_capacity = 500
-        elif(count_towns == 51):
+        elif(count_towns == 51 or count_towns == 11):
             max_capacity = 750
         elif(count_towns == 101):
             max_capacity = 1000
@@ -114,7 +113,7 @@ def main():
         i   += 1
         
     # вычисление средних значений по всем примерам и на основе этого построение графиков каждого из алгоритмов
-    paintGraphs(lst_results)
+    paintGraphs(lst_results, count_towns)
             
 if __name__ == "__main__":
     main()
