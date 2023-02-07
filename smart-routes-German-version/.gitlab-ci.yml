@@ -1,0 +1,66 @@
+stages:
+  - build
+  - test
+  - deploy
+
+# Build `nods:latest` image for training.
+build docker image:
+  stage: build
+  script:
+    - docker build . -t smart-routes:latest
+  tags:
+    - iki
+    - docker
+
+# Run `flake8` for whole project.
+# Stage is default for all branches except master.
+flake8:
+  stage: test
+  script:
+    - docker run smart-routes:latest flake8 .
+  except:
+    refs:
+      - master
+  tags:
+    - iki
+    - docker
+
+# Run tests via pytest.
+# Stage is default for all branches except master.
+tests:
+  stage: test
+  script:
+    - docker run smart-routes:latest env PYTHONPATH=./ AMBIENCE=test pytest
+  except:
+    refs:
+      - master
+  tags:
+    - iki
+    - docker
+
+# Run mypy checks.
+# Stage is default for all branches except master.
+mypy:
+  stage: test
+  script:
+    - docker run smart-routes:latest mypy .
+  allow_failure: true
+  except:
+    refs:
+      - master
+  tags:
+    - iki
+    - docker
+# Deploy package to datascience-pypi.
+# Stage is default in master branch.
+#deploy to pypi:
+#  stage: deploy
+#  image: nods:latest
+#  script:
+#    - python setup.py sdist bdist_wheel
+#    - CURL_CA_BUNDLE="" twine upload --repository-url $DS_PYPI_LOCAL dist/* --username $CI_USER --password $CI_USER_PASSWORD
+#  only:
+#    refs:
+#      - master
+#  tags:
+#    - iki

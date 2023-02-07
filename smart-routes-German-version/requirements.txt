@@ -1,0 +1,20 @@
+# Development requirements
+flake8
+flake8-commas
+flake8-isort
+flake8-bugbear
+flake8-simplify
+flake8-print
+flake8-debugger
+isort
+mypy==0.971
+pytest~=7.1.2
+pytest-cov
+coverage
+
+# Package requirements
+numpy==1.23.1
+setuptools==63.2.0
+pydantic~=1.9.1
+loguru==0.6.0
+art==5.6

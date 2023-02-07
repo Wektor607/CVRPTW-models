@@ -1,0 +1,21 @@
+__pycache__
+.DS_Store
+todo.md
+build
+dist
+*.egg-info
+.pytest_cache
+.coverage
+cov_html
+
+# mypy
+.mypy_cache/
+
+# exclude local testing
+test_*_ignore.py
+
+# pip config is downloaded in gitlab ci
+pip.conf
+.pypirc
+
+.idea
