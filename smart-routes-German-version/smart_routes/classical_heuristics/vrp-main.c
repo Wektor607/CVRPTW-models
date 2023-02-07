@@ -90,6 +90,128 @@ void separate_array(twtown arr[], int n, twtown *arr1, twtown *arr2, int *n1, in
    *n2 = n - 1 - index; 
 } 
 
+// #define MAX_ITERATIONS 100 
+// #define NUM_POINTS 5 
+// #define NUM_CLUSTERS 3 
+// #define DIMENSIONS 2 
+ 
+// double distance_matrix[NUM_POINTS][NUM_POINTS]; 
+// double points[NUM_POINTS][DIMENSIONS]; 
+// int cluster_assignments[NUM_POINTS]; 
+// double cluster_centers[NUM_CLUSTERS][DIMENSIONS]; 
+ 
+// double euclidean_distance(double point1[DIMENSIONS], double point2[DIMENSIONS]) { 
+//     double distance = 0; 
+//     for (int i = 0; i < DIMENSIONS; i++) { 
+//         distance += pow(point1[i] - point2[i], 2); 
+//     } 
+//     return sqrt(distance); 
+// } 
+ 
+// void initialize_cluster_centers(void) { 
+//     // Randomly choose cluster center points from the data points 
+//     for (int i = 0; i < NUM_CLUSTERS; i++) { 
+//         int random_index = rand() % NUM_POINTS; 
+//         for (int j = 0; j < DIMENSIONS; j++) { 
+//             cluster_centers[i][j] = points[random_index][j]; 
+//         } 
+//     } 
+// } 
+ 
+// void update_cluster_assignments(void) { 
+//     for (int i = 0; i < NUM_POINTS; i++) { 
+//         double min_distance = distance_matrix[i][0]; 
+//         int closest_cluster = 0; 
+//         for (int j = 1; j < NUM_CLUSTERS; j++) { 
+//             if (distance_matrix[i][j] < min_distance) { 
+//                 min_distance = distance_matrix[i][j]; 
+//                 closest_cluster = j; 
+//             } 
+//         } 
+//         cluster_assignments[i] = closest_cluster; 
+//     } 
+// } 
+ 
+// void update_cluster_centers(void) { 
+//     int cluster_sizes[NUM_CLUSTERS] = {0}; 
+//     double cluster_sum[NUM_CLUSTERS][DIMENSIONS] = {{0}}; 
+ 
+//     for (int i = 0; i < NUM_POINTS; i++) { 
+//         int cluster = cluster_assignments[i]; 
+//         cluster_sizes[cluster]++; 
+//         for (int j = 0; j < DIMENSIONS; j++) { 
+//             cluster_sum[cluster][j] += points[i][j]; 
+//         } 
+//     } 
+ 
+//     for (int i = 0; i < NUM_CLUSTERS; i++) { 
+//         for (int j = 0; j < DIMENSIONS; j++) { 
+//             cluster_centers[i][j] = cluster_sum[i][j] / cluster_sizes[i]; 
+//         } 
+//     } 
+// } 
+ 
+// void run_kmeans(void) { 
+//     initialize_cluster_centers(); 
+ 
+//     for (int i = 0; i < MAX_ITERATIONS; i++) { 
+//         // Update distance matrix
+//         for (int j = 0; j < NUM_POINTS; j++) { 
+//             for (int k = 0; k < NUM_CLUSTERS; k++) { 
+//                 distance_matrix[j][k] = euclidean_distance(points[j], cluster_centers[k]); 
+//             } 
+//         } 
+ 
+//         update_cluster_assignments(); 
+//         update_cluster_centers(); 
+//     } 
+// } 
+ 
+// int main(void) { 
+//     // Initialize the points and distance matrix 
+//     // (the actual values would be read from a file or input by the user) 
+//     for (int i = 0; i < NUM_POINTS; i++) { 
+//         for (int j = 0; j < DIMENSIONS; j++) { 
+//             points[i][j] = i + j; 
+//         } 
+//     } 
+ 
+//     for (int i = 0; i < NUM_POINTS; i++) { 
+//         for (int j = 0; j < NUM_POINTS; j++) { 
+//             distance_matrix[i][j] = euclidean_distance(points[i], points[j]); 
+//         } 
+//     } 
+ 
+//     run_kmeans(); 
+ 
+//     // Print the cluster assignments 
+//     int routes[NUM_CLUSTERS][NUM_POINTS];
+//     int cnt[NUM_CLUSTERS];
+//     for(int i = 0; i < NUM_CLUSTERS; i++)
+//     {
+//         cnt[i] = 0;
+//     }
+//     for (int j = 0; j < NUM_POINTS; j++) {
+
+//         routes[cluster_assignments[j]][cnt[cluster_assignments[j]]] = j; 
+//         cnt[cluster_assignments[j]]++;
+//     } 
+//     for (int i = 0; i < NUM_POINTS; i++)
+//     { 
+//         printf("Point %d is assigned to cluster %d\n", i, cluster_assignments[i]); 
+//     } 
+//     for (int i = 0; i < NUM_CLUSTERS; i++) 
+//     {
+//         printf("ROUTE %d: [", i);
+//         for (int j = 0; j < cnt[i]; j++) 
+//         {
+//             printf("%d ", routes[i][j]);
+//         }
+//         printf("]\n");
+//     } 
+//     return 0; 
+// }
+
 void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int), char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns)
 {
    FILE *out = fopen(fileout, "w"); 
