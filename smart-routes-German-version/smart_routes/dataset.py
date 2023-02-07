@@ -1,9 +1,9 @@
 import typing
 from pydantic import BaseModel
 
-from OrToolsSolvers.problem import Problem
-from OrToolsSolvers.instance import Instance
-from OrToolsSolvers.parameters import GenerationParameters
+from problem import Problem
+from instance import Instance
+from parameters import GenerationParameters
 from smart_routes.utils.generator import generate_batch
 
 

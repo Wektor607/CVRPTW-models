@@ -17,10 +17,6 @@ class GenerationParameters(BaseModel):
     depot_num: int = 1
     rnds: typing.Any = None
 
-
-
-
-
 if __name__ == '__main__':
     GP = GenerationParameters()
     print(GP.dict())

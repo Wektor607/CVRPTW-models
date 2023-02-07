@@ -4,29 +4,36 @@ from pydantic import BaseModel
 from instance import Instance
 from classical_heuristics.twMethods import *
 from collections import deque
+from utils.visualizer import *
+import numpy as np
+from problem import Problem
+from parameters import GenerationParameters
+
 
 class Solution(BaseModel):
     algorithm: str
     cost: float
     data: Instance
     routes: np.ndarray
+    lst_results: list 
+    count_towns: int
 
     class Config:
         arbitrary_types_allowed = True
-
+        
     def compute_metrics(self):
         raise NotImplementedError
 
-    def visualize(self):
+    def visualize_solution(self):
         # call visualize_solution
         raise NotImplementedError
+    
+    def visualize_results(self):
+        # call visualize_metrics
+        visualize_metrics(self.lst_results, self.count_towns)
 
 
 if __name__ == '__main__':
-    import numpy as np
-    from problem import Problem
-    from parameters import GenerationParameters
-
     print("Введите название алгоритма, который будет решать задачи (SA, 2Opt, 3Opt, LKH, JAMPR): ")
     alg_name = input()
     if(alg_name in ['SA', '2Opt', '3Opt', 'LKH']):
@@ -51,10 +58,6 @@ if __name__ == '__main__':
         i = 0
         open("classical_heuristics/current_result/start_tour.txt", "w")
         
-
-        # generate_param = GenerationParameters(n_customer=n, n_samples=1)
-        # create_problem = Problem(capacity=True, time_windows=True)
-        
         while(i < len(lst)):
             with open(lst[i]) as f:
                 count_towns = sum(1 for _ in f) - 1
@@ -77,9 +80,6 @@ if __name__ == '__main__':
             end   = int(last_line[1])
             print(f'LKH_{idx}')
 
-            # instance = Instance(problem=create_problem, 
-            # generation_parameters=generate_param)
-
             lkh = CVRPTW('LKH', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
             with open(f'classical_heuristics/current_result/LKH_CVRPTW_result.txt', 'r') as res_file:
                 data = res_file.read()
@@ -94,8 +94,18 @@ if __name__ == '__main__':
 
             idx += 1
             i   += 1
-        print("I'm finished")
-        # print(cvrp.MIP_OrTools())
+        
+        generate_param = GenerationParameters(n_customer=n, n_samples=1)
+        create_problem = Problem(capacity=True, time_windows=True)
+        RS = Solution(
+                    algorithm = '',
+                    cost = 1.0,
+                    data = Instance(problem=create_problem, generation_parameters=generate_param, coordinates=np.array([[0, 1]])),
+                    routes = np.array([[0, 1]]),
+                    lst_results = lst_results, 
+                    count_towns = count_towns)
+        RS.visualize_results()
+
     elif(alg_name == 'JAMPR'):
         gp = GenerationParameters()
         rp = Problem()
