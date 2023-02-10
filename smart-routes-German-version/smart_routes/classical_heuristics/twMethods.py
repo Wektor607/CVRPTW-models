@@ -82,7 +82,7 @@ class CVRPTW (VRP):
         # print('Введите конечную температуру: ')
         tmin = 1
         print('SHUFFLE Param', self.shuffle_param)
-        vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity, Tstart, tmin, self.shuffle_param)
+        vrp_c.modelMetaHeuristic("cvrptw_sa", self.path_folder, self.count_towns, self.capacity, Tstart, tmin, self.shuffle_param, self.count_vehicles)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
     def opt(self, name_opt: str = '3opt') -> [float, list]:
         """
@@ -93,10 +93,9 @@ class CVRPTW (VRP):
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """
         print('SHUFFLE Param', self.shuffle_param)
-        if(name_opt == '2opt'):
-            vrp_c.modelMetaHeuristic("cvrptw_2opt", self.path_folder, self.count_towns, self.capacity, 0.0, 0.0, self.shuffle_param)
-        elif(name_opt == '3opt'):
-            vrp_c.modelMetaHeuristic("cvrptw_3opt", self.path_folder, self.count_towns, self.capacity, 0.0, 0.0, self.shuffle_param)
+        
+        vrp_c.modelMetaHeuristic(f"cvrptw_{name_opt}", self.path_folder, self.count_towns, self.capacity, 0.0, 0.0, self.shuffle_param, self.count_vehicles)
+        
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
 
     def lkh(self) -> [float, list]:
@@ -107,7 +106,7 @@ class CVRPTW (VRP):
             2. Во втором столбце записывается время, которое потребовалось, чтобы оптимизировать маршрут до некоторой длины.
         """
         print('SHUFFLE Param', self.shuffle_param)
-        vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity, 0.0, 0.0, self.shuffle_param)
+        vrp_c.modelMetaHeuristic("cvrptw_lkh", self.path_folder, self.count_towns, self.capacity, 0.0, 0.0, self.shuffle_param, self.count_vehicles)
         return parse_dist_and_tour(self.name_file, self.capacity, self.count_vehicles)
 
     def gurobi(self) -> [float, list]:

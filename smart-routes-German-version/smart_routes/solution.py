@@ -69,10 +69,13 @@ if __name__ == '__main__':
                 last_line = last_line.split('\t')[3].split('-')
             if(count_towns == 21):
                 max_capacity = 500
-            elif(count_towns == 51 or count_towns == 11):
+                vehicles = 11
+            elif(count_towns == 51):
                 max_capacity = 750
+                vehicles = 11
             elif(count_towns == 101):
                 max_capacity = 1000
+                vehicles = 21
             
             shuffle_param = 0
 
@@ -80,7 +83,7 @@ if __name__ == '__main__':
             end   = int(last_line[1])
             print(f'LKH_{idx}')
 
-            lkh = CVRPTW('LKH', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end).lkh() #TODO: некоторые параметры брать автоматически из файла
+            lkh = CVRPTW('LKH', lst[i], f"{folder_name}/test{idx}", count_towns, shuffle_param, max_capacity, start, end, vehicles).lkh() #TODO: некоторые параметры брать автоматически из файла
             with open(f'classical_heuristics/current_result/LKH_CVRPTW_result.txt', 'r') as res_file:
                 data = res_file.read()
                 with open(f'classical_heuristics/results/LKH_RES_CVRPTW{count_towns-1}.txt', 'a') as write_file:
