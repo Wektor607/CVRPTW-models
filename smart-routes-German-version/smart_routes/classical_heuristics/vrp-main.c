@@ -1,6 +1,7 @@
 #include <Python.h>
 #include <time.h> 
 #include <signal.h>
+#include <limits.h>
 #include <stdio.h> 
 #include <stdlib.h>
 #include "algorithms/LKH.h"
@@ -90,128 +91,140 @@ void separate_array(twtown arr[], int n, twtown *arr1, twtown *arr2, int *n1, in
    *n2 = n - 1 - index; 
 } 
 
-// #define MAX_ITERATIONS 100 
-// #define NUM_POINTS 5 
-// #define NUM_CLUSTERS 3 
-// #define DIMENSIONS 2 
+#define MAX_ITERATIONS 100
+// #define NUM_POINTS  5
+#define NUM_CLUSTERS 10
+#define DIMENSIONS 2 
  
-// double distance_matrix[NUM_POINTS][NUM_POINTS]; 
-// double points[NUM_POINTS][DIMENSIONS]; 
-// int cluster_assignments[NUM_POINTS]; 
-// double cluster_centers[NUM_CLUSTERS][DIMENSIONS]; 
+double euclidean_distance(twtown point1, double point2[DIMENSIONS]) 
+{ 
+   double distance = pow(point1.t.x - point2[0], 2) + pow(point1.t.y - point2[1], 2);  
+   return sqrt(distance); 
+} 
  
-// double euclidean_distance(double point1[DIMENSIONS], double point2[DIMENSIONS]) { 
-//     double distance = 0; 
-//     for (int i = 0; i < DIMENSIONS; i++) { 
-//         distance += pow(point1[i] - point2[i], 2); 
-//     } 
-//     return sqrt(distance); 
-// } 
- 
-// void initialize_cluster_centers(void) { 
-//     // Randomly choose cluster center points from the data points 
-//     for (int i = 0; i < NUM_CLUSTERS; i++) { 
-//         int random_index = rand() % NUM_POINTS; 
-//         for (int j = 0; j < DIMENSIONS; j++) { 
-//             cluster_centers[i][j] = points[random_index][j]; 
-//         } 
-//     } 
-// } 
- 
-// void update_cluster_assignments(void) { 
-//     for (int i = 0; i < NUM_POINTS; i++) { 
-//         double min_distance = distance_matrix[i][0]; 
-//         int closest_cluster = 0; 
-//         for (int j = 1; j < NUM_CLUSTERS; j++) { 
-//             if (distance_matrix[i][j] < min_distance) { 
-//                 min_distance = distance_matrix[i][j]; 
-//                 closest_cluster = j; 
-//             } 
-//         } 
-//         cluster_assignments[i] = closest_cluster; 
-//     } 
-// } 
- 
-// void update_cluster_centers(void) { 
-//     int cluster_sizes[NUM_CLUSTERS] = {0}; 
-//     double cluster_sum[NUM_CLUSTERS][DIMENSIONS] = {{0}}; 
- 
-//     for (int i = 0; i < NUM_POINTS; i++) { 
-//         int cluster = cluster_assignments[i]; 
-//         cluster_sizes[cluster]++; 
-//         for (int j = 0; j < DIMENSIONS; j++) { 
-//             cluster_sum[cluster][j] += points[i][j]; 
-//         } 
-//     } 
- 
-//     for (int i = 0; i < NUM_CLUSTERS; i++) { 
-//         for (int j = 0; j < DIMENSIONS; j++) { 
-//             cluster_centers[i][j] = cluster_sum[i][j] / cluster_sizes[i]; 
-//         } 
-//     } 
-// } 
- 
-// void run_kmeans(void) { 
-//     initialize_cluster_centers(); 
- 
-//     for (int i = 0; i < MAX_ITERATIONS; i++) { 
-//         // Update distance matrix
-//         for (int j = 0; j < NUM_POINTS; j++) { 
-//             for (int k = 0; k < NUM_CLUSTERS; k++) { 
-//                 distance_matrix[j][k] = euclidean_distance(points[j], cluster_centers[k]); 
-//             } 
-//         } 
- 
-//         update_cluster_assignments(); 
-//         update_cluster_centers(); 
-//     } 
-// } 
- 
-// int main(void) { 
-//     // Initialize the points and distance matrix 
-//     // (the actual values would be read from a file or input by the user) 
-//     for (int i = 0; i < NUM_POINTS; i++) { 
-//         for (int j = 0; j < DIMENSIONS; j++) { 
-//             points[i][j] = i + j; 
-//         } 
-//     } 
- 
-//     for (int i = 0; i < NUM_POINTS; i++) { 
-//         for (int j = 0; j < NUM_POINTS; j++) { 
-//             distance_matrix[i][j] = euclidean_distance(points[i], points[j]); 
-//         } 
-//     } 
- 
-//     run_kmeans(); 
- 
-//     // Print the cluster assignments 
-//     int routes[NUM_CLUSTERS][NUM_POINTS];
-//     int cnt[NUM_CLUSTERS];
-//     for(int i = 0; i < NUM_CLUSTERS; i++)
-//     {
-//         cnt[i] = 0;
-//     }
-//     for (int j = 0; j < NUM_POINTS; j++) {
+void initialize_cluster_centers(int lenSub, twtown* sub, double** cluster_centers) 
+{ 
+   int j;
 
-//         routes[cluster_assignments[j]][cnt[cluster_assignments[j]]] = j; 
-//         cnt[cluster_assignments[j]]++;
-//     } 
-//     for (int i = 0; i < NUM_POINTS; i++)
-//     { 
-//         printf("Point %d is assigned to cluster %d\n", i, cluster_assignments[i]); 
-//     } 
-//     for (int i = 0; i < NUM_CLUSTERS; i++) 
-//     {
-//         printf("ROUTE %d: [", i);
-//         for (int j = 0; j < cnt[i]; j++) 
-//         {
-//             printf("%d ", routes[i][j]);
-//         }
-//         printf("]\n");
-//     } 
-//     return 0; 
-// }
+   for (int i = 0; i < NUM_CLUSTERS; i++) 
+   { 
+      cluster_centers[i][0] = sub[i].t.x;
+      cluster_centers[i][1] = sub[i].t.y; 
+   } 
+} 
+ 
+void update_cluster_assignments(twtown* sub, int lenSub, double** distance_matrix, int* cluster_assignments, int maxCapacity) { 
+   int cap[NUM_CLUSTERS] = {0};
 
+   for (int i = 0; i < lenSub; i++) 
+   { 
+      double min_distance = distance_matrix[i][0]; 
+      int closest_cluster = 0; 
+      for (int j = 1; j < NUM_CLUSTERS; j++) 
+      { 
+         if (distance_matrix[i][j] < min_distance && cap[j] < maxCapacity) 
+         { 
+            min_distance = distance_matrix[i][j]; 
+            closest_cluster = j;
+         } 
+      }
+      
+      cap[closest_cluster] += sub[i].t.weight;
+      cluster_assignments[i] = closest_cluster; 
+   } 
+
+} 
+ 
+int update_cluster_centers(int lenSub, twtown* sub, int* cluster_assignments, double** cluster_centers, int* cnt) { 
+   int cluster_sizes[NUM_CLUSTERS] = {0}; 
+   double cluster_sum[NUM_CLUSTERS][DIMENSIONS] = {{0}};
+   double tmp_centers[NUM_CLUSTERS][DIMENSIONS] = {{0}};
+   
+   for (int i = 0; i < NUM_CLUSTERS; i++) 
+   {
+      for (int j = 0; j < DIMENSIONS; j++) 
+      { 
+         tmp_centers[i][j] = cluster_centers[i][j];
+      }
+   }
+   
+   for (int i = 0; i < lenSub; i++) 
+   { 
+      int cluster = cluster_assignments[i]; 
+      cluster_sizes[cluster]++; 
+
+      cluster_sum[cluster][0] += sub[i].t.x;
+      cluster_sum[cluster][1] += sub[i].t.y; 
+   } 
+
+   for (int i = 0; i < NUM_CLUSTERS; i++) 
+   {
+      for (int j = 0; j < DIMENSIONS; j++) 
+      { 
+         cluster_centers[i][j] = cluster_sum[i][j] / cluster_sizes[i]; 
+      }
+   } 
+
+   int stop_flag = 1;
+   for (int i = 0; i < NUM_CLUSTERS; i++) 
+   {
+      for (int j = 0; j < DIMENSIONS; j++) 
+      { 
+         if (fabs(cluster_centers[i][j] - tmp_centers[i][j]) > 0.00001)
+         {
+            stop_flag = 0;
+            break;
+         }
+      }
+      if (!stop_flag)
+      {
+         break;
+      }
+   } 
+   return stop_flag;
+} 
+ 
+void run_kmeans(twtown** routes, int lenSub, twtown* sub, double** distance_matrix, double** cluster_centers, int* cluster_assignments, int maxCapacity, twtown town0, int* cnt) 
+{  
+   initialize_cluster_centers(lenSub-1, sub, cluster_centers);
+   for (int i = 0; i < MAX_ITERATIONS; i++) 
+   { 
+      for (int j = 0; j < lenSub-1; j++) 
+      { 
+         for (int k = 0; k < NUM_CLUSTERS; k++) 
+         { 
+            distance_matrix[j][k] = euclidean_distance(sub[j], cluster_centers[k]);
+         } 
+      } 
+      
+      update_cluster_assignments(sub, lenSub-1, distance_matrix, cluster_assignments, maxCapacity);
+      
+      int stop = update_cluster_centers(lenSub-1, sub, cluster_assignments, cluster_centers, cnt);
+      if(stop)
+      {
+         break;
+      }
+   }
+   
+   for(int i = 0; i < NUM_CLUSTERS; i++)
+   {
+      cnt[i] = 0;
+   }
+   
+   for (int j = 0; j < lenSub-1; j++) 
+   {
+      routes[cluster_assignments[j]][cnt[cluster_assignments[j]]] = sub[j]; 
+      cnt[cluster_assignments[j]]++;
+   } 
+   
+   for(int i = 0; i < NUM_CLUSTERS; i++)
+   {
+      routes[i][cnt[i]] = town0;
+      cnt[i]++;
+   }
+
+} 
+ 
 void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, const double, double, double, int), char *in, int tcountTown, double maxCapacity, double T, double t_end, int shuffle_param, char *fileout, int countTowns)
 {
    FILE *out = fopen(fileout, "w"); 
@@ -338,63 +351,135 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
    td = -1;
 
    int len_temp = 0;
-   twtown *temp = (twtown *)calloc(g, sizeof(twtown));
-   twtown *other_temp = (twtown *)calloc(g, sizeof(twtown));
-   twtown *addition_other_temp = (twtown *)calloc(g, sizeof(twtown));
    int len_other_temp = 0;
 
    struct twoResults tr;
    
-   while(g > 1) 
+   double** distance_matrix = calloc(newCountTowns, sizeof(double *));
+   for (int i=0; i < newCountTowns; i++)
    {
-      if(g == newCountTowns + 1)
-      {
-         separate_array(sub, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
-      }
-      else
-      {
-         for(int i = 0; i < g; i++)
-         {
-            addition_other_temp[i] = other_temp[i];
-         }
-         separate_array(addition_other_temp, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
-      }
+      distance_matrix[i] = calloc(NUM_CLUSTERS, sizeof(double));
+   }  
+   int* cluster_assignments = calloc(newCountTowns, sizeof(int)); 
+   
+   double** cluster_centers = calloc(NUM_CLUSTERS, sizeof(double *));
+   for (int i=0; i < NUM_CLUSTERS; i++)
+   {
+      cluster_centers[i] = calloc(DIMENSIONS, sizeof(double));
+   }   
+   
+   twtown** routes = calloc(NUM_CLUSTERS, sizeof(twtown *));
+   for (int i=0; i < NUM_CLUSTERS; i++)
+   {
+      routes[i] = calloc((newCountTowns+1), sizeof(twtown));
+   }
 
-      temp[0] = town0;
-      
-      while(td == -1) 
+   int* cnt = calloc(NUM_CLUSTERS, sizeof(int));
+   
+   run_kmeans(routes, newCountTowns+1, sub, distance_matrix, cluster_centers, cluster_assignments, maxCapacity, town0, cnt);
+   
+   printf("НАЧАЛЬНЫ МАРШРУТ БЕЗ ОКОН: ");
+   for(int i = 0; i < NUM_CLUSTERS; i++)
+   {
+      printf("[");
+      for(int j = 0; j < cnt[i]; j++)
       {
-         tr = subtourdistanceTw(temp, len_temp, &m, startTime, endTime);
+         printf("%d, ", routes[i][j].t.name);
+      }
+      printf("],\n");
+   }
+
+   bool clusters_flags[NUM_CLUSTERS] = {0};
+   bool** not_return = calloc(NUM_CLUSTERS, sizeof(bool *));
+   for (int i=0; i < NUM_CLUSTERS; i++)
+   {
+      not_return[i] = calloc(countTowns, sizeof(bool));
+   }
+
+   int err_towns = 0;
+   for(int i = 0; i < NUM_CLUSTERS; i++)
+   {
+      if(clusters_flags[i] == 1)
+      {
+         continue;
+      }
+      while(td == -1)
+      {
+         if(clusters_flags[i] == 1)
+         {
+            break;
+         }
+         
+         tr = subtourdistanceTw(routes[i], cnt[i], &m, startTime, endTime);
          td = tr.localtimer;
          if(td == -1)
-         {  
-            if(len_temp == 1 && temp[len_temp - 1].t.name == 0)
+         {
+            startTime = town0.mTimeStart;
+            if(cnt[i] == 1 && routes[i][cnt[i] - 1].t.name == 0)
             {
                break;
             }
-            len_temp--;
-            other_temp[len_other_temp] = temp[len_temp];
-            len_other_temp++;
+            cnt[i]--;
+            not_return[i][routes[i][cnt[i]].t.name] = 1;
+
+            int min_distance = INT_MAX;
+            int closest_cluster = 0; 
+            for(int j = 0; j < NUM_CLUSTERS; j++)
+            {
+               int dist = euclidean_distance(routes[i][cnt[i]], cluster_centers[j]);
+               if (dist < min_distance && not_return[j][routes[i][cnt[i]].t.name] == 0) 
+               { 
+                  min_distance = dist; 
+                  closest_cluster = j;
+               }   
+            }
             
-            startTime = town0.mTimeStart;
+            if(min_distance == INT_MAX)
+            {
+               err_towns++;
+            }
+            else
+            {   
+               routes[closest_cluster][cnt[closest_cluster]] = routes[i][cnt[i]];
+               cnt[closest_cluster]++;
+               clusters_flags[closest_cluster] = 0;
+               if(closest_cluster < i)
+               {
+                  i = closest_cluster;
+               }
+            }
+
          }
-
       }
 
-      startTime += td;
-      
-      if(len_temp > 1)
-      {
-         write_cvrptw_subtour(res_distance, temp, len_temp); 
-         distanceInTourNew += tr.only_distance;
-      }
-   
+      clusters_flags[i] = 1;
+     
       td = -1;
-      g = len_other_temp + 1;
-
+   }
+   
+   for(int i = 0; i < NUM_CLUSTERS; i++)
+   {
+      startTime = town0.mTimeStart;
+      tr = subtourdistanceTw(routes[i], cnt[i], &m, startTime, endTime); 
+      printf("td: %lf\n", tr.localtimer);
+      distanceInTourNew += tr.only_distance;
+      write_cvrptw_subtour(res_distance, routes[i], cnt[i]);
    }
 
-   fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), 0.0);
+   printf("НАЧАЛЬНЫ МАРШРУТ С ОКНАМИ: ");
+   for(int i = 0; i < NUM_CLUSTERS; i++)
+   {
+      
+      printf("%d [", cnt[i]);
+      for(int j = 0; j < cnt[i]; j++)
+      {
+         printf("%d, ", routes[i][j].t.name);
+      }
+      printf("]\n");
+   }
+
+   distanceInTourBest = distanceInTourNew * 13 + (errorCounter + err_towns) * 10;
+   fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + (errorCounter + err_towns) * 10), 0.0);
    
    while(!stop)
    {
@@ -408,72 +493,110 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       distanceInTourNew = 0;
       tr.localtimer = 0;
       tr.only_distance = 0;
+      err_towns = 0;
 
       int len_temp = 0;
       int len_other_temp = 0;
 
-      while(g > 1)
-      { 
-         if(g == newCountTowns + 1)
+      doShuffleTw(newCountTowns, sub);
+      run_kmeans(routes, newCountTowns+1, sub, distance_matrix, cluster_centers, cluster_assignments, maxCapacity, town0, cnt);
+      
+      bool clusters_flags[NUM_CLUSTERS] = {0};
+      for(int i = 0; i < NUM_CLUSTERS; i++)
+      {
+         for(int j = 0; j < countTowns; j++)
          {
-            separate_array(sub, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
+            not_return[i][j] = 0;
          }
-         else
+      }
+      
+      for(int i = 0; i < NUM_CLUSTERS; i++)
+      {
+         if(clusters_flags[i] == 1)
          {
-            for(int i = 0; i < len_other_temp; i++)
+            continue;
+         }
+         
+         while(td == -1)
+         {
+            if(clusters_flags[i] == 1)
             {
-               addition_other_temp[i] = other_temp[i];
+               break;
             }
-            separate_array(addition_other_temp, g, temp, other_temp, &len_temp, &len_other_temp, maxCapacity, startTime, endTime, &m);
-         }
-         temp[0] = town0;
-
-         while(td == -1) 
-         {
-            if(len_temp > 2) 
+            startTime = town0.mTimeStart;
+            if(cnt[i] > 2) 
             {
-               tr = algfunc(temp, len_temp, &m, &startTime, endTime, T, t_end, countTowns);
+               tr = algfunc(routes[i], cnt[i], &m, &startTime, endTime, T, t_end, countTowns);
             } 
             else 
             {
-               tr = subtourdistanceTw(temp, len_temp, &m, startTime, endTime);
+               tr = subtourdistanceTw(routes[i], cnt[i], &m, startTime, endTime);
             }
             td = tr.localtimer;
             if(td == -1)
-            {  
-               len_temp--;
-               other_temp[len_other_temp] = temp[len_temp];
-               len_other_temp++;
+            {
+               if(cnt[i] == 1 && routes[i][cnt[i] - 1].t.name == 0)
+               {
+                  break;
+               }
+               cnt[i]--;
+               not_return[i][routes[i][cnt[i]].t.name] = 1;
                
-               startTime = town0.mTimeStart;
+               int min_distance = INT_MAX;
+               int closest_cluster = 0; 
+               for(int j = 0; j < NUM_CLUSTERS; j++)
+               {
+                  int dist = euclidean_distance(routes[i][cnt[i]], cluster_centers[j]);
+                  if (dist < min_distance && not_return[j][routes[i][cnt[i]].t.name] == 0) 
+                  { 
+                     min_distance = dist; 
+                     closest_cluster = j;
+                  }   
+               }
+               
+               if(min_distance == INT_MAX)
+               {
+                  err_towns++;
+               }
+               else
+               {   
+                  routes[closest_cluster][cnt[closest_cluster]] = routes[i][cnt[i]];
+                  
+                  cnt[closest_cluster]++;
+                  clusters_flags[closest_cluster] = 0;
+                  if(closest_cluster < i)
+                  {
+                     i = closest_cluster;
+                  }
+               }
+
             }
-
          }
 
-         startTime += td;
-         
-         if(len_temp > 1)
-         {
-            write_cvrptw_subtour(res_distance, temp, len_temp); 
-            distanceInTourNew += tr.only_distance;
-         }
-         
+         clusters_flags[i] = 1;
+
          td = -1;
-         g = len_other_temp + 1;
-         
+      }
+
+      for(int i = 0; i < NUM_CLUSTERS; i++)
+      {
+         startTime = town0.mTimeStart;
+         tr = subtourdistanceTw(routes[i], cnt[i], &m, startTime, endTime); 
+         distanceInTourNew += tr.only_distance;
+         write_cvrptw_subtour(res_distance, routes[i], cnt[i]);
       }
       
       if(distanceInTourBest == -1.0) 
       {
-         fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), (clock() - runtime) / CLOCKS_PER_SEC);
-         distanceInTourBest = distanceInTourNew;
+         fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + (errorCounter + err_towns) * 10), (clock() - runtime) / CLOCKS_PER_SEC);
+         distanceInTourBest = distanceInTourNew * 13 + (errorCounter + err_towns) * 10;
       } 
       
-      if(distanceInTourNew < distanceInTourBest) 
+      if(distanceInTourNew * 13 + (errorCounter + err_towns) * 10 < distanceInTourBest) 
       {
-         distanceInTourBest = distanceInTourNew;
+         distanceInTourBest = distanceInTourNew * 13 + (errorCounter + err_towns) * 10;
          write_cvrptw_end_tour(res_distance, distanceInTourBest);
-         fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + errorCounter * 10), (clock() - runtime) / CLOCKS_PER_SEC);
+         fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 13 + (errorCounter + err_towns) * 10), (clock() - runtime) / CLOCKS_PER_SEC);
       }
       else 
       {
@@ -485,25 +608,45 @@ void CVRPTW(struct twoResults (*algfunc)(twtown*, int , halfmatrix*, double*, co
       full_time += seconds;
       // 100 секунд - 50 городов
       // 200 секунд - 100 городов
-      if(full_time > 10)
+      if(full_time > 20)
       {
          stop = 1;
       }
-      // break;
-      doShuffleTw(newCountTowns, sub);
+      
    }
    /* данный параметр очень важно заново обнулять, так как он глобальный и при решении следующих задач
    будет сразу вызывать Ctrl+C*/
    stop = 0;
    double final_time = (clock() - runtime) / CLOCKS_PER_SEC;
-   fprintf(out, "%lf\t%lf\n", (distanceInTourBest * 13 + errorCounter * 10), final_time);
+   fprintf(out, "%lf\t%lf\n", (distanceInTourBest), final_time);
    printf("2Opt:%d 3Opt:%d KOpt:%d\n", two_opt, three_opt, k_opt);
    two_opt = 0;
    three_opt = 0;
    k_opt = 0;
-   printf("\nОкончательное время оптимизации: %lf \nОкончательная длина маршрута: %lf \n", final_time, (distanceInTourBest * 13 + errorCounter * 10));
+   printf("\nОкончательное время оптимизации: %lf \nОкончательная длина маршрута: %lf \n", final_time, (distanceInTourBest));
    
    fputc('\n', out);
+   printf("FINISHHHH\n");
+   for (int i=0; i < newCountTowns; i++)
+   {
+      free(distance_matrix[i]);
+   }
+   free(distance_matrix);
+
+   for (int i=0; i < NUM_CLUSTERS; i++)
+   {
+      free(cluster_centers[i]);
+   }
+   free(cluster_centers);
+
+   free(cluster_assignments);
+   for (int i=0; i < NUM_CLUSTERS; i++)
+   {
+      free(routes[i]);
+   }
+
+   free(routes);
+   free(cnt);
    free(sub);
    free(towns);
    fclose(out);
